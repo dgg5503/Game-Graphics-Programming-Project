@@ -20,7 +20,7 @@ Texture2D::Texture2D(const wchar_t * filePath,
 		0, // we dont need the texture ref itself
 		&srv
 	) != S_OK)
-		fprintf(stderr, "[Texture2D] Failed to load texture %s\n", filePath);
+		fprintf(stderr, "[Texture2D] Failed to load texture %ls\n", filePath);
 }
 
 // --------------------------------------------------------
