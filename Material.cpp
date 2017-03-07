@@ -28,9 +28,13 @@ Material::~Material()
 {
 }
 
-//
-void Material::PrepareMaterial(SimpleVertexShader * const vShader, SimplePixelShader * const pShader)
+// --------------------------------------------------------
+// Call this from the renderer such that textures and other
+// relevant material specific information is set.
+// --------------------------------------------------------
+void Material::PrepareMaterial()
 {
+	// This should only be called by the renderer...
 	pixelShader->SetShaderResourceView("albedo", texture2D->GetSRV());
 	pixelShader->SetSamplerState("albedoSampler", texture2D->GetSamplerState());
 }

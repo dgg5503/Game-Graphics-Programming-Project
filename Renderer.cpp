@@ -5,25 +5,28 @@ Renderer* Renderer::instance = nullptr;
 
 Renderer::Renderer()
 {
-	// Initialize renderer stuff here
-	// start with 16 buckets for the renderer.
-	//renderBatches.reserve(16);
+	// Set initial number of buckets and stuff
+	renderBatches.rehash(16);
+	renderBatches.reserve(16);
 
-	// Init directional light
+	// Init lights
+	// Make sure to change the MAX_LIGHT defines in ShaderConstants.h if you
+	// want more lights!
 	ambientColor = DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 	directionalLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	directionalLights[0].Direction = DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f);
-	directionalLights[0].Intensity = .5f;
+	directionalLights[0].Intensity = 0.0f;
 
 	pointLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	pointLights[0].Position = DirectX::XMFLOAT3(0, 0, 0);
-	pointLights[0].Intensity = .3f;
+	pointLights[0].Intensity = 1.0f;
 
 	spotLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	spotLights[0].Position = DirectX::XMFLOAT3(-2.0f, 2.0f, 0.0f);
 	spotLights[0].Direction = DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f);
 	spotLights[0].Angle = DirectX::XMScalarCos(XM_PIDIV4);
-	spotLights[0].Intensity = 2.0f;
+	spotLights[0].Intensity = 5.0f;
+
 	/*
 	directionalLight[1].DiffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	directionalLight[1].Direction = DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f);
@@ -70,8 +73,26 @@ void Renderer::Shutdown()
 void Renderer::StageEntity(Entity * const entity)
 {
 	// add to unordered multimap
-	// TODO: Implement a callback for when a material is changed?
 	renderBatches.insert(std::make_pair(entity->GetMaterial()->GetID(), entity));
+}
+
+void Renderer::UnstageEntity(Entity * const entity)
+{
+	// grab bin
+	auto bucket = renderBatches.equal_range(entity->GetMaterial()->GetID());
+	auto iterator = bucket.first;
+
+	// loop until we find the entity and remove
+	// WARNING: ENTITY POINTER SHOULD NEVER EVER CHANGE SINCE THE START OF
+	// THE PROGRAM. DO NOT MOVE THE POINTER!
+	for (; iterator != bucket.second; iterator++)
+	{
+		if (iterator->second == entity)
+		{
+			renderBatches.erase(iterator);
+			break;
+		}
+	}
 }
 
 void Renderer::Render(ID3D11DeviceContext* const context, const Camera * const camera)
@@ -125,7 +146,7 @@ void Renderer::Render(ID3D11DeviceContext* const context, const Camera * const c
 		pixelShader->SetFloat4("AmbientColor", ambientColor);
 
 		// -- Set material specific information --
-		currMaterial->PrepareMaterial(vertexShader, pixelShader);
+		currMaterial->PrepareMaterial();
 
 		// -- Copy pixel data --
 		pixelShader->CopyAllBufferData();

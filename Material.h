@@ -15,8 +15,9 @@ public:
 	~Material();
 
 	// Set vertex/pixel shader information
-	void PrepareMaterial(SimpleVertexShader* const vShader,
-		SimplePixelShader* const pShader);
+	//void PrepareMaterial(SimpleVertexShader* const vShader,
+	//	SimplePixelShader* const pShader);
+	void PrepareMaterial();
 
 	// Getters for shader types
 	SimpleVertexShader* const GetVertexShader() const;

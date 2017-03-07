@@ -3,13 +3,14 @@
 #include <DirectXMath.h>
 #include <assert.h>
 #include <unordered_map>
-#include <vector>
 #include "Material.h"
 #include "Camera.h"
 #include "Mesh.h"
-#include "Entity.h"
 #include "Lights.h"
 #include "ShaderConstants.h"
+#include "Entity.h"
+
+class Entity; // forward declaration to fix cyclic dep
 
 class Renderer
 {
@@ -22,6 +23,7 @@ public:
 
 	// Renderer functions
 	void StageEntity(Entity* const entity);
+	void UnstageEntity(Entity * const entity);
 	void Render(ID3D11DeviceContext* const context, const Camera * const camera);
 
 private:

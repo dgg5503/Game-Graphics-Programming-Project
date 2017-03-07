@@ -1,8 +1,10 @@
 #pragma once
-
 #include "Mesh.h"
 #include "Material.h"
 #include "Transform.h"
+#include "Renderer.h"
+
+class Renderer; // forward declaration to fix cyclic dep
 
 class Entity
 {
@@ -20,6 +22,7 @@ public:
 
 	// Getters and setters
 	void SetMesh(Mesh* mesh);
+	void SetMaterial(Material* material);
 	Mesh * const GetMesh() const;
 	Material * const GetMaterial() const;
 

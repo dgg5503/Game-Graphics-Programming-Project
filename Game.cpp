@@ -51,7 +51,7 @@ Game::~Game()
 {
 	// Free all entities
 	for (auto it = entities.begin(); it != entities.end(); it++)
-		delete (*it);
+		delete it->second;
 
 	// Free all meshes
 	for (auto it = meshes.begin(); it != meshes.end(); it++)
@@ -195,21 +195,21 @@ void Game::CreateBasicGeometry()
 void Game::CreateEntities()
 {
 	// Add a new test entity
-	entities.push_back(new TestEntity(meshes["cube"], materials["brick"]));
-	entities.push_back(new TestEntity(meshes["helix"], materials["stone"]));
-	entities.push_back(new TestEntity(meshes["torus"], materials["sand"]));
-	entities.push_back(new TestEntity(meshes["sphere"], materials["brick"]));
-	entities.push_back(new TestEntity(meshes["cylinder"], materials["stone"]));
-	entities.push_back(new TestEntity(meshes["sphere"], materials["sand"]));
+	entities["bob"] = new TestEntity(meshes["cube"], materials["brick"]);
+	entities["coolGuy"] = new TestEntity(meshes["helix"], materials["stone"]);
+	entities["torry"] = new TestEntity(meshes["torus"], materials["sand"]);
+	entities["sophie"] = new TestEntity(meshes["sphere"], materials["brick"]);
+	entities["cynthia"] = new TestEntity(meshes["cylinder"], materials["stone"]);
+	entities["sphur"] = new TestEntity(meshes["sphere"], materials["sand"]);
 
 	// Stage all entities for rendering
 	for (auto it = entities.begin(); it != entities.end(); it++)
-		renderer->StageEntity((*it));
+		renderer->StageEntity(it->second);
 
 	// rotate to see if spot light functions?
-	entities[4]->transform.SetRotation(0.0f, 0.0f, 1.0f, XM_PIDIV4);
-	entities[4]->transform.SetPosition(-1.5, 1.5, 0.0f);
-	entities[5]->transform.SetScale(0.5f, 2.0f, 3.0f);
+	entities["cynthia"]->transform.SetRotation(0.0f, 0.0f, 1.0f, XM_PIDIV4);
+	entities["cynthia"]->transform.SetPosition(-1.5, 1.5, 0.0f);
+	entities["sphur"]->transform.SetScale(0.5f, 2.0f, 3.0f);
 }
 
 
@@ -235,6 +235,12 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
 
+	// Material change test
+	if (GetAsyncKeyState('T') & 0x8000)
+	{
+		entities["torry"]->SetMaterial(materials["brick"]);
+	}
+
 	// set cursor to center of screen
 	SetCursorPos(windowLocation.x + width / 2, windowLocation.y + height / 2);
 
@@ -248,18 +254,18 @@ void Game::Update(float deltaTime, float totalTime)
 	*/
 
 	// Performing individual update here to demonstrate moving entities
-	entities[0]->transform.SetPosition(XMScalarCos(totalTime), XMScalarSin(totalTime), 0.0f);
-	entities[1]->transform.SetScale((XMScalarSin(totalTime) + 1) / 2, (XMScalarSin(totalTime) + 1) / 2, (XMScalarSin(totalTime) + 1) / 2);
-	entities[2]->transform.SetRotation(0.0f, 0.0f, 1.0f, (XMScalarSin(totalTime) + 1) * XM_PI);
-	entities[3]->transform.SetPosition(3 * XMScalarCos(totalTime), 0.0f, 3 * XMScalarSin(totalTime));
+	entities["bob"]->transform.SetPosition(XMScalarCos(totalTime), XMScalarSin(totalTime), 0.0f);
+	entities["coolGuy"]->transform.SetScale((XMScalarSin(totalTime) + 1) / 2, (XMScalarSin(totalTime) + 1) / 2, (XMScalarSin(totalTime) + 1) / 2);
+	entities["torry"]->transform.SetRotation(0.0f, 0.0f, 1.0f, (XMScalarSin(totalTime) + 1) * XM_PI);
+	entities["sophie"]->transform.SetPosition(3 * XMScalarCos(totalTime), 0.0f, 3 * XMScalarSin(totalTime));
 	
 	// ITS SPHERICAL!
 	// (spherical coordinates)
-	entities[5]->transform.SetPosition(
+	entities["sphur"]->transform.SetPosition(
 		3 * XMScalarSin(totalTime) * XMScalarCos(totalTime),
 		3 * XMScalarCos(totalTime),
 		3 * XMScalarSin(totalTime) * XMScalarSin(totalTime));
-	entities[5]->transform.SetRotation(XMScalarCos(totalTime),
+	entities["sphur"]->transform.SetRotation(XMScalarCos(totalTime),
 		XMScalarSin(totalTime),
 		1.0f,
 		(XMScalarSin(totalTime / 1000) + 1) * XM_PI);
@@ -271,7 +277,7 @@ void Game::Update(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
-	const float color[4] = {0.4f, 0.6f, 0.75f, 0.0f};
+	const float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
@@ -338,7 +344,6 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 	// up/down = rotate on Y about Z
 	debugCamera->RotateBy(static_cast<float>(x - (width / 2.0f)) / 1000.0f,
 		static_cast<float>(y - (height / 2.0f)) / 1000.0f);
-
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

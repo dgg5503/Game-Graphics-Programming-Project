@@ -60,6 +60,26 @@ void Entity::SetMesh(Mesh* mesh)
 	this->mesh = mesh;
 }
 
+
+// --------------------------------------------------------
+// Set the current material of this entity
+//
+// material - pointer to material
+// --------------------------------------------------------
+void Entity::SetMaterial(Material* material)
+{
+	// Bad design, fix in the future...
+
+	// Remove self from renderer current bin
+	Renderer::Instance()->UnstageEntity(this);
+
+	// Set new material
+	this->material = material;
+
+	// Restage to new location
+	Renderer::Instance()->StageEntity(this);
+}
+
 // --------------------------------------------------------
 // Get a constant pointer to this entities current mesh
 // --------------------------------------------------------
