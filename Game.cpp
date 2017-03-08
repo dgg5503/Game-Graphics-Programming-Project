@@ -311,7 +311,10 @@ void Game::Draw(float deltaTime, float totalTime)
 	renderer->Render(context, activeCamera);
 
 	// Render UI
-	//uiRenderer->Render();
+	uiRenderer->Render();
+
+	// Fixes depth buffer issue
+	context->OMSetDepthStencilState(nullptr, 0);
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
