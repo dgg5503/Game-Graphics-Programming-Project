@@ -5,6 +5,8 @@
 #include "Mesh.h"
 #include "Entity.h"
 #include "Camera.h"
+#include "CameraDebug.h"
+#include "CameraGame.h"
 #include "Renderer.h"
 #include "TestEntity.h"
 #include <DirectXMath.h>
@@ -54,7 +56,9 @@ private:
 	std::unordered_map<const char*, Material*> materials;
 	std::unordered_map<const char*, Entity*> entities;
 
-	// Debug camera
+	// Cameras
+	Camera* activeCamera;
+	Camera* gameCamera;
 	Camera* debugCamera;
 
 	// Wrappers for DirectX shaders to provide simplified functionality

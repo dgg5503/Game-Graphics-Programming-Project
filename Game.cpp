@@ -68,8 +68,9 @@ Game::~Game()
 	// Free sampler state which is being used for all textures
 	sampler->Release();
 
-	// Clean up debug camera
+	// Clean up cameras
 	delete debugCamera;
+	delete gameCamera;
 
 	// Delete our simple shader objects, which
 	// will clean up their own internal DirectX stuff
@@ -87,8 +88,13 @@ Game::~Game()
 void Game::Init()
 {
 	// Create debug camera
-	debugCamera = new Camera();
+	debugCamera = new CameraDebug();
 	debugCamera->transform.Move(0, 0, -3.0f);
+
+	gameCamera = new CameraGame();
+	gameCamera->transform.Move(0, 0, -100.0f);
+
+	activeCamera = gameCamera;
 
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
@@ -142,6 +148,7 @@ void Game::CreateMatrices()
 {
 	// Setup projection matrix
 	debugCamera->UpdateProjectionMatrix((float)width / height);
+	gameCamera->UpdateProjectionMatrix((float)width / height);
 }
 
 
@@ -240,12 +247,20 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		entities["torry"]->SetMaterial(materials["brick"]);
 	}
+	if (GetAsyncKeyState('1') & 0x8000)
+	{
+		activeCamera = gameCamera;
+	}
+	if (GetAsyncKeyState('2') & 0x8000)
+	{
+		activeCamera = debugCamera;
+	}
 
 	// set cursor to center of screen
 	SetCursorPos(windowLocation.x + width / 2, windowLocation.y + height / 2);
 
 	// Update camera
-	debugCamera->Update(deltaTime, totalTime);
+	activeCamera->Update(deltaTime, totalTime);
 
 	// Update all entities
 	/*
@@ -290,7 +305,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		0);
 
 	// Render to debug camera
-	renderer->Render(context, debugCamera);
+	renderer->Render(context, activeCamera);
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
@@ -339,11 +354,14 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 // --------------------------------------------------------
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
-	// Add any custom code here...
-	// left/right = rotate on X about Y
-	// up/down = rotate on Y about Z
-	debugCamera->RotateBy(static_cast<float>(x - (width / 2.0f)) / 1000.0f,
-		static_cast<float>(y - (height / 2.0f)) / 1000.0f);
+	// If the debug camera is active.
+	if (activeCamera == debugCamera)
+	{
+		// left/right = rotate on X about Y
+		// up/down = rotate on Y about Z
+		debugCamera->RotateBy(static_cast<float>(x - (width / 2.0f)) / 1000.0f,
+			static_cast<float>(y - (height / 2.0f)) / 1000.0f);
+	}
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
