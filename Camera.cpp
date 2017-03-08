@@ -29,20 +29,6 @@ Camera::~Camera()
 // --------------------------------------------------------
 void Camera::Update(float deltaTime, float totalTime)
 {
-	// Move this camera around
-	// WARNING: Will apply to ALL cameras!
-	if (GetAsyncKeyState('W') & 0x8000)
-		transform.MoveForward(0.0f, 0.0f, 2.0f * deltaTime);
-	if (GetAsyncKeyState('S') & 0x8000)
-		transform.MoveForward(0.0f, 0.0f, -2.0f * deltaTime);
-	if (GetAsyncKeyState('D') & 0x8000)
-		transform.MoveForward(2.0f * deltaTime, 0.0f, 0.0f);
-	if (GetAsyncKeyState('A') & 0x8000)
-		transform.MoveForward(-2.0f * deltaTime, 0.0f, 0.0f);
-	if (GetAsyncKeyState(' ') & 0x8000)
-		transform.Move(0.0f, 2.0f * deltaTime, 0.0f);
-	if (GetAsyncKeyState('X') & 0x8000)
-		transform.Move(0.0f, -2.0f * deltaTime, 0.0f);
 
 	/*
 	We want this to ONLY UPDATE when:

@@ -3,13 +3,17 @@
 #include "DXCore.h"
 #include "SimpleShader.h"
 #include "Mesh.h"
-#include "Entity.h"
 #include "Camera.h"
+#include "CameraDebug.h"
+#include "CameraGame.h"
 #include "Renderer.h"
 #include "TestEntity.h"
 #include <DirectXMath.h>
 #include <vector>
 #include <map>
+// Entities
+#include "Entity.h"
+#include "EntityPlayer.h"
 
 class Game 
 	: public DXCore
@@ -51,7 +55,9 @@ private:
 	std::unordered_map<const char*, Material*> materials;
 	std::unordered_map<const char*, Entity*> entities;
 
-	// Debug camera
+	// Cameras
+	Camera* activeCamera;
+	Camera* gameCamera;
 	Camera* debugCamera;
 
 	// Wrappers for DirectX shaders to provide simplified functionality

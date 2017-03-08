@@ -69,8 +69,9 @@ Game::~Game()
 	// Free sampler state which is being used for all textures
 	sampler->Release();
 
-	// Clean up debug camera
+	// Clean up cameras
 	delete debugCamera;
+	delete gameCamera;
 
 	// Delete our simple shader objects, which
 	// will clean up their own internal DirectX stuff
@@ -88,8 +89,13 @@ Game::~Game()
 void Game::Init()
 {
 	// Create debug camera
-	debugCamera = new Camera();
+	debugCamera = new CameraDebug();
 	debugCamera->transform.Move(0, 0, -3.0f);
+
+	gameCamera = new CameraGame();
+	gameCamera->transform.Move(0, 0, -100.0f);
+
+	activeCamera = gameCamera;
 
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
@@ -147,6 +153,7 @@ void Game::CreateMatrices()
 {
 	// Setup projection matrix
 	debugCamera->UpdateProjectionMatrix((float)width / height);
+	gameCamera->UpdateProjectionMatrix((float)width / height);
 }
 
 
@@ -199,22 +206,21 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::CreateEntities()
 {
-	// Add a new test entity
-	entities["bob"] = new TestEntity(meshes["cube"], materials["brick"]);
-	entities["coolGuy"] = new TestEntity(meshes["helix"], materials["stone"]);
-	entities["torry"] = new TestEntity(meshes["torus"], materials["sand"]);
-	entities["sophie"] = new TestEntity(meshes["sphere"], materials["brick"]);
-	entities["cynthia"] = new TestEntity(meshes["cylinder"], materials["stone"]);
-	entities["sphur"] = new TestEntity(meshes["sphere"], materials["sand"]);
+	// Player entity
+	EntityPlayer* player;
+	entities["player"] = player = new EntityPlayer(meshes["sphere"], materials["stone"]);
+	player->SetSpeed(2.0f);
+	player->transform.SetPosition(0, 0, 0.0f);
+	player->transform.SetScale(0.25f, 0.25f, 0.25f);
+
+	// Background entity
+	Entity* background = entities["background"] = new TestEntity(meshes["cube"], materials["brick"]);
+	background->transform.SetPosition(0, 0, 5.0f);
+	background->transform.SetScale(8.0f, 5.0f, 1.0f);
 
 	// Stage all entities for rendering
 	for (auto it = entities.begin(); it != entities.end(); it++)
 		renderer->StageEntity(it->second);
-
-	// rotate to see if spot light functions?
-	entities["cynthia"]->transform.SetRotation(0.0f, 0.0f, 1.0f, XM_PIDIV4);
-	entities["cynthia"]->transform.SetPosition(-1.5, 1.5, 0.0f);
-	entities["sphur"]->transform.SetScale(0.5f, 2.0f, 3.0f);
 }
 
 
@@ -245,12 +251,20 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		entities["torry"]->SetMaterial(materials["brick"]);
 	}
+	if (GetAsyncKeyState('1') & 0x8000)
+	{
+		activeCamera = gameCamera;
+	}
+	if (GetAsyncKeyState('2') & 0x8000)
+	{
+		activeCamera = debugCamera;
+	}
 
 	// set cursor to center of screen
 	SetCursorPos(windowLocation.x + width / 2, windowLocation.y + height / 2);
 
 	// Update camera
-	debugCamera->Update(deltaTime, totalTime);
+	activeCamera->Update(deltaTime, totalTime);
 
 	// Update all entities
 	/*
@@ -258,22 +272,7 @@ void Game::Update(float deltaTime, float totalTime)
 		entities[i]->Update(deltaTime, totalTime);
 	*/
 
-	// Performing individual update here to demonstrate moving entities
-	entities["bob"]->transform.SetPosition(XMScalarCos(totalTime), XMScalarSin(totalTime), 0.0f);
-	entities["coolGuy"]->transform.SetScale((XMScalarSin(totalTime) + 1) / 2, (XMScalarSin(totalTime) + 1) / 2, (XMScalarSin(totalTime) + 1) / 2);
-	entities["torry"]->transform.SetRotation(0.0f, 0.0f, 1.0f, (XMScalarSin(totalTime) + 1) * XM_PI);
-	entities["sophie"]->transform.SetPosition(3 * XMScalarCos(totalTime), 0.0f, 3 * XMScalarSin(totalTime));
-	
-	// ITS SPHERICAL!
-	// (spherical coordinates)
-	entities["sphur"]->transform.SetPosition(
-		3 * XMScalarSin(totalTime) * XMScalarCos(totalTime),
-		3 * XMScalarCos(totalTime),
-		3 * XMScalarSin(totalTime) * XMScalarSin(totalTime));
-	entities["sphur"]->transform.SetRotation(XMScalarCos(totalTime),
-		XMScalarSin(totalTime),
-		1.0f,
-		(XMScalarSin(totalTime / 1000) + 1) * XM_PI);
+	entities["player"]->Update(deltaTime, totalTime);
 }
 
 // --------------------------------------------------------
@@ -295,7 +294,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		0);
 
 	// Render to debug camera
-	renderer->Render(context, debugCamera);
+	renderer->Render(context, activeCamera);
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
@@ -344,11 +343,14 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 // --------------------------------------------------------
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
-	// Add any custom code here...
-	// left/right = rotate on X about Y
-	// up/down = rotate on Y about Z
-	debugCamera->RotateBy(static_cast<float>(x - (width / 2.0f)) / 1000.0f,
-		static_cast<float>(y - (height / 2.0f)) / 1000.0f);
+	// If the debug camera is active.
+	if (activeCamera == debugCamera)
+	{
+		// left/right = rotate on X about Y
+		// up/down = rotate on Y about Z
+		debugCamera->RotateBy(static_cast<float>(x - (width / 2.0f)) / 1000.0f,
+			static_cast<float>(y - (height / 2.0f)) / 1000.0f);
+	}
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

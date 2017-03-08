@@ -11,10 +11,10 @@ public:
 	~Camera();
 	
 	// Update this camera
-	void Update(float deltaTime, float totalTime);
+	virtual void Update(float deltaTime, float totalTime);
 
 	// Update projection matrix when ever aspect ratio wants to be changed
-	void UpdateProjectionMatrix(float aspectRatio);
+	virtual void UpdateProjectionMatrix(float aspectRatio);
 
 	// ROtate this camera by some amount on x and y
 	void RotateBy(float dx, float dy);
@@ -27,7 +27,7 @@ public:
 	// Also contains right, forward, up vector information
 	Transform transform;
 
-private:
+protected:
 	// Calculate the view matrix of this camera
 	void CalculateViewMatrix();
 

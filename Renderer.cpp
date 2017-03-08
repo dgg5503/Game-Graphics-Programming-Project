@@ -14,8 +14,8 @@ Renderer::Renderer()
 	// want more lights!
 	ambientColor = DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 	directionalLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	directionalLights[0].Direction = DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f);
-	directionalLights[0].Intensity = 0.0f;
+	directionalLights[0].Direction = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	directionalLights[0].Intensity = 1.0f;
 
 	pointLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	pointLights[0].Position = DirectX::XMFLOAT3(0, 0, 0);
