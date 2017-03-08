@@ -45,9 +45,6 @@ private:
 	// Renderer
 	Renderer* renderer;
 
-	// Array of entities
-	//std::vector<Entity*> entities;
-
 	// Maps of stuff by string
 	std::unordered_map<const char*, Mesh*> meshes;
 	std::unordered_map<const char*, Texture2D*> textures;
@@ -59,6 +56,7 @@ private:
 
 	// Wrappers for DirectX shaders to provide simplified functionality
 	SimpleVertexShader* vertexShader;
+	SimplePixelShader* pixelShader_specular;
 	SimplePixelShader* pixelShader;
 
 	// Keeps track of the old mouse position.  Useful for 

@@ -24,6 +24,7 @@ Game::Game(HINSTANCE hInstance)
 	// Initialize fields
 	vertexShader = 0;
 	pixelShader = 0;
+	pixelShader_specular = 0;
 
 	// Initialize renderer singleton
 	renderer = Renderer::Initialize();
@@ -119,6 +120,10 @@ void Game::LoadShaders()
 	pixelShader = new SimplePixelShader(device, context);
 	if(!pixelShader->LoadShaderFile(L"Debug/PixelShader.cso"))	
 		pixelShader->LoadShaderFile(L"PixelShader.cso");
+
+	pixelShader_specular = new SimplePixelShader(device, context);
+	if (!pixelShader_specular->LoadShaderFile(L"Debug/PixelShader_Specular.cso"))
+		pixelShader_specular->LoadShaderFile(L"PixelShader_Specular.cso");
 
 	// You'll notice that the code above attempts to load each
 	// compiled shader file (.cso) from two different relative paths.

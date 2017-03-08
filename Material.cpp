@@ -35,8 +35,13 @@ Material::~Material()
 void Material::PrepareMaterial()
 {
 	// This should only be called by the renderer...
+	// Set up texture specific information
 	pixelShader->SetShaderResourceView("albedo", texture2D->GetSRV());
 	pixelShader->SetSamplerState("albedoSampler", texture2D->GetSamplerState());
+
+	// Set up additional shader information (if provided)
+	// IF I WERE A SPECULAR_MATERIAL
+	// SEND UP CAMERA LOCATION
 }
 
 // --------------------------------------------------------

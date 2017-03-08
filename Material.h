@@ -3,7 +3,6 @@
 #include "SimpleShader.h"
 #include "Texture2D.h"
 
-
 class Material
 {
 public:

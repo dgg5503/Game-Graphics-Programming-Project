@@ -166,12 +166,11 @@ void Renderer::Render(ID3D11DeviceContext* const context, const Camera * const c
 			currEntity = bucketIt->second;
 
 			// -- Set entity specific info --
+			// below exist for every entity.
 			vertexShader->SetMatrix4x4("world",
 				currEntity->transform.GetWorldMatrix());
 			vertexShader->SetMatrix4x4("inverseTransposeWorld",
 				currEntity->transform.GetInverseTransposeWorldMatrix());
-
-			//bucketIt->second->PrepareMaterial(vertexShader);
 
 			// -- Copy vertex data --
 			vertexShader->CopyAllBufferData();

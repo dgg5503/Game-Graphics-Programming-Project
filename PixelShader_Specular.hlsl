@@ -83,8 +83,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 		// Negated late for non-negative dotproduct result coming up
 		dir = normalize(directionalLights[i].Direction);
 
-		// calc halfway between light to obj and eye to obj
-		//halfway = normalize(dir + (input.worldPos - CameraLocation));
+		// calc halfway between light to obj and eye to obj and spec amt
+		halfway = normalize(dir + (input.worldPos - CameraLocation));
+		specAmt = pow(saturate(dot(input.normal, halfway)), SpecularPower);
 
 		// Calculate how much light is hitting our surface
 		// N dot L, normal of surface dot with direction to light from obj
@@ -95,6 +96,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 		//return directionalLight[i].DiffuseColor * lightAmt;
 		totalLight += directionalLights[i].DiffuseColor *
 			directionalLights[i].Intensity *
+			specAmt *
 			lightAmt;
 	}
 
@@ -104,12 +106,17 @@ float4 main(VertexToPixel input) : SV_TARGET
 		// dir from object to light
 		dir = normalize(pointLights[i].Position - input.worldPos);
 
+		// calc halfway between light to obj and eye to obj and spec amt
+		halfway = normalize(dir + (input.worldPos - CameraLocation));
+		specAmt = pow(saturate(dot(input.normal, halfway)), SpecularPower);
+
 		// normal dot light direction
 		lightAmt = saturate(dot(input.normal, dir));
 
 		// add on
 		totalLight += pointLights[i].DiffuseColor *
 			pointLights[i].Intensity *
+			specAmt *
 			lightAmt;
 	}
 
@@ -118,6 +125,10 @@ float4 main(VertexToPixel input) : SV_TARGET
 	{
 		// dir from object to light
 		dir = normalize(spotLights[i].Position - input.worldPos);
+
+		// calc halfway between light to obj and eye to obj and spec amt
+		halfway = normalize(dir + (input.worldPos - CameraLocation));
+		specAmt = pow(saturate(dot(input.normal, halfway)), SpecularPower);
 
 		// normal dot light direction subtract from angle
 		// only accept light from the spotlights direction
@@ -131,6 +142,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 		//	pow(lightAmt, spotLights[i].Intensity);
 		totalLight += spotLights[i].DiffuseColor *
 			spotLights[i].Intensity *
+			specAmt *
 			lightAmt;
 	}
 
