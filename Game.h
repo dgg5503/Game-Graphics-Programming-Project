@@ -3,7 +3,6 @@
 #include "DXCore.h"
 #include "SimpleShader.h"
 #include "Mesh.h"
-#include "Entity.h"
 #include "Camera.h"
 #include "CameraDebug.h"
 #include "CameraGame.h"
@@ -12,6 +11,9 @@
 #include <DirectXMath.h>
 #include <vector>
 #include <map>
+// Entities
+#include "Entity.h"
+#include "EntityPlayer.h"
 
 class Game 
 	: public DXCore

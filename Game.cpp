@@ -201,22 +201,21 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::CreateEntities()
 {
-	// Add a new test entity
-	entities["bob"] = new TestEntity(meshes["cube"], materials["brick"]);
-	entities["coolGuy"] = new TestEntity(meshes["helix"], materials["stone"]);
-	entities["torry"] = new TestEntity(meshes["torus"], materials["sand"]);
-	entities["sophie"] = new TestEntity(meshes["sphere"], materials["brick"]);
-	entities["cynthia"] = new TestEntity(meshes["cylinder"], materials["stone"]);
-	entities["sphur"] = new TestEntity(meshes["sphere"], materials["sand"]);
+	// Player entity
+	EntityPlayer* player;
+	entities["player"] = player = new EntityPlayer(meshes["sphere"], materials["stone"]);
+	player->SetSpeed(2.0f);
+	player->transform.SetPosition(0, 0, 0.0f);
+	player->transform.SetScale(0.25f, 0.25f, 0.25f);
+
+	// Background entity
+	Entity* background = entities["background"] = new TestEntity(meshes["cube"], materials["brick"]);
+	background->transform.SetPosition(0, 0, 5.0f);
+	background->transform.SetScale(8.0f, 5.0f, 1.0f);
 
 	// Stage all entities for rendering
 	for (auto it = entities.begin(); it != entities.end(); it++)
 		renderer->StageEntity(it->second);
-
-	// rotate to see if spot light functions?
-	entities["cynthia"]->transform.SetRotation(0.0f, 0.0f, 1.0f, XM_PIDIV4);
-	entities["cynthia"]->transform.SetPosition(-1.5, 1.5, 0.0f);
-	entities["sphur"]->transform.SetScale(0.5f, 2.0f, 3.0f);
 }
 
 
@@ -268,22 +267,7 @@ void Game::Update(float deltaTime, float totalTime)
 		entities[i]->Update(deltaTime, totalTime);
 	*/
 
-	// Performing individual update here to demonstrate moving entities
-	entities["bob"]->transform.SetPosition(XMScalarCos(totalTime), XMScalarSin(totalTime), 0.0f);
-	entities["coolGuy"]->transform.SetScale((XMScalarSin(totalTime) + 1) / 2, (XMScalarSin(totalTime) + 1) / 2, (XMScalarSin(totalTime) + 1) / 2);
-	entities["torry"]->transform.SetRotation(0.0f, 0.0f, 1.0f, (XMScalarSin(totalTime) + 1) * XM_PI);
-	entities["sophie"]->transform.SetPosition(3 * XMScalarCos(totalTime), 0.0f, 3 * XMScalarSin(totalTime));
-	
-	// ITS SPHERICAL!
-	// (spherical coordinates)
-	entities["sphur"]->transform.SetPosition(
-		3 * XMScalarSin(totalTime) * XMScalarCos(totalTime),
-		3 * XMScalarCos(totalTime),
-		3 * XMScalarSin(totalTime) * XMScalarSin(totalTime));
-	entities["sphur"]->transform.SetRotation(XMScalarCos(totalTime),
-		XMScalarSin(totalTime),
-		1.0f,
-		(XMScalarSin(totalTime / 1000) + 1) * XM_PI);
+	entities["player"]->Update(deltaTime, totalTime);
 }
 
 // --------------------------------------------------------
