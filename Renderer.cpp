@@ -25,7 +25,7 @@ Renderer::Renderer()
 	spotLights[0].Position = DirectX::XMFLOAT3(-2.0f, 2.0f, 0.0f);
 	spotLights[0].Direction = DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f);
 	spotLights[0].Angle = DirectX::XMScalarCos(XM_PIDIV4);
-	spotLights[0].Intensity = 5.0f;
+	spotLights[0].Intensity = 1.0f;
 
 	/*
 	directionalLight[1].DiffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
@@ -37,7 +37,6 @@ Renderer::Renderer()
 Renderer::~Renderer()
 {
 }
-
 
 
 Renderer* const Renderer::Initialize()

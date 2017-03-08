@@ -1,19 +1,27 @@
 #pragma once
 
-#include "DXCore.h"
-#include "SimpleShader.h"
-#include "Mesh.h"
-#include "Camera.h"
-#include "CameraDebug.h"
-#include "CameraGame.h"
-#include "Renderer.h"
-#include "TestEntity.h"
+// STL n' stuff
 #include <DirectXMath.h>
 #include <vector>
 #include <map>
+#include "DXCore.h"
+#include "SimpleShader.h"
+#include "Mesh.h"
+
+// Camera
+#include "Camera.h"
+#include "CameraDebug.h"
+#include "CameraGame.h"
+
+// Rendering
+#include "Renderer.h"
+#include "UIRenderer.h"
+#include "UIGamePanel.h"
+
 // Entities
 #include "Entity.h"
 #include "EntityPlayer.h"
+#include "TestEntity.h"
 
 class Game 
 	: public DXCore
@@ -46,14 +54,16 @@ private:
 	// Texture stuff
 	ID3D11SamplerState* sampler;
 
-	// Renderer
+	// Renderers
 	Renderer* renderer;
+	UIRenderer* uiRenderer;
 
 	// Maps of stuff by string
 	std::unordered_map<const char*, Mesh*> meshes;
 	std::unordered_map<const char*, Texture2D*> textures;
 	std::unordered_map<const char*, Material*> materials;
 	std::unordered_map<const char*, Entity*> entities;
+	std::unordered_map<const char*, UIPanel*> uiPanels;
 
 	// Cameras
 	Camera* activeCamera;
@@ -64,6 +74,8 @@ private:
 	SimpleVertexShader* vertexShader;
 	SimplePixelShader* pixelShader_specular;
 	SimplePixelShader* pixelShader;
+
+	
 
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.

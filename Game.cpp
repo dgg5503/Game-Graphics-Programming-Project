@@ -28,6 +28,7 @@ Game::Game(HINSTANCE hInstance)
 
 	// Initialize renderer singleton
 	renderer = Renderer::Initialize();
+	uiRenderer = new UIRenderer();
 
 	// Initialize starting mouse location to center of screen
 	prevMousePos.x = width / 2;
@@ -66,6 +67,10 @@ Game::~Game()
 	for (auto it = materials.begin(); it != materials.end(); it++)
 		delete it->second;
 
+	// Free all UI panels
+	for (auto it = uiPanels.begin(); it != uiPanels.end(); it++)
+		delete it->second;
+
 	// Free sampler state which is being used for all textures
 	sampler->Release();
 
@@ -77,9 +82,11 @@ Game::~Game()
 	// will clean up their own internal DirectX stuff
 	delete vertexShader;
 	delete pixelShader;
+	delete pixelShader_specular;
 
 	// Shutdown renderer
 	Renderer::Shutdown();
+	delete uiRenderer;
 }
 
 // --------------------------------------------------------
@@ -104,6 +111,18 @@ void Game::Init()
 	CreateMatrices();
 	CreateBasicGeometry();
 	CreateEntities();
+
+	// Initialize UI renderer
+	uiRenderer->Initialize(context, device);
+	
+	// Load font 
+	uiRenderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
+
+	// Create a test UI panel
+	uiPanels["game"] = new UIGamePanel();
+
+	// Set the panel as current
+	uiRenderer->SetCurrentPanel(uiPanels["game"]);
 
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
@@ -246,11 +265,6 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
 
-	// Material change test
-	if (GetAsyncKeyState('T') & 0x8000)
-	{
-		entities["torry"]->SetMaterial(materials["brick"]);
-	}
 	if (GetAsyncKeyState('1') & 0x8000)
 	{
 		activeCamera = gameCamera;
@@ -282,7 +296,7 @@ void Game::Draw(float deltaTime, float totalTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-
+	
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
 	//  - At the beginning of Draw (before drawing *anything*)
@@ -293,8 +307,11 @@ void Game::Draw(float deltaTime, float totalTime)
 		1.0f,
 		0);
 
-	// Render to debug camera
+	// Render to active camera
 	renderer->Render(context, activeCamera);
+
+	// Render UI
+	//uiRenderer->Render();
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
