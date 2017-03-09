@@ -14,7 +14,7 @@ using namespace DirectX;
 // hInstance - the application's OS-level handle (unique ID)
 // --------------------------------------------------------
 Game::Game(HINSTANCE hInstance)
-	: DXCore( 
+	: DXCore(
 		hInstance,		   // The application's handle
 		"DirectX Game",	   // Text for the window's title bar
 		1280,			   // Width of the window's client area
@@ -58,7 +58,7 @@ Game::~Game()
 	// Free all meshes
 	for (auto it = meshes.begin(); it != meshes.end(); it++)
 		delete it->second;
-	
+
 	// Free all textures
 	for (auto it = textures.begin(); it != textures.end(); it++)
 		delete it->second;
@@ -114,7 +114,7 @@ void Game::Init()
 
 	// Initialize UI renderer
 	uiRenderer->Initialize(context, device);
-	
+
 	// Load font 
 	uiRenderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
 
@@ -140,10 +140,10 @@ void Game::LoadShaders()
 {
 	vertexShader = new SimpleVertexShader(device, context);
 	if (!vertexShader->LoadShaderFile(L"Debug/VertexShader.cso"))
-		vertexShader->LoadShaderFile(L"VertexShader.cso");		
+		vertexShader->LoadShaderFile(L"VertexShader.cso");
 
 	pixelShader = new SimplePixelShader(device, context);
-	if(!pixelShader->LoadShaderFile(L"Debug/PixelShader.cso"))	
+	if (!pixelShader->LoadShaderFile(L"Debug/PixelShader.cso"))
 		pixelShader->LoadShaderFile(L"PixelShader.cso");
 
 	pixelShader_specular = new SimplePixelShader(device, context);
@@ -274,8 +274,6 @@ void Game::Update(float deltaTime, float totalTime)
 		activeCamera = debugCamera;
 	}
 
-	// set cursor to center of screen
-	SetCursorPos(windowLocation.x + width / 2, windowLocation.y + height / 2);
 
 	// Update camera
 	activeCamera->Update(deltaTime, totalTime);
@@ -286,7 +284,21 @@ void Game::Update(float deltaTime, float totalTime)
 		entities[i]->Update(deltaTime, totalTime);
 	*/
 
-	entities["player"]->Update(deltaTime, totalTime);
+
+	//temporary
+	if (renderer->gameState != GAME) {
+		if (GetAsyncKeyState(VK_SPACE))
+		{
+			renderer->gameState = GAME;
+		}
+	}
+	else {
+		// set cursor to center of screen
+		SetCursorPos(windowLocation.x + width / 2, windowLocation.y + height / 2);
+
+		entities["player"]->Update(deltaTime, totalTime);
+	}
+
 }
 
 // --------------------------------------------------------
@@ -295,14 +307,14 @@ void Game::Update(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
-	const float color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-	
+	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
 	//  - At the beginning of Draw (before drawing *anything*)
 	context->ClearRenderTargetView(backBufferRTV, color);
 	context->ClearDepthStencilView(
-		depthStencilView, 
+		depthStencilView,
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		0);
