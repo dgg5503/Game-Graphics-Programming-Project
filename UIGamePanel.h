@@ -8,7 +8,7 @@ class UIGamePanel : public UIPanel
 {
 public:
 	UIGamePanel();
-	~UIGamePanel();
+	virtual ~UIGamePanel();
 
 	// Implement required functions
 	void Draw(SpriteBatch* const spriteBatch,
