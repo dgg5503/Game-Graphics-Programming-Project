@@ -21,6 +21,8 @@ Game::Game(HINSTANCE hInstance)
 		720,			   // Height of the window's client area
 		true)			   // Show extra stats (fps) in title bar?
 {
+	// TESTS
+
 	// Initialize fields
 	vertexShader = 0;
 	pixelShader = 0;
