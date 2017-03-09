@@ -26,7 +26,6 @@
 class Game 
 	: public DXCore
 {
-
 public:
 	Game(HINSTANCE hInstance);
 	~Game();
@@ -43,6 +42,7 @@ public:
 	void OnMouseUp	 (WPARAM buttonState, int x, int y);
 	void OnMouseMove (WPARAM buttonState, int x, int y);
 	void OnMouseWheel(float wheelDelta,   int x, int y);
+
 private:
 
 	// Initialization helper methods - feel free to customize, combine, etc.
