@@ -10,7 +10,6 @@
 #include "ShaderConstants.h"
 #include "Entity.h"
 
-//temporary
 #include "GameState.h"
 
 class Entity; // forward declaration to fix cyclic dep
@@ -28,9 +27,6 @@ public:
 	void StageEntity(Entity* const entity);
 	void UnstageEntity(Entity * const entity);
 	void Render(ID3D11DeviceContext* const context, const Camera * const camera);
-
-	//temporary
-	GameState gameState;
 
 private:
 	// Instance specific stuff
