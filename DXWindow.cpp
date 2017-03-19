@@ -402,7 +402,7 @@ unsigned const int& DXWindow::GetHeight() const
 // Get the location of the clients window area relative
 // to the top left of the window.
 // --------------------------------------------------------
-const POINTS& const DXWindow::GetWindowLocation() const
+const POINTS& DXWindow::GetWindowLocation() const
 {
 	return windowLocation;
 }
@@ -410,7 +410,7 @@ const POINTS& const DXWindow::GetWindowLocation() const
 // --------------------------------------------------------
 // Get the reference to this window
 // --------------------------------------------------------
-const HWND& const DXWindow::GetWindowReference() const
+const HWND& DXWindow::GetWindowReference() const
 {
 	return hWnd;
 }

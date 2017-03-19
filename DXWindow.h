@@ -48,8 +48,8 @@ public:
 	// Getters
 	unsigned const int& GetWidth() const;
 	unsigned const int& GetHeight() const;
-	const POINTS& const GetWindowLocation() const;
-	const HWND& const GetWindowReference() const;
+	const POINTS& GetWindowLocation() const;
+	const HWND& GetWindowReference() const;
 
 protected:
 	HINSTANCE	hInstance;		// The handle to the application

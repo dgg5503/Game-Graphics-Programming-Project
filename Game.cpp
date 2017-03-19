@@ -25,13 +25,7 @@ Game::Game(HINSTANCE hInstance)
 	vertexShader = 0;
 	pixelShader = 0;
 	pixelShader_specular = 0;
-
-	// Initialize renderer singleton
-	renderer = Renderer::Initialize(this);
-
-	// Initialize starting mouse location to center of screen
-	prevMousePos.x = GetWidth() / 2;
-	prevMousePos.y = GetHeight() / 2;
+	renderer = nullptr;
 
 	// Reserve ents
 	entities.reserve(16);
@@ -90,6 +84,13 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::Init()
 {
+	// Initialize renderer singleton/DX
+	renderer = Renderer::Initialize(this);
+
+	// Initialize starting mouse location to center of screen
+	prevMousePos.x = GetWidth() / 2;
+	prevMousePos.y = GetHeight() / 2;
+
 	// Create debug camera
 	debugCamera = new CameraDebug();
 	debugCamera->transform.Move(0, 0, -3.0f);
@@ -218,11 +219,15 @@ void Game::CreateEntities()
 // --------------------------------------------------------
 void Game::OnResize(unsigned int width, unsigned int height)
 {
-	// Resize renderer outputs
-	renderer->OnResize(width, height);
+	// Quick temp fix for checking if game is initialized
+	if (renderer)
+	{
+		// Resize renderer outputs
+		renderer->OnResize(width, height);
 
-	// Update aspect ratio
-	debugCamera->UpdateProjectionMatrix((float)width / height);
+		// Update aspect ratio
+		debugCamera->UpdateProjectionMatrix((float)width / height);
+	}
 }
 
 // --------------------------------------------------------
