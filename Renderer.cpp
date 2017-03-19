@@ -544,16 +544,25 @@ void Renderer::LoadFont(const char * const name, const wchar_t * const path)
 		fprintf(stderr, "[UIRenderer] %s already loaded!\n", name);
 }
 
+// --------------------------------------------------------
+// Create and return a simple vertex shader.
+// --------------------------------------------------------
 SimpleVertexShader * const Renderer::CreateSimpleVertexShader() const
 {
 	return new SimpleVertexShader(device, context);
 }
 
+// --------------------------------------------------------
+// Create and return a simple pixel shader.
+// --------------------------------------------------------
 SimplePixelShader * const Renderer::CreateSimplePixelShader() const
 {
 	return new SimplePixelShader(device, context);
 }
 
+// --------------------------------------------------------
+// Create and return a mesh.
+// --------------------------------------------------------
 Mesh * const Renderer::CreateMesh(const char * path) const
 {
 	if (!path)
@@ -561,6 +570,10 @@ Mesh * const Renderer::CreateMesh(const char * path) const
 	return new Mesh(path, device);
 }
 
+// --------------------------------------------------------
+// Create and return a texture.
+// TODO: Allow for different sampler options?
+// --------------------------------------------------------
 Texture2D * const Renderer::CreateTexture2D(const wchar_t * path)
 {
 	if (!path)
