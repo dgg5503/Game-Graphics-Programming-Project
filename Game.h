@@ -4,7 +4,7 @@
 #include <DirectXMath.h>
 #include <vector>
 #include <map>
-#include "DXCore.h"
+#include "DXWindow.h"
 #include "SimpleShader.h"
 #include "Mesh.h"
 
@@ -15,7 +15,6 @@
 
 // Rendering
 #include "Renderer.h"
-#include "UIRenderer.h"
 #include "UIGamePanel.h"
 
 // Entities
@@ -24,7 +23,7 @@
 #include "TestEntity.h"
 
 class Game 
-	: public DXCore
+	: public DXWindow
 {
 public:
 	Game(HINSTANCE hInstance);
@@ -33,7 +32,7 @@ public:
 	// Overridden setup and game loop methods, which
 	// will be called automatically
 	void Init();
-	void OnResize();
+	void OnResize(unsigned int width, unsigned int height);
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
 
@@ -51,12 +50,8 @@ private:
 	void CreateBasicGeometry();
 	void CreateEntities();
 
-	// Texture stuff
-	ID3D11SamplerState* sampler;
-
 	// Renderers
 	Renderer* renderer;
-	UIRenderer* uiRenderer;
 
 	// Maps of stuff by string
 	std::unordered_map<const char*, Mesh*> meshes;
@@ -74,8 +69,6 @@ private:
 	SimpleVertexShader* vertexShader;
 	SimplePixelShader* pixelShader_specular;
 	SimplePixelShader* pixelShader;
-
-	
 
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.

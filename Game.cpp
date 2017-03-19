@@ -14,27 +14,24 @@ using namespace DirectX;
 // hInstance - the application's OS-level handle (unique ID)
 // --------------------------------------------------------
 Game::Game(HINSTANCE hInstance)
-	: DXCore(
+	: DXWindow(
 		hInstance,		   // The application's handle
 		"DirectX Game",	   // Text for the window's title bar
 		1280,			   // Width of the window's client area
 		720,			   // Height of the window's client area
 		true)			   // Show extra stats (fps) in title bar?
 {
-	// TESTS
-
 	// Initialize fields
 	vertexShader = 0;
 	pixelShader = 0;
 	pixelShader_specular = 0;
 
 	// Initialize renderer singleton
-	renderer = Renderer::Initialize();
-	uiRenderer = new UIRenderer();
+	renderer = Renderer::Initialize(this);
 
 	// Initialize starting mouse location to center of screen
-	prevMousePos.x = width / 2;
-	prevMousePos.y = height / 2;
+	prevMousePos.x = GetWidth() / 2;
+	prevMousePos.y = GetHeight() / 2;
 
 	// Reserve ents
 	entities.reserve(16);
@@ -73,9 +70,6 @@ Game::~Game()
 	for (auto it = uiPanels.begin(); it != uiPanels.end(); it++)
 		delete it->second;
 
-	// Free sampler state which is being used for all textures
-	sampler->Release();
-
 	// Clean up cameras
 	delete debugCamera;
 	delete gameCamera;
@@ -88,7 +82,6 @@ Game::~Game()
 
 	// Shutdown renderer
 	Renderer::Shutdown();
-	delete uiRenderer;
 }
 
 // --------------------------------------------------------
@@ -114,22 +107,14 @@ void Game::Init()
 	CreateBasicGeometry();
 	CreateEntities();
 
-	// Initialize UI renderer
-	uiRenderer->Initialize(context, device);
-
 	// Load font 
-	uiRenderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
+	renderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
 
 	// Create a test UI panel
 	uiPanels["game"] = new UIGamePanel();
 
 	// Set the panel as current
-	uiRenderer->SetCurrentPanel(uiPanels["game"]);
-
-	// Tell the input assembler stage of the pipeline what kind of
-	// geometric primitives (points, lines or triangles) we want to draw.  
-	// Essentially: "What kind of shape should the GPU draw with our data?"
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	renderer->SetCurrentPanel(uiPanels["game"]);
 }
 
 // --------------------------------------------------------
@@ -140,15 +125,15 @@ void Game::Init()
 // --------------------------------------------------------
 void Game::LoadShaders()
 {
-	vertexShader = new SimpleVertexShader(device, context);
+	vertexShader = renderer->CreateSimpleVertexShader();
 	if (!vertexShader->LoadShaderFile(L"Debug/VertexShader.cso"))
 		vertexShader->LoadShaderFile(L"VertexShader.cso");
 
-	pixelShader = new SimplePixelShader(device, context);
+	pixelShader = renderer->CreateSimplePixelShader();
 	if (!pixelShader->LoadShaderFile(L"Debug/PixelShader.cso"))
 		pixelShader->LoadShaderFile(L"PixelShader.cso");
 
-	pixelShader_specular = new SimplePixelShader(device, context);
+	pixelShader_specular = renderer->CreateSimplePixelShader();
 	if (!pixelShader_specular->LoadShaderFile(L"Debug/PixelShader_Specular.cso"))
 		pixelShader_specular->LoadShaderFile(L"PixelShader_Specular.cso");
 
@@ -173,8 +158,8 @@ void Game::LoadShaders()
 void Game::CreateMatrices()
 {
 	// Setup projection matrix
-	debugCamera->UpdateProjectionMatrix((float)width / height);
-	gameCamera->UpdateProjectionMatrix((float)width / height);
+	debugCamera->UpdateProjectionMatrix((float)GetWidth() / GetHeight());
+	gameCamera->UpdateProjectionMatrix((float)GetWidth() / GetHeight());
 }
 
 
@@ -183,30 +168,12 @@ void Game::CreateMatrices()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
-	// Create a sampler state
-	D3D11_SAMPLER_DESC sampDesc = {}; // inits to all zeros :D!
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; // wrap in all dirs
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // Trilinear
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	device->CreateSamplerState(&sampDesc, &sampler);
-
 	// Texture 1 from http://www.textures.com/download/3dscans0029/126909
 	// Texture 2 from http://www.textures.com/download/3dscans0014/126018
 	// Load up textures
-	textures["brick"] = new Texture2D(L"./Assets/Textures/TexturesCom_BrownBricks_albedo_M.tif",
-		sampler,
-		device,
-		context);
-	textures["sand"] = new Texture2D(L"./Assets/Textures/TexturesCom_DesertSand1_albedo_M.tif",
-		sampler,
-		device,
-		context);
-	textures["stone"] = new Texture2D(L"./Assets/Textures/TexturesCom_StoneSurface_albedo_M.tif",
-		sampler,
-		device,
-		context);
+	textures["brick"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_BrownBricks_albedo_M.tif");
+	textures["sand"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_DesertSand1_albedo_M.tif");
+	textures["stone"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_StoneSurface_albedo_M.tif");
 
 	// Create our materials
 	materials["brick"] = new Material(vertexShader, pixelShader, textures["brick"]);
@@ -214,12 +181,12 @@ void Game::CreateBasicGeometry()
 	materials["stone"] = new Material(vertexShader, pixelShader, textures["stone"]);
 
 	// Load up all our meshes to a mesh dict
-	meshes["cube"] = new Mesh("./Assets/Models/cube.obj", device);
-	meshes["helix"] = new Mesh("./Assets/Models/helix.obj", device);
-	meshes["torus"] = new Mesh("./Assets/Models/torus.obj", device);
-	meshes["cone"] = new Mesh("./Assets/Models/cone.obj", device);
-	meshes["cylinder"] = new Mesh("./Assets/Models/cylinder.obj", device);
-	meshes["sphere"] = new Mesh("./Assets/Models/sphere.obj", device);
+	meshes["cube"] = renderer->CreateMesh("./Assets/Models/cube.obj");
+	meshes["helix"] = renderer->CreateMesh("./Assets/Models/helix.obj");
+	meshes["torus"] = renderer->CreateMesh("./Assets/Models/torus.obj");
+	meshes["cone"] = renderer->CreateMesh("./Assets/Models/cone.obj");
+	meshes["cylinder"] = renderer->CreateMesh("./Assets/Models/cylinder.obj");
+	meshes["sphere"] = renderer->CreateMesh("./Assets/Models/sphere.obj");
 }
 
 // --------------------------------------------------------
@@ -249,10 +216,10 @@ void Game::CreateEntities()
 // Handle resizing DirectX "stuff" to match the new window size.
 // For instance, updating our projection matrix's aspect ratio.
 // --------------------------------------------------------
-void Game::OnResize()
+void Game::OnResize(unsigned int width, unsigned int height)
 {
-	// Handle base-level DX resize stuff
-	DXCore::OnResize();
+	// Resize renderer outputs
+	renderer->OnResize(width, height);
 
 	// Update aspect ratio
 	debugCamera->UpdateProjectionMatrix((float)width / height);
@@ -286,7 +253,6 @@ void Game::Update(float deltaTime, float totalTime)
 		entities[i]->Update(deltaTime, totalTime);
 	*/
 
-
 	//temporary
 	if (renderer->gameState != GAME) {
 		if (GetAsyncKeyState(VK_SPACE))
@@ -296,7 +262,10 @@ void Game::Update(float deltaTime, float totalTime)
 	}
 	else {
 		// set cursor to center of screen
-		SetCursorPos(windowLocation.x + width / 2, windowLocation.y + height / 2);
+		SetCursorPos(
+			GetWindowLocation().x + GetWidth() / 2,
+			GetWindowLocation().y + GetHeight() / 2
+		);
 
 		entities["player"]->Update(deltaTime, totalTime);
 	}
@@ -308,32 +277,8 @@ void Game::Update(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
-	// Background color (Cornflower Blue in this case) for clearing
-	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-	// Clear the render target and depth buffer (erases what's on the screen)
-	//  - Do this ONCE PER FRAME
-	//  - At the beginning of Draw (before drawing *anything*)
-	context->ClearRenderTargetView(backBufferRTV, color);
-	context->ClearDepthStencilView(
-		depthStencilView,
-		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
-		1.0f,
-		0);
-
 	// Render to active camera
-	renderer->Render(context, activeCamera);
-
-	// Render UI
-	uiRenderer->Render();
-
-	// Fixes depth buffer issue
-	context->OMSetDepthStencilState(nullptr, 0);
-
-	// Present the back buffer to the user
-	//  - Puts the final frame we're drawing into the window so the user can see it
-	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
-	swapChain->Present(0, 0);
+	renderer->Render(activeCamera);
 }
 
 
@@ -382,8 +327,8 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 	{
 		// left/right = rotate on X about Y
 		// up/down = rotate on Y about Z
-		debugCamera->RotateBy(static_cast<float>(x - (width / 2.0f)) / 1000.0f,
-			static_cast<float>(y - (height / 2.0f)) / 1000.0f);
+		debugCamera->RotateBy(static_cast<float>(x - (GetWidth() / 2.0f)) / 1000.0f,
+			static_cast<float>(y - (GetHeight() / 2.0f)) / 1000.0f);
 	}
 
 	// Save the previous mouse position, so we have it for the future
