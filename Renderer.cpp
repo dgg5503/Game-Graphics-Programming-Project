@@ -76,6 +76,17 @@ Renderer::~Renderer()
 	// Free fonts
 	for (auto it = fontMap.begin(); it != fontMap.end(); it++)
 		delete it->second;
+
+	// Free spritebatch
+	delete spriteBatch;
+
+	// Release all DirectX resources
+	if (depthStencilView) { depthStencilView->Release(); }
+	if (backBufferRTV) { backBufferRTV->Release(); }
+
+	if (swapChain) { swapChain->Release(); }
+	if (context) { context->Release(); }
+	if (device) { device->Release(); }
 }
 
 // --------------------------------------------------------
