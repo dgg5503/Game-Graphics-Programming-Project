@@ -71,7 +71,6 @@ private:
 	HRESULT InitDirectX(DXWindow* const window);
 
 	// Deferred rendering
-	void InitFullScreenTarget();
 	inline void ClearRenderTargets();
 
 	// Rendering UI
@@ -84,11 +83,6 @@ private:
 	ID3D11DeviceContext*	context;
 	ID3D11RenderTargetView* backBufferRTV;
 	ID3D11DepthStencilView* depthStencilView;
-
-	// -- FULL SCREEN QUAD --
-	// TODO: DO THIS LOL!
-	ID3D11Buffer* indexIndices;
-	ID3D11Buffer* vertices;
 
 	// -- DEFERRED RENDERING --
 	ID3D11Texture2D* depthBufferTexture;

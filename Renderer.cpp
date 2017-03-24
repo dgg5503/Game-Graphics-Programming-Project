@@ -22,9 +22,20 @@ Renderer::Renderer(DXWindow* const window)
 	// Make sure to change the MAX_LIGHT defines in ShaderConstants.h if you
 	// want more lights!
 	ambientColor = DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+
+	/*
+	for (unsigned int i = MAX_DIR_LIGHTS; i--;)
+	{
+		directionalLights[i].DiffuseColor = DirectX::XMFLOAT4(static_cast<float>(i) / 256, static_cast<float>(i) / 256, static_cast<float>(i) / 256, 1.0f);
+		directionalLights[i].Direction = DirectX::XMFLOAT3(static_cast<float>(i), static_cast<float>(i), static_cast<float>(i));
+		directionalLights[i].Intensity = 1.0f;
+	}
+	*/
+
 	directionalLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	directionalLights[0].Direction = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	directionalLights[0].Intensity = 1.0f;
+	
 
 	pointLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	pointLights[0].Position = DirectX::XMFLOAT3(0, 0, 0);
@@ -47,12 +58,6 @@ Renderer::Renderer(DXWindow* const window)
 
 	//temporary
 	gameState = MAIN_MENU;
-
-	/*
-	directionalLight[1].DiffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	directionalLight[1].Direction = DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f);
-	directionalLight[1].intensity = 0.2f;
-	*/
 }
 
 // --------------------------------------------------------
@@ -71,6 +76,7 @@ Renderer::~Renderer()
 	delete spriteBatch;
 
 	// Release all DirectX resources
+	// Release targets
 	for (size_t i = 0; i < BUFFER_COUNT; i++)
 	{
 		if (targetTexts[i])
@@ -80,8 +86,10 @@ Renderer::~Renderer()
 		if (targetSRVs[i])
 			targetSRVs[i]->Release();
 	}
+
 	if (targetSampler) { targetSampler->Release(); }
 	if (depthStencilView) { depthStencilView->Release(); }
+	if (depthBufferTexture) { depthBufferTexture->Release(); }
 	if (backBufferRTV) { backBufferRTV->Release(); }
 	if (swapChain) { swapChain->Release(); }
 	if (context) { context->Release(); }
@@ -188,11 +196,6 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 	device->CreateDepthStencilView(depthBufferTexture, &depthStencilViewDesc, &depthStencilView);
-	//depthBufferTexture->Release();
-
-	// Bind the views to the pipeline, so rendering properly 
-	// uses their underlying textures
-	//context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 
 	// Lastly, set up a viewport so we render into
 	// to correct portion of the window
@@ -298,13 +301,8 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 }
 
 // --------------------------------------------------------
-// Initializes a full screen render target for deferred
-// rendering to render to.
+// Clears all render targets
 // --------------------------------------------------------
-void Renderer::InitFullScreenTarget()
-{
-}
-
 inline void Renderer::ClearRenderTargets()
 {
 	// Background color (Cornflower Blue in this case) for clearing
@@ -529,8 +527,6 @@ void Renderer::Render(const Camera * const camera)
 		it = bucket.second;
 	}
 
-	
-	//
 	// Unbind shader srv and sampler state from last ps
 	static ID3D11ShaderResourceView* null[] = { nullptr, nullptr, nullptr, nullptr };
 	context->PSSetShaderResources(0, 4, null);
@@ -541,7 +537,7 @@ void Renderer::Render(const Camera * const camera)
 	// Set render target to back buffer
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 
-	// Use SRVs of textures
+	// Use SRVs of textures we just wrote all our data into
 	deferredLightingPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
 	deferredLightingPS->SetShaderResourceView("worldPosTexture", targetSRVs[1]);
 	deferredLightingPS->SetShaderResourceView("normalsTexture", targetSRVs[2]);
@@ -575,7 +571,7 @@ void Renderer::Render(const Camera * const camera)
 	deferredVS->SetShader();
 	deferredLightingPS->SetShader();
 
-	// Combine lighting info to full screen quad
+	// Paint lighting info to full screen quad
 	context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
 	context->Draw(3, 0);
@@ -583,7 +579,7 @@ void Renderer::Render(const Camera * const camera)
 	// Render UI
 	RenderUI();
 
-	// Unbind all texture thingies from deferred lighting shader
+	// Unbind all sampler states and srvs
 	context->PSSetShaderResources(0, 4, null);
 
 	// Fixes depth buffer issue

@@ -41,7 +41,7 @@ PSOutput main(VertexToPixel input) : SV_TARGET
 	output.worldPos = float4(input.worldPos, 1.0f);
 
 	// sample normals
-	output.normals = float4(input.normal, 1.0f);
+	output.normals = float4(normalize(input.normal), 1.0f);
 
 	// return to render targets
 	return output;
