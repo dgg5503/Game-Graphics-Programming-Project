@@ -36,6 +36,66 @@ void CollisionManager::Shutdown()
 	}
 }
 
+void CollisionManager::StageCollider(Collider * const c)
+{
+	colliderVector.push_back(c);
+}
+
+void CollisionManager::UnstageCollider(Collider * const c)
+{
+	//remove from whatever list is being used
+	for (int i = colliderVector.size - 1; i >= 0; i--) {
+		if (colliderVector[i] == c) {
+			//colliderVector.erase(c);
+		}
+	}
+}
+
+void CollisionManager::CollisionUpdate()
+{
+	//add to grid
+	grid.clear();
+	for (int i = 0; i < colliderVector.size(); i++) {
+		//Collider* obj = (Collider*)collidableTags[i];
+		Collider* obj = colliderVector[i];
+		grid.insert(obj->GetPosition(), *obj->GetScale(), obj);
+	}
+
+	//check for collisions
+	std::unordered_map<int, std::list<void*>>& map = grid.getMapRef();
+	//grid iterator
+	for (auto iterl = map.begin(); iterl != map.end(); ++iterl) {
+
+		std::list<void*>& bin = (*iterl).second;//list
+
+												//list iterator
+		for (auto iteri = bin.begin(); iteri != bin.end(); iteri) {
+
+			Collider* obji = (Collider*)(*iteri);//1st object
+
+			++iteri;
+			//list iterator 2
+			for (auto iterj = iteri; iterj != bin.end(); ++iterj) {
+
+				Collider* objj = (Collider*)(*iterj);//2nd object
+				if (collides(*obji, *objj))
+				{
+					//create a call to a collision function: in Entity or pass a call somehow to decide how to deal with the collision
+
+					/*
+					if (obji->collisionScriptMap.count(objj->tag))
+						obji->collisionScriptMap[objj->tag](this, obji, objj);
+
+					if (objj->collisionScriptMap.count(obji->tag))
+						objj->collisionScriptMap[obji->tag](this, objj, obji);
+					/**/
+					printf("objects colliding");
+				}
+			}
+		}
+	}
+}
+
 CollisionManager::CollisionManager()
 {
 	//eh...
@@ -364,10 +424,13 @@ bool CollisionManager::collidesCollidervHalfvol(const Collider & a, const Collid
 
 bool CollisionManager::collides(const Collider & a, const Collider & b)
 {
+	//no collisions when belonging to the same base entity -> unity children colliders do not collide with parent colliders
+	if (a.GetBaseEntity() == b.GetBaseEntity()) return false;
+
 	// Use object a and object b's collider type
 	//		to get a function pointer from the jump table and call the function
 	if (collisionTable[{a.GetType(), b.GetType()}]) {
-		return (*collisionTable[{a.GetType(), b.GetType()}])(a, b);
+		return (this->*collisionTable[{a.GetType(), b.GetType()}])(a, b);
 	}
 
 	return false;

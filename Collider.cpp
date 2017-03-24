@@ -136,6 +136,22 @@ XMFLOAT4 const Collider::GetRotationColumn(int col) const
 	return rot;
 }
 
+void Collider::SetParentEntity(Entity * parent)
+{
+	parentEntity = parent;
+}
+
+const Entity * const Collider::GetParentEntity() const
+{
+	return parentEntity;
+}
+
+const Entity * const Collider::GetBaseEntity() const
+{
+	//alter to allow for parent/child function in Entity itself
+	return parentEntity;
+}
+
 XMFLOAT4 Collider::GetEntityRotation() const
 {
 	XMFLOAT4 rot = *(parentEntity->transform.GetRotation());

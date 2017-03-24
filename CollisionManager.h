@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <vector>
 #include "Collider.h"
 
 class CollisionManager
@@ -11,6 +12,10 @@ public:
 	static CollisionManager * const Initialize();
 	static CollisionManager * const Instance();
 	static void Shutdown();
+
+	void StageCollider(Collider* const c);
+	void UnstageCollider(Collider* const c);
+	void CollisionUpdate();
 private:
 	CollisionManager();
 	CollisionManager(float maxScale, XMFLOAT3 gridHalfWidth);
@@ -18,6 +23,7 @@ private:
 	static CollisionManager* instance;
 	Grid grid;
 	void CollisionInit();
+	std::vector<Collider*> colliderVector;
 
 	//typedefs
 	typedef bool (CollisionManager::*collisionFunction)(const Collider&, const Collider&);

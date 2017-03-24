@@ -42,7 +42,12 @@ public:
 	XMFLOAT3 const GetPosition() const;
 	XMFLOAT4 const GetRotationColumn(int col) const;
 
-	Entity* parentEntity;
+	//Part of all components
+	void SetParentEntity(Entity* parent);
+	const Entity* const GetParentEntity() const;
+	const Entity* const GetBaseEntity() const;
+
+	Entity* parentEntity;//move to private
 
 private:
 	XMFLOAT3 offset; // vec3
