@@ -154,6 +154,15 @@
     <FxCompile Include="PixelShader_Specular.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="DefferedPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="DefferedLighting.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Texture2BufferVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

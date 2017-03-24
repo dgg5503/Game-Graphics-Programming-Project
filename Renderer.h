@@ -17,6 +17,9 @@
 //temporary
 #include "GameState.h"
 
+// defines
+#define BUFFER_COUNT 3
+
 // We can include the correct library files here
 // instead of in Visual Studio settings if we want
 #pragma comment(lib, "d3d11.lib")
@@ -67,14 +70,12 @@ private:
 	// Initialzing DXCORE
 	HRESULT InitDirectX(DXWindow* const window);
 
+	// Deferred rendering
+	void InitFullScreenTarget();
+	inline void ClearRenderTargets();
+
 	// Rendering UI
 	inline void RenderUI();
-
-	// Renderer stuff
-	// Test render target
-	ID3D11Texture2D* targetTexture;
-	ID3D11RenderTargetView* targetView;
-	ID3D11ShaderResourceView* targetSRV;
 
 	// -- DXCORE --
 	D3D_FEATURE_LEVEL		dxFeatureLevel;
@@ -83,6 +84,21 @@ private:
 	ID3D11DeviceContext*	context;
 	ID3D11RenderTargetView* backBufferRTV;
 	ID3D11DepthStencilView* depthStencilView;
+
+	// -- FULL SCREEN QUAD --
+	// TODO: DO THIS LOL!
+	ID3D11Buffer* indexIndices;
+	ID3D11Buffer* vertices;
+
+	// -- DEFERRED RENDERING --
+	ID3D11Texture2D* depthBufferTexture;
+	ID3D11Texture2D* targetTexts[BUFFER_COUNT];
+	ID3D11RenderTargetView* targetViews[BUFFER_COUNT];
+	ID3D11ShaderResourceView* targetSRVs[BUFFER_COUNT];
+	ID3D11SamplerState* targetSampler;
+
+	SimpleVertexShader* deferredVS;
+	SimplePixelShader* deferredLightingPS;
 
 	// -- UI --
 	UIPanel* panel;

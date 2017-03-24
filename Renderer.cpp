@@ -41,16 +41,6 @@ Renderer::Renderer(DXWindow* const window)
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// Setup texture stuff
-	// Create a sampler state
-	D3D11_SAMPLER_DESC sampDesc = {}; // inits to all zeros :D!
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; // wrap in all dirs
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // Trilinear
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	device->CreateSamplerState(&sampDesc, &sampler);
-
 	// Initialize UI stuff
 	spriteBatch = new SpriteBatch(context);
 	panel = nullptr;
@@ -81,12 +71,24 @@ Renderer::~Renderer()
 	delete spriteBatch;
 
 	// Release all DirectX resources
+	for (size_t i = 0; i < BUFFER_COUNT; i++)
+	{
+		if (targetTexts[i])
+			targetTexts[i]->Release();
+		if (targetViews[i])
+			targetViews[i]->Release();
+		if (targetSRVs[i])
+			targetSRVs[i]->Release();
+	}
+	if (targetSampler) { targetSampler->Release(); }
 	if (depthStencilView) { depthStencilView->Release(); }
 	if (backBufferRTV) { backBufferRTV->Release(); }
-
 	if (swapChain) { swapChain->Release(); }
 	if (context) { context->Release(); }
 	if (device) { device->Release(); }
+
+	if (deferredVS) { delete deferredVS; }
+	if (deferredLightingPS) { delete deferredLightingPS; }
 }
 
 // --------------------------------------------------------
@@ -178,17 +180,19 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	depthStencilDesc.MiscFlags = 0;
 	depthStencilDesc.SampleDesc.Count = 1;
 	depthStencilDesc.SampleDesc.Quality = 0;
-
-	// Create the depth buffer and its view, then 
-	// release our reference to the texture
-	ID3D11Texture2D* depthBufferTexture;
 	device->CreateTexture2D(&depthStencilDesc, 0, &depthBufferTexture);
-	device->CreateDepthStencilView(depthBufferTexture, 0, &depthStencilView);
-	depthBufferTexture->Release();
+
+	// Set up the depth stencil view description.
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
+	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.Texture2D.MipSlice = 0;
+	device->CreateDepthStencilView(depthBufferTexture, &depthStencilViewDesc, &depthStencilView);
+	//depthBufferTexture->Release();
 
 	// Bind the views to the pipeline, so rendering properly 
 	// uses their underlying textures
-	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+	//context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 
 	// Lastly, set up a viewport so we render into
 	// to correct portion of the window
@@ -201,8 +205,126 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	viewport.MaxDepth = 1.0f;
 	context->RSSetViewports(1, &viewport);
 
+	// Setup render target texture descriptions
+	D3D11_TEXTURE2D_DESC renderTargetTextDesc = {};
+	renderTargetTextDesc.Width = window->GetWidth();
+	renderTargetTextDesc.Height = window->GetHeight();
+	renderTargetTextDesc.MipLevels = 1;
+	renderTargetTextDesc.ArraySize = 1;
+	renderTargetTextDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	renderTargetTextDesc.Usage = D3D11_USAGE_DEFAULT;
+	renderTargetTextDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	renderTargetTextDesc.CPUAccessFlags = 0;
+	renderTargetTextDesc.MiscFlags = 0;
+	renderTargetTextDesc.SampleDesc.Count = 1;
+	renderTargetTextDesc.SampleDesc.Quality = 0;
+
+	// Create render target textures
+	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
+	{
+		hr = device->CreateTexture2D(&renderTargetTextDesc, nullptr, &targetTexts[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	// Setup render target view description
+	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
+	renderTargetViewDesc.Format = renderTargetTextDesc.Format;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+
+	// Create render target views
+	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
+	{
+		hr = device->CreateRenderTargetView(targetTexts[i], &renderTargetViewDesc, &targetViews[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	// Setup shader resource view descriptions for render targets
+	D3D11_SHADER_RESOURCE_VIEW_DESC renderTargetSRVDesc = {};
+	renderTargetSRVDesc.Format = renderTargetTextDesc.Format;
+	renderTargetSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	renderTargetSRVDesc.Texture2D.MipLevels = 1;
+	renderTargetSRVDesc.Texture2D.MostDetailedMip = 0;
+
+	// Create SRVs for targets
+	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
+	{
+		hr = device->CreateShaderResourceView(targetTexts[i], &renderTargetSRVDesc, &targetSRVs[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	// Setup deferred sampler state
+	D3D11_SAMPLER_DESC targetSamplerDesc = {}; // inits to all zeros :D!
+	targetSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	targetSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	targetSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	targetSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	targetSamplerDesc.MipLODBias = 0.0f;
+	targetSamplerDesc.MaxAnisotropy = 1;
+	targetSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	targetSamplerDesc.BorderColor[0] = 0;
+	targetSamplerDesc.BorderColor[1] = 0;
+	targetSamplerDesc.BorderColor[2] = 0;
+	targetSamplerDesc.BorderColor[3] = 0;
+	targetSamplerDesc.MinLOD = 0;
+	targetSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	// Create the texture sampler state.
+	hr = device->CreateSamplerState(&targetSamplerDesc, &targetSampler);
+	if (FAILED(hr))
+		return hr;
+
+	// load deferred lighting and vert shader
+	deferredLightingPS = CreateSimplePixelShader();
+	deferredLightingPS->LoadShaderFile(L"Debug/DefferedLighting.cso");
+	deferredVS = CreateSimpleVertexShader();
+	deferredVS->LoadShaderFile(L"Debug/Texture2BufferVertexShader.cso");
+
+	// Setup texture stuff
+	// Create a sampler state
+	D3D11_SAMPLER_DESC sampDesc = {}; // inits to all zeros :D!
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; // wrap in all dirs
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // Trilinear
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	device->CreateSamplerState(&sampDesc, &sampler);
+
 	// Return the "everything is ok" HRESULT value
 	return S_OK;
+}
+
+// --------------------------------------------------------
+// Initializes a full screen render target for deferred
+// rendering to render to.
+// --------------------------------------------------------
+void Renderer::InitFullScreenTarget()
+{
+}
+
+inline void Renderer::ClearRenderTargets()
+{
+	// Background color (Cornflower Blue in this case) for clearing
+	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	// Clear all render targets
+	for (size_t i = 0; i < BUFFER_COUNT; i++)
+		context->ClearRenderTargetView(targetViews[i], color);
+
+	// Clear depth buffer
+	// Clear the render target and depth buffer (erases what's on the screen)
+	//  - Do this ONCE PER FRAME
+	//  - At the beginning of Draw (before drawing *anything*)
+	context->ClearRenderTargetView(backBufferRTV, color);
+	context->ClearDepthStencilView(
+		depthStencilView,
+		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+		1.0f,
+		0);
+
 }
 
 // --------------------------------------------------------
@@ -323,21 +445,15 @@ void Renderer::Render(const Camera * const camera)
 	ID3D11Buffer* currVertBuff;
 
 	// Camera information that will not change mid-render
-	XMFLOAT4X4 view = camera->GetViewMatrix();
+ 	XMFLOAT4X4 view = camera->GetViewMatrix();
 	XMFLOAT4X4 projection = camera->GetProjectionMatrix();
 
-	// Background color (Cornflower Blue in this case) for clearing
-	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	// Clear
+	ClearRenderTargets();
 
-	// Clear the render target and depth buffer (erases what's on the screen)
-	//  - Do this ONCE PER FRAME
-	//  - At the beginning of Draw (before drawing *anything*)
-	context->ClearRenderTargetView(backBufferRTV, color);
-	context->ClearDepthStencilView(
-		depthStencilView,
-		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
-		1.0f,
-		0);
+	// Set render targets to textures
+	// Our deferred renderer will now output to our render target textures
+	context->OMSetRenderTargets(BUFFER_COUNT, targetViews, depthStencilView);
 
 	// Iterate through each bucket
 	for (auto it = renderBatches.begin(); it != renderBatches.end();)
@@ -352,26 +468,6 @@ void Renderer::Render(const Camera * const camera)
 		// -- Camera --
 		vertexShader->SetMatrix4x4("view", view);
 		vertexShader->SetMatrix4x4("projection", projection);
-
-		// -- Lighting --
-		pixelShader->SetDataAligned(
-			"directionalLights",						// name of variable in ps
-			&directionalLights,							// direction of light
-			sizeof(DirectionalLight) * MAX_DIR_LIGHTS	// size of struct * maxdirlights
-		);
-
-		pixelShader->SetDataAligned(
-			"pointLights",								// name of variable in ps
-			&pointLights,								// direction of light
-			sizeof(PointLight) * MAX_POINT_LIGHTS		// size of struct * maxdirlights
-		);
-
-		pixelShader->SetDataAligned(
-			"spotLights",								// name of variable in ps
-			&spotLights,							 	// direction of light
-			sizeof(SpotLight) * MAX_SPOT_LIGHTS		    // size of struct * maxdirlights
-		);
-		pixelShader->SetFloat4("AmbientColor", ambientColor);
 
 		// -- Set material specific information --
 		currMaterial->PrepareMaterial();
@@ -433,8 +529,62 @@ void Renderer::Render(const Camera * const camera)
 		it = bucket.second;
 	}
 
+	
+	//
+	// Unbind shader srv and sampler state from last ps
+	static ID3D11ShaderResourceView* null[] = { nullptr, nullptr, nullptr, nullptr };
+	context->PSSetShaderResources(0, 4, null);
+
+	// Turn off ZBUFFER
+	context->OMSetDepthStencilState(nullptr, 0);
+
+	// Set render target to back buffer
+	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+
+	// Use SRVs of textures
+	deferredLightingPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
+	deferredLightingPS->SetShaderResourceView("worldPosTexture", targetSRVs[1]);
+	deferredLightingPS->SetShaderResourceView("normalsTexture", targetSRVs[2]);
+	deferredLightingPS->SetSamplerState("deferredSampler", targetSampler);
+
+	// -- Lighting --
+	deferredLightingPS->SetDataAligned(
+		"directionalLights",						// name of variable in ps
+		&directionalLights,							// direction of light
+		sizeof(DirectionalLight) * MAX_DIR_LIGHTS	// size of struct * maxdirlights
+	);
+
+	deferredLightingPS->SetDataAligned(
+		"pointLights",								// name of variable in ps
+		&pointLights,								// direction of light
+		sizeof(PointLight) * MAX_POINT_LIGHTS		// size of struct * maxdirlights
+	);
+
+	deferredLightingPS->SetDataAligned(
+		"spotLights",								// name of variable in ps
+		&spotLights,							 	// direction of light
+		sizeof(SpotLight) * MAX_SPOT_LIGHTS		    // size of struct * maxdirlights
+	);
+	deferredLightingPS->SetFloat4("AmbientColor", ambientColor);
+
+	// -- Copy pixel data --
+	deferredVS->CopyAllBufferData();
+	deferredLightingPS->CopyAllBufferData();
+
+	// Set pixel data
+	deferredVS->SetShader();
+	deferredLightingPS->SetShader();
+
+	// Combine lighting info to full screen quad
+	context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
+	context->Draw(3, 0);
+
 	// Render UI
 	RenderUI();
+
+	// Unbind all texture thingies from deferred lighting shader
+	context->PSSetShaderResources(0, 4, null);
 
 	// Fixes depth buffer issue
 	context->OMSetDepthStencilState(nullptr, 0);
@@ -458,6 +608,7 @@ void Renderer::Render(const Camera * const camera)
 // --------------------------------------------------------
 void Renderer::OnResize(unsigned int width, unsigned int height)
 {
+	/*
 	// Release existing DirectX views and buffers
 	if (depthStencilView) { depthStencilView->Release(); }
 	if (backBufferRTV) { backBufferRTV->Release(); }
@@ -512,6 +663,7 @@ void Renderer::OnResize(unsigned int width, unsigned int height)
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	context->RSSetViewports(1, &viewport);
+	*/
 }
 
 // --------------------------------------------------------

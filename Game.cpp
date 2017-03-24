@@ -131,8 +131,8 @@ void Game::LoadShaders()
 		vertexShader->LoadShaderFile(L"VertexShader.cso");
 
 	pixelShader = renderer->CreateSimplePixelShader();
-	if (!pixelShader->LoadShaderFile(L"Debug/PixelShader.cso"))
-		pixelShader->LoadShaderFile(L"PixelShader.cso");
+	if (!pixelShader->LoadShaderFile(L"Debug/DefferedPixelShader.cso"))
+		pixelShader->LoadShaderFile(L"DefferedPixelShader.cso");
 
 	pixelShader_specular = renderer->CreateSimplePixelShader();
 	if (!pixelShader_specular->LoadShaderFile(L"Debug/PixelShader_Specular.cso"))
