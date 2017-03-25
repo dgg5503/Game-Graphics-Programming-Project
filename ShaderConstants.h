@@ -1,6 +1,6 @@
 #ifndef SHADERCONSTANTS_H
 #define SHADERCONSTANTS_H
-#define MAX_DIR_LIGHTS 128
+#define MAX_DIR_LIGHTS 1
 #define MAX_POINT_LIGHTS 1
 #define MAX_SPOT_LIGHTS 1
 #endif
