@@ -14,7 +14,6 @@
 #include "Entity.h"
 #include "DXWindow.h"
 
-//temporary
 #include "GameState.h"
 
 // defines
@@ -57,9 +56,6 @@ public:
 
 	// Texture factory. CALLER SHOULD FREE CREATED VARIABLES
 	Texture2D* const CreateTexture2D(const wchar_t* path);
-
-	//temporary
-	GameState gameState;
 
 private:
 	// Instance specific stuff
