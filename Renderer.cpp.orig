@@ -47,6 +47,7 @@ Renderer::Renderer(DXWindow* const window)
 	spotLights[0].Angle = DirectX::XMScalarCos(XM_PIDIV4);
 	spotLights[0].Intensity = 1.0f;
 
+<<<<<<< HEAD
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
 	// Essentially: "What kind of shape should the GPU draw with our data?"
@@ -55,6 +56,16 @@ Renderer::Renderer(DXWindow* const window)
 	// Initialize UI stuff
 	spriteBatch = new SpriteBatch(context);
 	panel = nullptr;
+
+	//temporary
+	gameState = MAIN_MENU;
+=======
+	/*
+	directionalLight[1].DiffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	directionalLight[1].Direction = DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f);
+	directionalLight[1].intensity = 0.2f;
+	*/
+>>>>>>> master
 }
 
 // --------------------------------------------------------
@@ -440,6 +451,7 @@ void Renderer::Render(const Camera * const camera)
 	ID3D11Buffer* currVertBuff;
 
 	// Camera information that will not change mid-render
+<<<<<<< HEAD
  	XMFLOAT4X4 view = camera->GetViewMatrix();
 	XMFLOAT4X4 projection = camera->GetProjectionMatrix();
 
@@ -450,6 +462,11 @@ void Renderer::Render(const Camera * const camera)
 	// Our deferred renderer will now output to our render target textures
 	context->OMSetRenderTargets(BUFFER_COUNT, targetViews, depthStencilView);
 
+=======
+	XMFLOAT4X4 view = camera->GetViewMatrix();
+	XMFLOAT4X4 projection = camera->GetProjectionMatrix();
+
+>>>>>>> master
 	// Iterate through each bucket
 	for (auto it = renderBatches.begin(); it != renderBatches.end();)
 	{
@@ -464,6 +481,29 @@ void Renderer::Render(const Camera * const camera)
 		vertexShader->SetMatrix4x4("view", view);
 		vertexShader->SetMatrix4x4("projection", projection);
 
+<<<<<<< HEAD
+=======
+		// -- Lighting --
+		pixelShader->SetDataAligned(
+			"directionalLights",						// name of variable in ps
+			&directionalLights,							// direction of light
+			sizeof(DirectionalLight) * MAX_DIR_LIGHTS	// size of struct * maxdirlights
+			);
+
+		pixelShader->SetDataAligned(
+			"pointLights",								// name of variable in ps
+			&pointLights,								// direction of light
+			sizeof(PointLight) * MAX_POINT_LIGHTS		// size of struct * maxdirlights
+			);
+
+		pixelShader->SetDataAligned(
+			"spotLights",								// name of variable in ps
+			&spotLights,							 	// direction of light
+			sizeof(SpotLight) * MAX_SPOT_LIGHTS		    // size of struct * maxdirlights
+			);
+		pixelShader->SetFloat4("AmbientColor", ambientColor);
+
+>>>>>>> master
 		// -- Set material specific information --
 		currMaterial->PrepareMaterial();
 
@@ -522,6 +562,10 @@ void Renderer::Render(const Camera * const camera)
 
 		// move to next bucket
 		it = bucket.second;
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 	}
 
 	// Unbind shader srv and sampler state from last ps

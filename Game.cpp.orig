@@ -258,9 +258,20 @@ void Game::Update(float deltaTime, float totalTime)
 		entities[i]->Update(deltaTime, totalTime);
 	*/
 
+<<<<<<< HEAD
+	//temporary
+	if (renderer->gameState != GAME) {
+		if (GetAsyncKeyState(VK_SPACE))
+		{
+			renderer->gameState = GAME;
+		}
+	}
+	else {
+=======
 
 	
 	
+>>>>>>> master
 		// set cursor to center of screen
 		SetCursorPos(
 			GetWindowLocation().x + GetWidth() / 2,
