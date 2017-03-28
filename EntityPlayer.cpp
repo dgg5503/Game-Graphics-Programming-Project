@@ -32,3 +32,8 @@ float EntityPlayer::GetSpeed()
 {
 	return speed;
 }
+
+void EntityPlayer::OnCollision(Collision collision)
+{
+	printf("player");
+}

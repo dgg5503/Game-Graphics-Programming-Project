@@ -83,16 +83,10 @@ void CollisionManager::CollisionUpdate()
 				Collider* objj = (Collider*)(*iterj);//2nd object
 				if (collides(*obji, *objj))
 				{
-					//create a call to a collision function: in Entity or pass a call somehow to decide how to deal with the collision
-
-					/*
-					if (obji->collisionScriptMap.count(objj->tag))
-						obji->collisionScriptMap[objj->tag](this, obji, objj);
-
-					if (objj->collisionScriptMap.count(obji->tag))
-						objj->collisionScriptMap[obji->tag](this, objj, obji);
-					/**/
-					printf("objects colliding");
+					//pass in collision data to the collision functions in the entities
+					Collision c = {objj->GetParentEntity()};
+					obji->GetParentEntity()->OnCollision(c);
+					objj->GetParentEntity()->OnCollision(c);
 				}
 			}
 		}
@@ -101,12 +95,14 @@ void CollisionManager::CollisionUpdate()
 
 CollisionManager::CollisionManager()
 {
+	CollisionInit();
 	//eh...
 	grid = Grid(1, XMFLOAT3(1,1,1));
 }
 
 CollisionManager::CollisionManager(float maxScale, XMFLOAT3 gridHalfWidth)
 {
+	CollisionInit();
 	//instantiate grid
 	grid = Grid(maxScale, gridHalfWidth);
 }

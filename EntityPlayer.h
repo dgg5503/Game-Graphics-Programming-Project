@@ -15,6 +15,8 @@ public:
 	void SetSpeed(float speed);
 	float GetSpeed();
 
+	virtual void OnCollision(Collision collision);
+
 protected:
 	float speed;
 };

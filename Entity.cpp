@@ -98,12 +98,12 @@ Material * const Entity::GetMaterial() const
 	return material;
 }
 
-void Entity::CreateCollider(Collider::ColliderType type)
+void Entity::CreateCollider(Collider::ColliderType type, XMFLOAT3 scale, XMFLOAT3 offset, XMFLOAT4 rotation)
 {
 	if (collider != nullptr) {
 		return;
 	}
-	collider = new Collider(type);
+	collider = new Collider(type, offset, scale, rotation);
 	collider->SetParentEntity(this);
 }
 
