@@ -17,6 +17,9 @@
 #include "Renderer.h"
 #include "UIGamePanel.h"
 
+//Collisions
+#include "CollisionManager.h"
+
 // Entities
 #include "Entity.h"
 #include "EntityPlayer.h"
@@ -52,6 +55,9 @@ private:
 
 	// Renderers
 	Renderer* renderer;
+
+	//Collision Manager
+	CollisionManager* collisionManager;
 
 	// Maps of stuff by string
 	std::unordered_map<const char*, Mesh*> meshes;

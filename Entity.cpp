@@ -13,6 +13,8 @@ Entity::Entity(Mesh* mesh, Material* material) :
 {
 	// Ensure we're starting out with a mesh
 	assert(mesh != nullptr);
+
+	collider = nullptr;
 }
 
 // --------------------------------------------------------
@@ -20,6 +22,7 @@ Entity::Entity(Mesh* mesh, Material* material) :
 // --------------------------------------------------------
 Entity::~Entity()
 {
+	if (collider != nullptr) delete collider;
 }
 
 /*
@@ -94,4 +97,18 @@ Mesh * const Entity::GetMesh() const
 Material * const Entity::GetMaterial() const
 {
 	return material;
+}
+
+void Entity::CreateCollider(Collider::ColliderType type)
+{
+	if (collider != nullptr) {
+		return;
+	}
+	collider = new Collider(type);
+	collider->SetParentEntity(this);
+}
+
+Collider * const Entity::GetCollider() const
+{
+	return collider;
 }

@@ -26,6 +26,7 @@ Game::Game(HINSTANCE hInstance)
 	pixelShader = 0;
 	pixelShader_specular = 0;
 	renderer = nullptr;
+	collisionManager = nullptr;
 
 	// Reserve ents
 	entities.reserve(16);
@@ -76,6 +77,7 @@ Game::~Game()
 
 	// Shutdown renderer
 	Renderer::Shutdown();
+	CollisionManager::Shutdown();
 }
 
 // --------------------------------------------------------
@@ -86,6 +88,7 @@ void Game::Init()
 {
 	// Initialize renderer singleton/DX
 	renderer = Renderer::Initialize(this);
+	collisionManager = CollisionManager::Initialize();
 
 	// Initialize starting mouse location to center of screen
 	prevMousePos.x = GetWidth() / 2;
@@ -201,6 +204,7 @@ void Game::CreateEntities()
 	player->SetSpeed(2.0f);
 	player->transform.SetPosition(0, 0, 0.0f);
 	player->transform.SetScale(0.25f, 0.25f, 0.25f);
+	player->CreateCollider(Collider::ColliderType::SPHERE);//test with other object, can edit this later when collision works
 
 	// Background entity
 	Entity* background = entities["background"] = new TestEntity(meshes["cube"], materials["brick"]);
@@ -208,8 +212,13 @@ void Game::CreateEntities()
 	background->transform.SetScale(8.0f, 5.0f, 1.0f);
 
 	// Stage all entities for rendering
-	for (auto it = entities.begin(); it != entities.end(); it++)
+	for (auto it = entities.begin(); it != entities.end(); it++) {
 		renderer->StageEntity(it->second);
+		//stage colliders
+		if (it->second->GetCollider() != nullptr) {
+			collisionManager->StageCollider(it->second->GetCollider());
+		}
+	}
 }
 
 

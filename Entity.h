@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Transform.h"
+#include "Collider.h"
 #include "Renderer.h"
 
 class Renderer; // forward declaration to fix cyclic dep
@@ -26,6 +27,9 @@ public:
 	Mesh * const GetMesh() const;
 	Material * const GetMaterial() const;
 
+	void CreateCollider(Collider::ColliderType type);
+	Collider * const GetCollider() const;
+
 
 	// Public transform so we can access information!
 	Transform transform;
@@ -36,5 +40,8 @@ private:
 	
 	// Material containing shaders that this entity will draw with
 	Material* material;
+
+	//temp maybe
+	Collider* collider;
 };
 
