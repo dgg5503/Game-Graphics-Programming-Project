@@ -1,6 +1,6 @@
 #include "Game.h"
 #include "Vertex.h"
-#include "WICTextureLoader.h"
+#include <WICTextureLoader.h>
 
 // For the DirectX Math library
 using namespace DirectX;

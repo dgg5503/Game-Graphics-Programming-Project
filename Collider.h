@@ -4,7 +4,8 @@
 #include <DirectXMath.h>
 #include "Transform.h"
 #include "Mesh.h"
-#include "Entity.h"
+
+class Entity;
 
 using namespace DirectX;
 class Collider

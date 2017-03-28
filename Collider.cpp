@@ -1,5 +1,5 @@
 #include "Collider.h"
-
+#include "Entity.h"
 
 
 Collider::Collider() : 

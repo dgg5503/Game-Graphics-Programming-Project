@@ -44,7 +44,7 @@ void CollisionManager::StageCollider(Collider * const c)
 void CollisionManager::UnstageCollider(Collider * const c)
 {
 	//remove from whatever list is being used
-	for (int i = colliderVector.size - 1; i >= 0; i--) {
+	for (int i = colliderVector.size() - 1; i >= 0; i--) {
 		if (colliderVector[i] == c) {
 			//swap so that the one to remove is at the back
 			std::swap(colliderVector[i], colliderVector.back());
@@ -118,26 +118,26 @@ CollisionManager::~CollisionManager()
 
 void CollisionManager::CollisionInit()
 {
-	collisionTable[{Collider::SPHERE, Collider::SPHERE}] = &collidesSpherevSphere;
-	collisionTable[{Collider::SPHERE, Collider::AABB}] = &collidesSpherevAABB;
-	collisionTable[{Collider::AABB, Collider::SPHERE}] = &collidesAABBvSphere;
-	collisionTable[{Collider::AABB, Collider::AABB}] = &collidesAABBvAABB;
-	collisionTable[{Collider::OBB, Collider::OBB}] = &collidesOBBvOBB;
-	collisionTable[{Collider::OBB, Collider::SPHERE}] = &collidesOBBvSphere;
-	collisionTable[{Collider::SPHERE, Collider::OBB}] = &collidesSpherevOBB;
-	collisionTable[{Collider::OBB, Collider::AABB}] = &collidesOBBvAABB;
-	collisionTable[{Collider::AABB, Collider::OBB}] = &collidesAABBvOBB;
-	collisionTable[{Collider::HALFVOL, Collider::AABB}] = &collidesHalfvolvCollider;
-	collisionTable[{Collider::HALFVOL, Collider::OBB}] = &collidesHalfvolvCollider;
-	collisionTable[{Collider::HALFVOL, Collider::SPHERE}] = &collidesHalfvolvCollider;
-	collisionTable[{Collider::AABB, Collider::HALFVOL}] = &collidesCollidervHalfvol;
-	collisionTable[{Collider::OBB, Collider::HALFVOL}] = &collidesCollidervHalfvol;
-	collisionTable[{Collider::SPHERE, Collider::HALFVOL}] = &collidesCollidervHalfvol;
+	collisionTable[{Collider::SPHERE, Collider::SPHERE}] = &CollisionManager::collidesSpherevSphere;
+	collisionTable[{Collider::SPHERE, Collider::AABB}] = &CollisionManager::collidesSpherevAABB;
+	collisionTable[{Collider::AABB, Collider::SPHERE}] = &CollisionManager::collidesAABBvSphere;
+	collisionTable[{Collider::AABB, Collider::AABB}] = &CollisionManager::collidesAABBvAABB;
+	collisionTable[{Collider::OBB, Collider::OBB}] = &CollisionManager::collidesOBBvOBB;
+	collisionTable[{Collider::OBB, Collider::SPHERE}] = &CollisionManager::collidesOBBvSphere;
+	collisionTable[{Collider::SPHERE, Collider::OBB}] = &CollisionManager::collidesSpherevOBB;
+	collisionTable[{Collider::OBB, Collider::AABB}] = &CollisionManager::collidesOBBvAABB;
+	collisionTable[{Collider::AABB, Collider::OBB}] = &CollisionManager::collidesAABBvOBB;
+	collisionTable[{Collider::HALFVOL, Collider::AABB}] = &CollisionManager::collidesHalfvolvCollider;
+	collisionTable[{Collider::HALFVOL, Collider::OBB}] = &CollisionManager::collidesHalfvolvCollider;
+	collisionTable[{Collider::HALFVOL, Collider::SPHERE}] = &CollisionManager::collidesHalfvolvCollider;
+	collisionTable[{Collider::AABB, Collider::HALFVOL}] = &CollisionManager::collidesCollidervHalfvol;
+	collisionTable[{Collider::OBB, Collider::HALFVOL}] = &CollisionManager::collidesCollidervHalfvol;
+	collisionTable[{Collider::SPHERE, Collider::HALFVOL}] = &CollisionManager::collidesCollidervHalfvol;
 
-	radialProjections[Collider::SPHERE] = &radialSphere;
-	radialProjections[Collider::AABB] = &radialAABB;
-	radialProjections[Collider::OBB] = &radialOBB;
-	radialProjections[Collider::HALFVOL] = &radialHalfVol;
+	radialProjections[Collider::SPHERE] = &CollisionManager::radialSphere;
+	radialProjections[Collider::AABB] = &CollisionManager::radialAABB;
+	radialProjections[Collider::OBB] = &CollisionManager::radialOBB;
+	radialProjections[Collider::HALFVOL] = &CollisionManager::radialHalfVol;
 }
 
 XMFLOAT3 CollisionManager::radialSphere(const Collider & a, const XMFLOAT3 & axis)

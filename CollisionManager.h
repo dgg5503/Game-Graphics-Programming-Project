@@ -5,6 +5,23 @@
 #include <vector>
 #include "Collider.h"
 
+
+class Grid
+{
+public:
+	Grid();
+	Grid(float maxScale, XMFLOAT3 halfWidth);
+	~Grid();
+
+	int cols = 1;
+	XMFLOAT3 halfWidth = XMFLOAT3(10, 10, 10);
+	std::unordered_map<int, std::list<void(*)>> grid;
+
+	std::unordered_map<int, std::list<void(*)>>& getMapRef();
+	void clear();
+	void insert(XMFLOAT3 colLoc, XMFLOAT3 colHalf, void(*colAddress));
+};
+
 class CollisionManager
 {
 public:
@@ -74,20 +91,4 @@ private:
 	bool collides(const Collider& a, const Collider& b);
 };
 
-
-class Grid
-{
-public:
-	Grid();
-	Grid(float maxScale, XMFLOAT3 halfWidth);
-	~Grid();
-
-	int cols = 1;
-	XMFLOAT3 halfWidth = XMFLOAT3(10, 10, 10);
-	std::unordered_map<int, std::list<void(*)>> grid;
-
-	std::unordered_map<int, std::list<void(*)>>& getMapRef();
-	void clear();
-	void insert(XMFLOAT3 colLoc, XMFLOAT3 colHalf, void(*colAddress));
-};
 
