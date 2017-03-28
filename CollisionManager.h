@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 #include <vector>
 #include "Collider.h"
+#include "Entity.h"
 
 
 class Grid

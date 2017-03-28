@@ -202,9 +202,16 @@ void Game::CreateEntities()
 	EntityPlayer* player;
 	entities["player"] = player = new EntityPlayer(meshes["sphere"], materials["stone"]);
 	player->SetSpeed(2.0f);
-	player->transform.SetPosition(0, 0, 0.0f);
+	player->transform.SetPosition(0.0f, 0.0f, 0.0f);
 	player->transform.SetScale(0.25f, 0.25f, 0.25f);
-	player->CreateCollider(Collider::ColliderType::SPHERE);//test with other object, can edit this later when collision works
+	player->CreateCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, colliders works with radius
+
+	//temp
+	Entity* test;
+	entities["test"] = test = new TestEntity(meshes["sphere"], materials["sand"]);
+	test->transform.SetPosition(-1.0f, 0.0f, 0.0f);
+	test->transform.SetScale(0.25f, 0.25f, 0.25f);
+	test->CreateCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));
 
 	// Background entity
 	Entity* background = entities["background"] = new TestEntity(meshes["cube"], materials["brick"]);
@@ -277,6 +284,9 @@ void Game::Update(float deltaTime, float totalTime)
 		);
 
 		entities["player"]->Update(deltaTime, totalTime);
+
+		//check for collisions
+		collisionManager->CollisionUpdate();
 
 }
 

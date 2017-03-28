@@ -8,5 +8,7 @@ public:
 	~TestEntity();
 
 	void Update(float deltaTime, float totalTime);
+
+	virtual void OnCollision(Collision collision);
 };
 

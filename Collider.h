@@ -48,7 +48,7 @@ public:
 
 	//Part of all components
 	void SetParentEntity(Entity* parent);
-	const Entity* const GetParentEntity() const;
+	Entity* const GetParentEntity() const;
 	const Entity* const GetBaseEntity() const;	//same as GetParentEntity unless heirarchy of entities is implemented
 
 private:
