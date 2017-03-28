@@ -2,10 +2,10 @@
 #include "ShaderConstants.h"
 
 // Lighting information to sample from
-Texture2D colorTexture : register(t0);
-Texture2D worldPosTexture : register(t1);
-Texture2D normalsTexture : register(t2);
-SamplerState deferredSampler : register(s0);
+Texture2D colorTexture			: register(t0);
+Texture2D worldPosTexture		: register(t1);
+Texture2D normalsTexture		: register(t2);
+SamplerState deferredSampler	: register(s0);
 
 // Light data for all lights
 // Global information independent of current object
@@ -41,7 +41,7 @@ cbuffer LightData : register(b0)
 struct TargetCoords
 {
 	float4 position	: SV_POSITION;
-	float2 uv	: TEXCOORD;
+	float2 uv		: TEXCOORD;
 };
 
 float4 main(TargetCoords input) : SV_TARGET

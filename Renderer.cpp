@@ -279,9 +279,9 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 
 	// load deferred lighting and vert shader
 	deferredLightingPS = CreateSimplePixelShader();
-	deferredLightingPS->LoadShaderFile(L"Debug/DefferedLighting.cso");
+	deferredLightingPS->LoadShaderFile(L"./Assets/Shaders/DefferedLighting.cso");
 	deferredVS = CreateSimpleVertexShader();
-	deferredVS->LoadShaderFile(L"Debug/Texture2BufferVertexShader.cso");
+	deferredVS->LoadShaderFile(L"./Assets/Shaders/Texture2BufferVertexShader.cso");
 
 	// Setup texture stuff
 	// Create a sampler state
@@ -319,7 +319,6 @@ inline void Renderer::ClearRenderTargets()
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
 		1.0f,
 		0);
-
 }
 
 // --------------------------------------------------------

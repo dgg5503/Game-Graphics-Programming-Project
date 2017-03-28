@@ -130,15 +130,15 @@ void Game::Init()
 void Game::LoadShaders()
 {
 	vertexShader = renderer->CreateSimpleVertexShader();
-	if (!vertexShader->LoadShaderFile(L"Debug/VertexShader.cso"))
+	if (!vertexShader->LoadShaderFile(L"./Assets/Shaders/VertexShader.cso"))
 		vertexShader->LoadShaderFile(L"VertexShader.cso");
 
 	pixelShader = renderer->CreateSimplePixelShader();
-	if (!pixelShader->LoadShaderFile(L"Debug/DefferedPixelShader.cso"))
+	if (!pixelShader->LoadShaderFile(L"./Assets/Shaders/DefferedPixelShader.cso"))
 		pixelShader->LoadShaderFile(L"DefferedPixelShader.cso");
 
 	pixelShader_specular = renderer->CreateSimplePixelShader();
-	if (!pixelShader_specular->LoadShaderFile(L"Debug/PixelShader_Specular.cso"))
+	if (!pixelShader_specular->LoadShaderFile(L"./Assets/Shaders/PixelShader_Specular.cso"))
 		pixelShader_specular->LoadShaderFile(L"PixelShader_Specular.cso");
 
 	// You'll notice that the code above attempts to load each
