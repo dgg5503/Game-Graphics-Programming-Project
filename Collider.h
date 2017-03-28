@@ -42,12 +42,13 @@ public:
 	XMFLOAT3 const GetPosition() const;
 	XMFLOAT4 const GetRotationColumn(int col) const;
 
+	void SetOffset(XMFLOAT3 offIn);
+	void SetScale(XMFLOAT3 scaleIn);
+
 	//Part of all components
 	void SetParentEntity(Entity* parent);
 	const Entity* const GetParentEntity() const;
-	const Entity* const GetBaseEntity() const;
-
-	Entity* parentEntity;//move to private
+	const Entity* const GetBaseEntity() const;	//same as GetParentEntity unless heirarchy of entities is implemented
 
 private:
 	XMFLOAT3 offset; // vec3
@@ -55,6 +56,7 @@ private:
 	XMFLOAT4 rotation; // quat
 
 	ColliderType colType;
+	Entity* parentEntity;
 
 	XMFLOAT4 GetEntityRotation() const;
 };

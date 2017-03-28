@@ -136,6 +136,16 @@ XMFLOAT4 const Collider::GetRotationColumn(int col) const
 	return rot;
 }
 
+void Collider::SetOffset(XMFLOAT3 offIn)
+{
+	offset = offIn;
+}
+
+void Collider::SetScale(XMFLOAT3 scaleIn)
+{
+	scale = scaleIn;
+}
+
 void Collider::SetParentEntity(Entity * parent)
 {
 	parentEntity = parent;
