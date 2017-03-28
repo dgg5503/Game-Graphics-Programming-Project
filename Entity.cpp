@@ -112,3 +112,7 @@ Collider * const Entity::GetCollider() const
 {
 	return collider;
 }
+
+void Entity::OnCollision(Collision collision)
+{
+}

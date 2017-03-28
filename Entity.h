@@ -6,6 +6,7 @@
 #include "Renderer.h"
 
 class Renderer; // forward declaration to fix cyclic dep
+struct Collision {};
 
 class Entity
 {
@@ -29,6 +30,7 @@ public:
 
 	void CreateCollider(Collider::ColliderType type);
 	Collider * const GetCollider() const;
+	virtual void OnCollision(Collision collision);
 
 
 	// Public transform so we can access information!
