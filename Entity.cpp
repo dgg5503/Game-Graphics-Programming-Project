@@ -71,8 +71,7 @@ void Entity::SetMesh(Mesh* mesh)
 // --------------------------------------------------------
 void Entity::SetMaterial(Material* material)
 {
-	// Bad design, fix in the future...
-
+	// TODO: Ensure not in process of rendering at this point, i.e. block until next frame
 	// Remove self from renderer current bin
 	Renderer::Instance()->UnstageEntity(this);
 

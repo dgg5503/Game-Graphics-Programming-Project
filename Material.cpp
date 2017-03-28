@@ -14,9 +14,31 @@ Material::Material(SimpleVertexShader * const vertexShader,
 	SimplePixelShader * const pixelShader,
 	Texture2D* const texture2D) :
 	vertexShader(vertexShader),
-	pixelShader(pixelShader),
-	texture2D(texture2D)
+	pixelShader(pixelShader)
 {
+	// initialize single texture
+	textureList.numTextures = 1;
+	textureList.textures = new Texture2D*;
+	textureList.textures[0] = texture2D;
+
+	// assigned next ID
+	materialID = staticMaterialID++;
+}
+
+Material::Material(SimpleVertexShader * const vertexShader,
+	SimplePixelShader * const pixelShader,
+	Texture2D ** const textures,
+	size_t numTextures) :
+	vertexShader(vertexShader),
+	pixelShader(pixelShader)
+{
+	// Save multiple textures
+	textureList.numTextures = numTextures;
+	textureList.textures = new Texture2D*[numTextures];
+	
+	// copy pointers
+	memcpy(textureList.textures, textures, sizeof(Texture2D*) * numTextures);
+
 	// assigned next ID
 	materialID = staticMaterialID++;
 }
@@ -26,6 +48,9 @@ Material::Material(SimpleVertexShader * const vertexShader,
 // --------------------------------------------------------
 Material::~Material()
 {
+	// Free double ptr array of textures
+	if(textureList.textures)
+		delete[] textureList.textures;
 }
 
 // --------------------------------------------------------
@@ -34,10 +59,19 @@ Material::~Material()
 // --------------------------------------------------------
 void Material::PrepareMaterial()
 {
+	// Loop through bounds textures and set them as active
+	Texture2D* currTexture;
+	for (size_t i = textureList.numTextures; i--;)
+	{
+		currTexture = textureList.textures[i];
+		pixelShader->SetShaderResourceView(currTexture->GetSRVName(), currTexture->GetSRV());
+		pixelShader->SetSamplerState(currTexture->GetSampelerName(), currTexture->GetSamplerState());
+
+	}
 	// This should only be called by the renderer...
 	// Set up texture specific information
-	pixelShader->SetShaderResourceView("albedo", texture2D->GetSRV());
-	pixelShader->SetSamplerState("albedoSampler", texture2D->GetSamplerState());
+	//pixelShader->SetShaderResourceView("albedo", texture2D->GetSRV());
+	//pixelShader->SetSamplerState("albedoSampler", texture2D->GetSamplerState());
 
 	// Set up additional shader information (if provided)
 	// IF I WERE A SPECULAR_MATERIAL
@@ -65,7 +99,9 @@ SimplePixelShader * const Material::GetPixelShader() const
 // --------------------------------------------------------
 Texture2D * const Material::GetTexture2D() const
 {
-	return texture2D;
+	printf("OH NO DONT CALL THIS\n");
+	return nullptr;
+	//return texture2D;
 }
 
 // --------------------------------------------------------

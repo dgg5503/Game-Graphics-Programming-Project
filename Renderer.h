@@ -55,7 +55,7 @@ public:
 	Mesh* const CreateMesh(const char* path) const;
 
 	// Texture factory. CALLER SHOULD FREE CREATED VARIABLES
-	Texture2D* const CreateTexture2D(const wchar_t* path);
+	Texture2D* const CreateTexture2D(const wchar_t * path, Texture2DType type);
 
 private:
 	// Instance specific stuff
