@@ -84,6 +84,7 @@ void CollisionManager::CollisionUpdate()
 				if (collides(*obji, *objj))
 				{
 					//pass in collision data to the collision functions in the entities
+					Collision c = {objj->GetParentEntity(), objj, objj->GetParentEntity()->transform};//want point in space of collision? normal if possible?
 					obji->GetParentEntity()->OnCollision(c);
 					objj->GetParentEntity()->OnCollision(c);
 				}
