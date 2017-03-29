@@ -24,7 +24,7 @@ Game::Game(HINSTANCE hInstance)
 	// Initialize fields
 	vertexShader = 0;
 	pixelShader = 0;
-	pixelShader_specular = 0;
+	pixelShader_normal = 0;
 	renderer = nullptr;
 	collisionManager = nullptr;
 
@@ -73,7 +73,7 @@ Game::~Game()
 	// will clean up their own internal DirectX stuff
 	delete vertexShader;
 	delete pixelShader;
-	delete pixelShader_specular;
+	delete pixelShader_normal;
 
 	// Shutdown renderer
 	Renderer::Shutdown();
@@ -137,9 +137,9 @@ void Game::LoadShaders()
 	if (!pixelShader->LoadShaderFile(L"./Assets/Shaders/DefferedPixelShader.cso"))
 		pixelShader->LoadShaderFile(L"DefferedPixelShader.cso");
 
-	pixelShader_specular = renderer->CreateSimplePixelShader();
-	if (!pixelShader_specular->LoadShaderFile(L"./Assets/Shaders/PixelShader_Specular.cso"))
-		pixelShader_specular->LoadShaderFile(L"PixelShader_Specular.cso");
+	pixelShader_normal = renderer->CreateSimplePixelShader();
+	if (!pixelShader_normal->LoadShaderFile(L"./Assets/Shaders/DefferedPixelShader_NormalMap.cso"))
+		pixelShader_normal->LoadShaderFile(L"DefferedPixelShader_NormalMap.cso");
 
 	// You'll notice that the code above attempts to load each
 	// compiled shader file (.cso) from two different relative paths.
@@ -175,12 +175,14 @@ void Game::CreateBasicGeometry()
 	// Texture 1 from http://www.textures.com/download/3dscans0029/126909
 	// Texture 2 from http://www.textures.com/download/3dscans0014/126018
 	// Load up textures
-	textures["brick"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_BrownBricks_albedo_M.tif");
-	textures["sand"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_DesertSand1_albedo_M.tif");
-	textures["stone"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_StoneSurface_albedo_M.tif");
+	textures["brick"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_BrownBricks_albedo_M.tif", Texture2DType::ALBEDO);
+	textures["sand"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_DesertSand1_albedo_M.tif", Texture2DType::ALBEDO);
+	textures["stone"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_StoneSurface_albedo_M.tif", Texture2DType::ALBEDO);
+	textures["brick_norm"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_BrownBricks_normalmap_M.tif", Texture2DType::NORMAL);
 
 	// Create our materials
-	materials["brick"] = new Material(vertexShader, pixelShader, textures["brick"]);
+	Texture2D* brickTextures[2] = { textures["brick"], textures["brick_norm"] };
+	materials["brick"] = new Material(vertexShader, pixelShader_normal, brickTextures, 2);
 	materials["sand"] = new Material(vertexShader, pixelShader, textures["sand"]);
 	materials["stone"] = new Material(vertexShader, pixelShader, textures["stone"]);
 

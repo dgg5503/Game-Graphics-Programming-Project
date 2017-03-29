@@ -41,6 +41,7 @@ private:
 
 	// Model loading funciton
 	void LoadOBJ(const char* const objFile, ID3D11Device* const device);
+	void CalculateTangents(Vertex * verts, int numVerts, unsigned int * indices, int numIndices);
 	bool UploadModel(const MeshParameters& params, ID3D11Device* const device);
 
 	// Data required in order to draw our mesh to the screen

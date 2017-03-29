@@ -11,6 +11,14 @@ public:
 		SimplePixelShader* const pixelShader,		// Required shader needed to draw stuff
 		Texture2D* const texture2D					// Texture to use for this material
 	);
+
+	Material(
+		SimpleVertexShader* const vertexShader,		// Required shader needed to draw stuff
+		SimplePixelShader* const pixelShader,		// Required shader needed to draw stuff
+		Texture2D** const textures,					// Textures to use for this material
+		size_t numTextures							// number of textures
+	);
+
 	~Material();
 
 	// Set vertex/pixel shader information
@@ -27,6 +35,12 @@ public:
 	unsigned int GetID() const;
 
 private:
+	struct Textures
+	{
+		Texture2D** textures;
+		size_t numTextures;
+	};
+
 	// Used for unique identification of materials for the Renderer
 	static unsigned int staticMaterialID;
 
@@ -35,7 +49,8 @@ private:
 	SimplePixelShader* pixelShader;
 
 	// Pointers to info neeeded to attach a texture
-	Texture2D* texture2D;
+	Textures textureList;
+	//Texture2D* texture2D;
 
 	// Material ID for this material
 	unsigned int materialID;

@@ -49,7 +49,9 @@ float4 main(TargetCoords input) : SV_TARGET
 	// Sample color, world pos and normals
 	float4 col = colorTexture.Sample(deferredSampler, input.uv);
 	float3 pos = worldPosTexture.Sample(deferredSampler, input.uv).xyz;
-	float3 n = normalsTexture.Sample(deferredSampler, input.uv).xyz;
+
+	// revert normals to -1 to 1
+	float3 n = (normalsTexture.Sample(deferredSampler, input.uv).xyz * 2.0f) - 1.0f;
 
 	// Perform lighting calc and return to light texture
 	// Resultant light, tmp dir and lightamt

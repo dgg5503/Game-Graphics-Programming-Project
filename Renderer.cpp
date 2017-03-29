@@ -279,9 +279,12 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 
 	// load deferred lighting and vert shader
 	deferredLightingPS = CreateSimplePixelShader();
-	deferredLightingPS->LoadShaderFile(L"./Assets/Shaders/DefferedLighting.cso");
+	if (!deferredLightingPS->LoadShaderFile(L"./Assets/Shaders/DefferedLighting.cso"))
+		return S_FALSE;
+
 	deferredVS = CreateSimpleVertexShader();
-	deferredVS->LoadShaderFile(L"./Assets/Shaders/Texture2BufferVertexShader.cso");
+	if (!deferredVS->LoadShaderFile(L"./Assets/Shaders/Texture2BufferVertexShader.cso"))
+		return S_FALSE;
 
 	// Setup texture stuff
 	// Create a sampler state
@@ -471,11 +474,8 @@ void Renderer::Render(const Camera * const camera)
 
 		for (auto bucketIt = bucket.first; bucketIt != bucket.second; bucketIt++)
 		{
-			// -- Set material specific information --
-
 			// How to pass in cameralocation for a blinn-phone material
 			// when I can only supply the vertexShader and pixelShader?
-
 			// The camera location is something that sits constant during these calcs
 			// We need to make a function in material that prepares constant information
 			// for the given shader?
@@ -570,6 +570,7 @@ void Renderer::Render(const Camera * const camera)
 	// Paint lighting info to full screen quad
 	context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
+	// IALayout might need to be set to null here as well
 	context->Draw(3, 0);
 
 	// Render UI
@@ -578,7 +579,7 @@ void Renderer::Render(const Camera * const camera)
 	// Unbind all sampler states and srvs
 	context->PSSetShaderResources(0, 4, null);
 
-	// Fixes depth buffer issue
+	// Fixes depth buffer issue regarding SpriteBatch2D
 	context->OMSetDepthStencilState(nullptr, 0);
 
 	// Present the back buffer to the user
@@ -718,9 +719,9 @@ Mesh * const Renderer::CreateMesh(const char * path) const
 // Create and return a texture.
 // TODO: Allow for different sampler options?
 // --------------------------------------------------------
-Texture2D * const Renderer::CreateTexture2D(const wchar_t * path)
+Texture2D * const Renderer::CreateTexture2D(const wchar_t * path, Texture2DType type)
 {
 	if (!path)
 		return nullptr;
-	return new Texture2D(path, sampler, device, context);
+	return new Texture2D(path, type, sampler, device, context);
 }
