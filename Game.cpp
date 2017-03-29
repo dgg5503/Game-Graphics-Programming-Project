@@ -88,7 +88,7 @@ void Game::Init()
 {
 	// Initialize renderer singleton/DX
 	renderer = Renderer::Initialize(this);
-	collisionManager = CollisionManager::Initialize();
+	collisionManager = CollisionManager::Initialize(0.25f, XMFLOAT3(3, 3, 0.5));
 
 	// Initialize starting mouse location to center of screen
 	prevMousePos.x = GetWidth() / 2;
@@ -204,7 +204,7 @@ void Game::CreateEntities()
 	player->SetSpeed(2.0f);
 	player->transform.SetPosition(0.0f, 0.0f, 0.0f);
 	player->transform.SetScale(0.25f, 0.25f, 0.25f);
-	player->CreateCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, colliders works with radius
+	player->CreateCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, collider works with radius
 
 	//temp
 	Entity* test;

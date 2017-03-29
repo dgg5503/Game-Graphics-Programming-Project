@@ -7,8 +7,9 @@
 
 class Renderer; // forward declaration to fix cyclic dep
 struct Collision {
-	Entity* other;
-	XMFLOAT3 point;
+	Entity* otherEntity;
+	Collider* otherCollider;
+	Transform otherTransform;
 };
 
 class Entity
