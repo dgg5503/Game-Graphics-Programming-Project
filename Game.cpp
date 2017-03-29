@@ -198,13 +198,37 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::CreateEntities()
 {
+	// Projectile Entities
+	projectileManager = new ProjectileManager();
+	auto projectiles = projectileManager->BuildProjectiles(meshes["sphere"], materials["brick"]);
+	for (int i = 0; i < projectiles.size(); ++i) {
+		auto name = new std::string("Projectile_" + std::to_string(i));
+		entities[name->data()] = projectiles[i];
+	}
+
 	// Player entity
 	EntityPlayer* player;
 	entities["player"] = player = new EntityPlayer(meshes["sphere"], materials["stone"]);
 	player->SetSpeed(2.0f);
+	player->SetProjectileManager(projectileManager);
 	player->transform.SetPosition(0, 0, 0.0f);
 	player->transform.SetScale(0.25f, 0.25f, 0.25f);
 	player->CreateCollider(Collider::ColliderType::SPHERE);//test with other object, can edit this later when collision works
+
+	// Enemy entity
+	EntityEnemy* enemy;
+	entities["enemy"] = enemy = new EntityEnemy(meshes["cube"], materials["sand"]);
+	enemy->SetTarget(player);
+	enemy->transform.SetPosition(0, 0, 0.0f);
+	enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
+	enemy->CreateCollider(Collider::ColliderType::OBB);
+
+
+	entities["enemy2"] = enemy = new EntityEnemy(meshes["cube"], materials["sand"]);
+	enemy->SetTarget(player);
+	enemy->transform.SetPosition(10, 0, 0.0f);
+	enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
+	enemy->CreateCollider(Collider::ColliderType::OBB);
 
 	// Background entity
 	Entity* background = entities["background"] = new TestEntity(meshes["cube"], materials["brick"]);
@@ -262,10 +286,8 @@ void Game::Update(float deltaTime, float totalTime)
 	activeCamera->Update(deltaTime, totalTime);
 
 	// Update all entities
-	/*
-	for (size_t i = 0; i < entities.size(); i++)
-		entities[i]->Update(deltaTime, totalTime);
-	*/
+	for (auto iter = entities.begin(); iter != entities.end(); ++iter)
+		iter->second->Update(deltaTime, totalTime);
 
 
 	
@@ -276,7 +298,6 @@ void Game::Update(float deltaTime, float totalTime)
 			GetWindowLocation().y + GetHeight() / 2
 		);
 
-		entities["player"]->Update(deltaTime, totalTime);
 
 }
 

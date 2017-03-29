@@ -1,9 +1,10 @@
 #pragma once
 #include "Entity.h"
+#include "ProjectileManager.h"
 
 // Entity controlled by the player.
 class EntityPlayer :
-	public Entity
+	public virtual Entity
 {
 public:
 	EntityPlayer(Mesh* mesh, Material* material);
@@ -13,9 +14,15 @@ public:
 	void Update(float deltaTime, float totalTime) override;
 	
 	void SetSpeed(float speed);
+	void SetProjectileManager(ProjectileManager* projectileManager);
 	float GetSpeed();
 
 protected:
 	float speed;
+	float fireTimer, fireRate;
+	ProjectileManager* projectileManager;
+
+	void OnCollision(Collision other) override;
+	void fireProjectile(XMFLOAT3 direction);
 };
 

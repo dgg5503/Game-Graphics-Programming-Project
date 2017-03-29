@@ -11,7 +11,7 @@ struct Collision {};
 class Entity
 {
 public:
-	// Cosntruction of an entity requires a mesh and material
+	// Construction of an entity requires a mesh and material
 	Entity(
 		Mesh* mesh,
 		Material* material

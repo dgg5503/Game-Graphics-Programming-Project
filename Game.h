@@ -23,7 +23,13 @@
 // Entities
 #include "Entity.h"
 #include "EntityPlayer.h"
+#include "EntityEnemy.h"
+#include "EntityProjectile.h"
 #include "TestEntity.h"
+
+// Managers
+#include "ProjectileManager.h"
+
 
 class Game 
 	: public DXWindow
@@ -58,6 +64,9 @@ private:
 
 	//Collision Manager
 	CollisionManager* collisionManager;
+
+	// Projectile Manager
+	ProjectileManager* projectileManager;
 
 	// Maps of stuff by string
 	std::unordered_map<const char*, Mesh*> meshes;
