@@ -71,8 +71,7 @@ void Entity::SetMesh(Mesh* mesh)
 // --------------------------------------------------------
 void Entity::SetMaterial(Material* material)
 {
-	// Bad design, fix in the future...
-
+	// TODO: Ensure not in process of rendering at this point, i.e. block until next frame
 	// Remove self from renderer current bin
 	Renderer::Instance()->UnstageEntity(this);
 
@@ -99,12 +98,12 @@ Material * const Entity::GetMaterial() const
 	return material;
 }
 
-void Entity::CreateCollider(Collider::ColliderType type)
+void Entity::CreateCollider(Collider::ColliderType type, XMFLOAT3 scale, XMFLOAT3 offset, XMFLOAT4 rotation)
 {
 	if (collider != nullptr) {
 		return;
 	}
-	collider = new Collider(type);
+	collider = new Collider(type, offset, scale, rotation);
 	collider->SetParentEntity(this);
 }
 

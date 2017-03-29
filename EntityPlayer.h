@@ -4,7 +4,7 @@
 
 // Entity controlled by the player.
 class EntityPlayer :
-	public virtual Entity
+	public Entity
 {
 public:
 	EntityPlayer(Mesh* mesh, Material* material);
@@ -22,7 +22,7 @@ protected:
 	float fireTimer, fireRate;
 	ProjectileManager* projectileManager;
 
-	void OnCollision(Collision other) override;
+	void OnCollision(Collision collision) override;
 	void fireProjectile(XMFLOAT3 direction);
 };
 

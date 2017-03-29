@@ -1,3 +1,4 @@
+#include "Vertex.hlsli"
 
 // Constant Buffer
 // - Allows us to define a buffer of individual variables 
@@ -12,43 +13,6 @@ cbuffer externalData : register(b0)
 	matrix projection;
 	matrix inverseTransposeWorld;
 	// pass world inverse transpose here for correct normal transformation
-};
-
-// Struct representing a single vertex worth of data
-// - This should match the vertex definition in our C++ code
-// - By "match", I mean the size, order and number of members
-// - The name of the struct itself is unimportant, but should be descriptive
-// - Each variable must have a semantic, which defines its usage
-struct VertexShaderInput
-{ 
-	// Data type
-	//  |
-	//  |   Name          Semantic
-	//  |    |                |
-	//  v    v                v
-	float3 position		: POSITION;     // XYZ position
-	//float4 color		: COLOR;        // RGBA color
-	float3 normal		: NORMAL;
-	float2 uv			: TEXCOORD;
-};
-
-// Struct representing the data we're sending down the pipeline
-// - Should match our pixel shader's input (hence the name: Vertex to Pixel)
-// - At a minimum, we need a piece of data defined tagged as SV_POSITION
-// - The name of the struct itself is unimportant, but should be descriptive
-// - Each variable must have a semantic, which defines its usage
-struct VertexToPixel
-{
-	// Data type
-	//  |
-	//  |   Name          Semantic
-	//  |    |                |
-	//  v    v                v
-	float4 position		: SV_POSITION;	// XYZW position (System Value Position
-	//float4 color		: COLOR;        // RGBA color
-	float3 worldPos		: WORLDPOSITION;
-	float3 normal		: NORMAL;
-	float2 uv			: TEXCOORD;
 };
 
 // --------------------------------------------------------
@@ -95,6 +59,7 @@ VertexToPixel main( VertexShaderInput input )
 	// NOTE/WARNING/ALERT/REMINDER: THIS METHOD ONLY WORKS FOR UNIFORM SCALING!
 	// To correctly scale normals for non-uniform scaling, pass in INVERSE TPOSE
 	output.normal = mul(input.normal, (float3x3)inverseTransposeWorld);
+	output.tangent = mul(input.tangent, (float3x3)inverseTransposeWorld);
 
 	// Interpolate UV coordinates
 	output.uv = input.uv;

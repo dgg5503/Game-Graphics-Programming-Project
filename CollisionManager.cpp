@@ -6,13 +6,13 @@
 CollisionManager* CollisionManager::instance = nullptr;
 
 
-CollisionManager * const CollisionManager::Initialize()
+CollisionManager * const CollisionManager::Initialize(float maxScale, XMFLOAT3 gridHalfWidth)
 {
 	// Ensure not already initialized
 	assert(instance == nullptr);
 
 	// Initialize renderer
-	instance = new CollisionManager();
+	instance = new CollisionManager(maxScale, gridHalfWidth);
 
 	// return instance after init
 	return instance;
@@ -83,30 +83,19 @@ void CollisionManager::CollisionUpdate()
 				Collider* objj = (Collider*)(*iterj);//2nd object
 				if (collides(*obji, *objj))
 				{
-					//create a call to a collision function: in Entity or pass a call somehow to decide how to deal with the collision
-
-					/*
-					if (obji->collisionScriptMap.count(objj->tag))
-						obji->collisionScriptMap[objj->tag](this, obji, objj);
-
-					if (objj->collisionScriptMap.count(obji->tag))
-						objj->collisionScriptMap[obji->tag](this, objj, obji);
-					/**/
-					printf("objects colliding");
+					//pass in collision data to the collision functions in the entities
+					Collision c = {objj->GetParentEntity(), objj, objj->GetParentEntity()->transform};//want point in space of collision? normal if possible?
+					obji->GetParentEntity()->OnCollision(c);
+					objj->GetParentEntity()->OnCollision(c);
 				}
 			}
 		}
 	}
 }
 
-CollisionManager::CollisionManager()
-{
-	//eh...
-	grid = Grid(1, XMFLOAT3(1,1,1));
-}
-
 CollisionManager::CollisionManager(float maxScale, XMFLOAT3 gridHalfWidth)
 {
+	CollisionInit();
 	//instantiate grid
 	grid = Grid(maxScale, gridHalfWidth);
 }
@@ -241,7 +230,7 @@ XMFLOAT3 CollisionManager::nearPtOBB(const Collider & obb, XMFLOAT3 axisToC)
 
 	//clamp to halfwidths
 	XMVECTOR scaleVec = XMLoadFloat3(obb.GetScale());
-	axisToCVec = XMVector3ClampLengthV(axisToCVec, -scaleVec, scaleVec);
+	axisToCVec = XMVector3ClampLengthV(axisToCVec, XMVectorZero(), scaleVec);
 
 	//back to world coordinates
 	axisToCVec = DirectX::XMVector3Transform(axisToCVec, rotMat);

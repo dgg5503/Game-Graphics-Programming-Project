@@ -151,7 +151,7 @@ void Collider::SetParentEntity(Entity * parent)
 	parentEntity = parent;
 }
 
-const Entity * const Collider::GetParentEntity() const
+Entity * const Collider::GetParentEntity() const
 {
 	return parentEntity;
 }

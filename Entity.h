@@ -6,7 +6,11 @@
 #include "Renderer.h"
 
 class Renderer; // forward declaration to fix cyclic dep
-struct Collision {};
+struct Collision {
+	Entity* otherEntity;
+	Collider* otherCollider;
+	Transform otherTransform;
+};
 
 class Entity
 {
@@ -28,7 +32,7 @@ public:
 	Mesh * const GetMesh() const;
 	Material * const GetMaterial() const;
 
-	void CreateCollider(Collider::ColliderType type);
+	void CreateCollider(Collider::ColliderType type, XMFLOAT3 scale = XMFLOAT3(0, 0, 0), XMFLOAT3 offset = XMFLOAT3(0, 0, 0), XMFLOAT4 rotation = XMFLOAT4(0, 0, 0, 0));
 	Collider * const GetCollider() const;
 	virtual void OnCollision(Collision collision);
 

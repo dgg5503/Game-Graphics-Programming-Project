@@ -24,7 +24,7 @@ Game::Game(HINSTANCE hInstance)
 	// Initialize fields
 	vertexShader = 0;
 	pixelShader = 0;
-	pixelShader_specular = 0;
+	pixelShader_normal = 0;
 	renderer = nullptr;
 	collisionManager = nullptr;
 
@@ -73,7 +73,7 @@ Game::~Game()
 	// will clean up their own internal DirectX stuff
 	delete vertexShader;
 	delete pixelShader;
-	delete pixelShader_specular;
+	delete pixelShader_normal;
 
 	// Shutdown renderer
 	Renderer::Shutdown();
@@ -88,7 +88,7 @@ void Game::Init()
 {
 	// Initialize renderer singleton/DX
 	renderer = Renderer::Initialize(this);
-	collisionManager = CollisionManager::Initialize();
+	collisionManager = CollisionManager::Initialize(0.25f, XMFLOAT3(3, 3, 0.5));
 
 	// Initialize starting mouse location to center of screen
 	prevMousePos.x = GetWidth() / 2;
@@ -137,9 +137,9 @@ void Game::LoadShaders()
 	if (!pixelShader->LoadShaderFile(L"./Assets/Shaders/DefferedPixelShader.cso"))
 		pixelShader->LoadShaderFile(L"DefferedPixelShader.cso");
 
-	pixelShader_specular = renderer->CreateSimplePixelShader();
-	if (!pixelShader_specular->LoadShaderFile(L"./Assets/Shaders/PixelShader_Specular.cso"))
-		pixelShader_specular->LoadShaderFile(L"PixelShader_Specular.cso");
+	pixelShader_normal = renderer->CreateSimplePixelShader();
+	if (!pixelShader_normal->LoadShaderFile(L"./Assets/Shaders/DefferedPixelShader_NormalMap.cso"))
+		pixelShader_normal->LoadShaderFile(L"DefferedPixelShader_NormalMap.cso");
 
 	// You'll notice that the code above attempts to load each
 	// compiled shader file (.cso) from two different relative paths.
@@ -175,12 +175,14 @@ void Game::CreateBasicGeometry()
 	// Texture 1 from http://www.textures.com/download/3dscans0029/126909
 	// Texture 2 from http://www.textures.com/download/3dscans0014/126018
 	// Load up textures
-	textures["brick"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_BrownBricks_albedo_M.tif");
-	textures["sand"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_DesertSand1_albedo_M.tif");
-	textures["stone"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_StoneSurface_albedo_M.tif");
+	textures["brick"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_BrownBricks_albedo_M.tif", Texture2DType::ALBEDO);
+	textures["sand"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_DesertSand1_albedo_M.tif", Texture2DType::ALBEDO);
+	textures["stone"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_StoneSurface_albedo_M.tif", Texture2DType::ALBEDO);
+	textures["brick_norm"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_BrownBricks_normalmap_M.tif", Texture2DType::NORMAL);
 
 	// Create our materials
-	materials["brick"] = new Material(vertexShader, pixelShader, textures["brick"]);
+	Texture2D* brickTextures[2] = { textures["brick"], textures["brick_norm"] };
+	materials["brick"] = new Material(vertexShader, pixelShader_normal, brickTextures, 2);
 	materials["sand"] = new Material(vertexShader, pixelShader, textures["sand"]);
 	materials["stone"] = new Material(vertexShader, pixelShader, textures["stone"]);
 
@@ -213,13 +215,20 @@ void Game::CreateEntities()
 	player->SetProjectileManager(projectileManager);
 	player->transform.SetPosition(0, 0, 0.0f);
 	player->transform.SetScale(0.25f, 0.25f, 0.25f);
-	player->CreateCollider(Collider::ColliderType::SPHERE);//test with other object, can edit this later when collision works
+	player->CreateCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, collider works with radius
+
+	//temp
+	Entity* test;
+	entities["test"] = test = new TestEntity(meshes["sphere"], materials["sand"]);
+	test->transform.SetPosition(-1.0f, 0.0f, 0.0f);
+	test->transform.SetScale(0.25f, 0.25f, 0.25f);
+	test->CreateCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));
 
 	// Enemy entity
 	EntityEnemy* enemy;
 	entities["enemy"] = enemy = new EntityEnemy(meshes["cube"], materials["sand"]);
 	enemy->SetTarget(player);
-	enemy->transform.SetPosition(0, 0, 0.0f);
+	enemy->transform.SetPosition(2, 2, 0.0f);
 	enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
 	enemy->CreateCollider(Collider::ColliderType::OBB);
 
@@ -298,6 +307,9 @@ void Game::Update(float deltaTime, float totalTime)
 			GetWindowLocation().y + GetHeight() / 2
 		);
 
+
+		//check for collisions
+		collisionManager->CollisionUpdate();
 
 }
 

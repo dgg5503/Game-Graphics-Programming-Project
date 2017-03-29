@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 #include <vector>
 #include "Collider.h"
+#include "Entity.h"
 
 
 class Grid
@@ -26,7 +27,7 @@ class CollisionManager
 {
 public:
 	// Instance specific stuff
-	static CollisionManager * const Initialize();
+	static CollisionManager * const Initialize(float maxScale, XMFLOAT3 gridHalfWidth);
 	static CollisionManager * const Instance();
 	static void Shutdown();
 
@@ -34,7 +35,6 @@ public:
 	void UnstageCollider(Collider* const c);
 	void CollisionUpdate();
 private:
-	CollisionManager();
 	CollisionManager(float maxScale, XMFLOAT3 gridHalfWidth);
 	~CollisionManager();
 	static CollisionManager* instance;

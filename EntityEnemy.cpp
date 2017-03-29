@@ -76,3 +76,6 @@ const XMFLOAT3* const EntityEnemy::GetDirection() const
 {
 	return &this->direction;
 }
+
+void EntityEnemy::OnCollision(Collision collision) {
+}

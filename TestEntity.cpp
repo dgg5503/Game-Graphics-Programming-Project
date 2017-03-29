@@ -24,3 +24,8 @@ void TestEntity::Update(float deltaTime, float totalTime)
 	transform.SetRotation(0.0f, 0.0f, 1.0f, (XMScalarSin(totalTime) + 1) * XM_PI);
 	*/
 }
+
+void TestEntity::OnCollision(Collision collision)
+{
+	printf("test");
+}

@@ -33,5 +33,7 @@ protected:
 
 	Entity* target;
 	XMFLOAT3 direction;
+
+	void OnCollision(Collision collision) override;
 };
 
