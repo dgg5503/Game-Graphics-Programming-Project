@@ -168,7 +168,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SimpleShader.cpp" />
     <ClCompile Include="StateManager.cpp" />
-    <ClCompile Include="TestEntity.cpp" />
+    <ClCompile Include="EntityTest.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="UIGamePanel.cpp" />
@@ -196,7 +196,7 @@
     <ClInclude Include="ShaderConstants.h" />
     <ClInclude Include="SimpleShader.h" />
     <ClInclude Include="StateManager.h" />
-    <ClInclude Include="TestEntity.h" />
+    <ClInclude Include="EntityTest.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UIGamePanel.h" />

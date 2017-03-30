@@ -1,14 +1,14 @@
-#include "TestEntity.h"
+#include "EntityTest.h"
 
-TestEntity::TestEntity(Mesh* mesh, Material* material) : Entity(mesh, material)
+EntityTest::EntityTest(Mesh* mesh, Material* material) : Entity(mesh, material)
 {
 }
 
-TestEntity::~TestEntity()
+EntityTest::~EntityTest()
 {
 }
 
-void TestEntity::Update(float deltaTime, float totalTime)
+void EntityTest::Update(float deltaTime, float totalTime)
 {
 	// Per entity update
 	/*
@@ -25,7 +25,7 @@ void TestEntity::Update(float deltaTime, float totalTime)
 	*/
 }
 
-void TestEntity::OnCollision(Collision collision)
+void EntityTest::OnCollision(Collision collision)
 {
 	printf("test");
 }

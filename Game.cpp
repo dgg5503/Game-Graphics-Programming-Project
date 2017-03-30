@@ -77,7 +77,10 @@ Game::~Game()
 
 	// Shutdown renderer
 	Renderer::Shutdown();
+
+	// Shutdown Managers
 	CollisionManager::Shutdown();
+	delete projectileManager;
 }
 
 // --------------------------------------------------------
@@ -206,6 +209,7 @@ void Game::CreateEntities()
 	for (int i = 0; i < projectiles.size(); ++i) {
 		auto name = new std::string("Projectile_" + std::to_string(i));
 		entities[name->data()] = projectiles[i];
+		delete name;
 	}
 
 	// Player entity
@@ -215,32 +219,28 @@ void Game::CreateEntities()
 	player->SetProjectileManager(projectileManager);
 	player->transform.SetPosition(0, 0, 0.0f);
 	player->transform.SetScale(0.25f, 0.25f, 0.25f);
-	player->CreateCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, collider works with radius
+	player->SetCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, collider works with radius
 
 	//temp
 	Entity* test;
-	entities["test"] = test = new TestEntity(meshes["sphere"], materials["sand"]);
+	entities["test"] = test = new EntityTest(meshes["sphere"], materials["sand"]);
 	test->transform.SetPosition(-1.0f, 0.0f, 0.0f);
 	test->transform.SetScale(0.25f, 0.25f, 0.25f);
-	test->CreateCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));
+	test->SetCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));
 
-	// Enemy entity
+	// Enemy entities
 	EntityEnemy* enemy;
-	entities["enemy"] = enemy = new EntityEnemy(meshes["cube"], materials["sand"]);
-	enemy->SetTarget(player);
-	enemy->transform.SetPosition(2, 2, 0.0f);
-	enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
-	enemy->CreateCollider(Collider::ColliderType::OBB);
-
-
-	entities["enemy2"] = enemy = new EntityEnemy(meshes["cube"], materials["sand"]);
-	enemy->SetTarget(player);
-	enemy->transform.SetPosition(10, 0, 0.0f);
-	enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
-	enemy->CreateCollider(Collider::ColliderType::OBB);
+	for (auto i = 0u; i < 5; ++i) {
+		auto name = new std::string("Enemy_" + std::to_string(i));
+		entities[name->data()] = enemy = new EntityEnemy(meshes["cube"], materials["sand"]);
+		enemy->SetTarget(player);
+		enemy->MoveToRandomPosition();
+		enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
+		enemy->SetCollider(Collider::ColliderType::OBB);
+	}
 
 	// Background entity
-	Entity* background = entities["background"] = new TestEntity(meshes["cube"], materials["brick"]);
+	Entity* background = entities["background"] = new EntityTest(meshes["cube"], materials["brick"]);
 	background->transform.SetPosition(0, 0, 5.0f);
 	background->transform.SetScale(8.0f, 5.0f, 1.0f);
 
