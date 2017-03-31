@@ -8,6 +8,7 @@
 class Entity;
 
 using namespace DirectX;
+
 class Collider
 {
 public:

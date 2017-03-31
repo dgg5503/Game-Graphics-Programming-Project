@@ -13,16 +13,19 @@ public:
 	// Set new update
 	void Update(float deltaTime, float totalTime) override;
 	
+	// Setters and Getters
 	void SetSpeed(float speed);
-	void SetProjectileManager(ProjectileManager* projectileManager);
 	float GetSpeed();
+	void SetProjectileManager(ProjectileManager* projectileManager);
 
 protected:
-	float speed;
-	float fireTimer, fireRate;
-	ProjectileManager* projectileManager;
+	float speed;		// The speed the player can move at
+	float fireTimer;	// Stores time since last firing
+	float fireRate;		// The maximun rate of firing
+	ProjectileManager* projectileManager;	// Pointer to manager
 
-	void OnCollision(Collision collision) override;
-	void fireProjectile(XMFLOAT3 direction);
+	void FireProjectile(XMFLOAT3 direction);	// Fire a projectile
+
+	void OnCollision(Collision collision) override;	
 };
 

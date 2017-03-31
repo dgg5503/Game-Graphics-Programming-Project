@@ -55,7 +55,7 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 	}
 
 	if (isFiring && fireTimer > fireRate) {
-		fireProjectile(fireDirection);
+		FireProjectile(fireDirection);
 		fireTimer = 0;
 	}
 }
@@ -79,11 +79,13 @@ void EntityPlayer::OnCollision(Collision other)
 {
 }
 
-void EntityPlayer::fireProjectile(XMFLOAT3 direction)
+void EntityPlayer::FireProjectile(XMFLOAT3 direction)
 {
+	// Get projectile
 	EntityProjectile* projectile = projectileManager->GetProjectile();
 	const XMFLOAT3* position = transform.GetPosition();
 
+	// Fire projectile
 	projectile->transform.SetPosition(*position);
 	projectile->SetDirection(direction);
 	projectile->SetSpeed(5.0f);

@@ -98,7 +98,7 @@ Material * const Entity::GetMaterial() const
 	return material;
 }
 
-void Entity::CreateCollider(Collider::ColliderType type, XMFLOAT3 scale, XMFLOAT3 offset, XMFLOAT4 rotation)
+void Entity::SetCollider(Collider::ColliderType type, XMFLOAT3 scale, XMFLOAT3 offset, XMFLOAT4 rotation)
 {
 	if (collider != nullptr) {
 		return;
@@ -107,9 +107,37 @@ void Entity::CreateCollider(Collider::ColliderType type, XMFLOAT3 scale, XMFLOAT
 	collider->SetParentEntity(this);
 }
 
+void Entity::SetName(std::string name)
+{
+	this->name = name;
+}
+
 Collider * const Entity::GetCollider() const
 {
 	return collider;
+}
+
+std::string Entity::GetName() const
+{
+	return this->name;
+}
+
+bool Entity::HasTag(std::string tag)
+{
+	return std::find(tags.begin(), tags.end(), tag) != tags.end();
+}
+
+void Entity::AddTag(std::string tag)
+{
+	this->tags.push_back(tag);
+}
+
+void Entity::RemoveTag(std::string tag)
+{
+	auto iter = std::find(tags.begin(), tags.end(), tag);
+	
+	if (iter != tags.end())
+		tags.erase(iter);
 }
 
 void Entity::OnCollision(Collision collision)

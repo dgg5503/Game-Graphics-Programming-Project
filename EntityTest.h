@@ -1,11 +1,11 @@
 #pragma once
 #include "Entity.h"
-class TestEntity :
+class EntityTest :
 	public Entity
 {
 public:
-	TestEntity(Mesh* mesh, Material* material);
-	~TestEntity();
+	EntityTest(Mesh* mesh, Material* material);
+	~EntityTest();
 
 	void Update(float deltaTime, float totalTime);
 
