@@ -4,6 +4,9 @@
 #include <vector>
 #include <fstream>
 #include "Vertex.h"
+#include <assimp\Importer.hpp>
+#include <assimp\postprocess.h>
+#include <assimp\scene.h>
 
 // Should int for size of array be unsigned int, int, or size_t ?
 class Mesh
@@ -41,6 +44,7 @@ private:
 
 	// Model loading funciton
 	void LoadOBJ(const char* const objFile, ID3D11Device* const device);
+	void LoadFBX(const char* const fbxFile, ID3D11Device* const device);
 	void CalculateTangents(Vertex * verts, int numVerts, unsigned int * indices, int numIndices);
 	bool UploadModel(const MeshParameters& params, ID3D11Device* const device);
 

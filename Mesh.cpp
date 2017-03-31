@@ -37,8 +37,10 @@ Mesh::Mesh(
 // --------------------------------------------------------
 Mesh::Mesh(const char * const file, ID3D11Device * const device)
 {
+	if(file)
 	// Load our obj file.
-	LoadOBJ(file, device);
+	//LoadOBJ(file, device);
+	LoadFBX(file, device); //actually loads many types
 }
 
 // --------------------------------------------------------
@@ -268,6 +270,134 @@ void Mesh::LoadOBJ(const char * const objFile, ID3D11Device* const device)
 
 	// Calculate tangents
 	CalculateTangents(&verts[0], vertCounter, &indices[0], vertCounter);
+
+	// upload model
+	UploadModel(meshParams, device);
+}
+
+// --------------------------------------------------------
+// Loads an FBX file onto the stack then uploads the model
+// data to the GPU.
+//
+// fbxFile	- file path to obj file
+// device	- device to upload our data to
+// --------------------------------------------------------
+void Mesh::LoadFBX(const char * const fbxFile, ID3D11Device* const device)
+{
+	// Basic precondition checks
+	assert(fbxFile != nullptr);
+	assert(device != nullptr);
+
+	// Init params as 0
+	Mesh::MeshParameters meshParams = {};
+
+	//importer to read the fbx file
+	Assimp::Importer imp = Assimp::Importer();
+	const aiScene* scene = imp.ReadFile(fbxFile, aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_MakeLeftHanded | aiProcess_SortByPType);
+
+	// Check for successful open
+	if (scene == NULL)
+	{
+		fprintf(stderr, "ERROR: Model not found %s\n", fbxFile);
+		return;
+	}
+
+
+	// Variables used while reading the file
+	std::vector<XMFLOAT3> positions;     // Positions from the file
+	std::vector<XMFLOAT3> normals;       // Normals from the file
+	std::vector<XMFLOAT2> uvs;           // UVs from the file
+	std::vector<Vertex> verts;           // Verts we're assembling
+	std::vector<UINT> indices;           // Indices of these verts
+	unsigned int vertCounter = 0;        // Count of vertices/indices
+
+	//load mesh
+	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+		aiMesh* mesh = scene->mMeshes[i];
+											 
+		for (int i = 0; i < mesh->mNumVertices; i++)
+		{
+			//positions
+			aiVector3D pos = mesh->mVertices[i];
+			//transfer to XMFLOAT
+			float x = pos.x;
+			float y = pos.y;
+			float z = pos.z;
+			XMFLOAT3 posDX = XMFLOAT3(x, y, z);
+
+			//normals
+			aiVector3D norm = mesh->mNormals[i];
+			//transfer to XMFLOAT
+			x = norm.x;
+			y = norm.y;
+			z = norm.z;
+			XMFLOAT3 normDX = XMFLOAT3(x, y, z);
+
+			//uvs
+			aiVector3D uvw = mesh->mTextureCoords[0][i];
+			//transfer to XMFLOAT
+			x = uvw.x;
+			y = uvw.y;
+			XMFLOAT2 uvDX = XMFLOAT2(x, y);
+
+			//add to lists
+			positions.push_back(posDX);
+			normals.push_back(normDX);
+			uvs.push_back(uvDX);
+		}
+
+		//TODO - fix this, i think the problem is here but i could be wrong
+		for (int i = 0; i < mesh->mNumFaces; i++) {
+			const aiFace& face = mesh->mFaces[i];
+			//should always be 3 thanks to post processing
+			if (face.mNumIndices == 3) {
+				Vertex v1;
+				v1.Position = positions[face.mIndices[0]];
+				v1.UV = uvs[face.mIndices[0]];
+				v1.Normal = normals[face.mIndices[0]];
+
+				Vertex v2;
+				v2.Position = positions[face.mIndices[1]];
+				v2.UV = uvs[face.mIndices[1]];
+				v2.Normal = normals[face.mIndices[1]];
+
+				Vertex v3;
+				v3.Position = positions[face.mIndices[2]];
+				v3.UV = uvs[face.mIndices[2]];
+				v3.Normal = normals[face.mIndices[2]];
+
+				// Add the verts to the vector (flipping the winding order)
+				verts.push_back(v1);
+				verts.push_back(v3);
+				verts.push_back(v2);
+
+				// Add indices
+				indices.push_back(face.mIndices[0]); vertCounter++;
+				indices.push_back(face.mIndices[1]); vertCounter++;
+				indices.push_back(face.mIndices[2]); vertCounter++;
+			}
+		}
+
+		//not implemented yet
+		/*
+		for (int i = 0; i < mesh->mNumVertices; i++) {
+			aiVector3D tan = mesh->mTangents[i];
+
+			//transfer to XMFLOAT
+			float x = tan.x;
+			float y = tan.y;
+			float z = tan.z;
+			XMFLOAT3 tanDX = XMFLOAT3(x, y, z);
+			//tangents.push_back(normDX);
+		}
+		/**/
+	}
+
+	// set mesh params
+	meshParams.vertices = &verts[0];
+	meshParams.indices = &indices[0];
+	meshParams.numVerts = vertCounter;
+	meshParams.numIndices = vertCounter;
 
 	// upload model
 	UploadModel(meshParams, device);
