@@ -1,6 +1,4 @@
 #include "Game.h"
-#include "Vertex.h"
-#include <WICTextureLoader.h>
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -184,8 +182,7 @@ void Game::CreateBasicGeometry()
 	textures["brick_norm"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_BrownBricks_normalmap_M.tif", Texture2DType::NORMAL);
 
 	// Create our materials
-	Texture2D* brickTextures[2] = { textures["brick"], textures["brick_norm"] };
-	materials["brick"] = new Material(vertexShader, pixelShader_normal, brickTextures, 2);
+	materials["brick"] = new Material(vertexShader, pixelShader_normal, textures["brick"], textures["brick_norm"]);
 	materials["sand"] = new Material(vertexShader, pixelShader, textures["sand"]);
 	materials["stone"] = new Material(vertexShader, pixelShader, textures["stone"]);
 
@@ -206,7 +203,7 @@ void Game::CreateEntities()
 	// Projectile Entities
 	projectileManager = new ProjectileManager();
 	auto projectiles = projectileManager->BuildProjectiles(meshes["sphere"], materials["brick"]);
-	for (int i = 0; i < projectiles.size(); ++i) {
+	for (size_t i = 0; i < projectiles.size(); ++i) {
 		auto name = new std::string("Projectile_" + std::to_string(i));
 		entities[name->data()] = projectiles[i];
 		delete name;
@@ -221,13 +218,6 @@ void Game::CreateEntities()
 	player->transform.SetScale(0.25f, 0.25f, 0.25f);
 	player->SetCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, collider works with radius
 
-	//temp
-	Entity* test;
-	entities["test"] = test = new EntityTest(meshes["sphere"], materials["sand"]);
-	test->transform.SetPosition(-1.0f, 0.0f, 0.0f);
-	test->transform.SetScale(0.25f, 0.25f, 0.25f);
-	test->SetCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));
-
 	// Enemy entities
 	EntityEnemy* enemy;
 	for (auto i = 0u; i < 5; ++i) {
@@ -240,7 +230,7 @@ void Game::CreateEntities()
 	}
 
 	// Background entity
-	Entity* background = entities["background"] = new EntityTest(meshes["cube"], materials["brick"]);
+	Entity* background = entities["background"] = new EntityStatic(meshes["cube"], materials["brick"]);
 	background->transform.SetPosition(0, 0, 5.0f);
 	background->transform.SetScale(8.0f, 5.0f, 1.0f);
 
@@ -297,20 +287,16 @@ void Game::Update(float deltaTime, float totalTime)
 	// Update all entities
 	for (auto iter = entities.begin(); iter != entities.end(); ++iter)
 		iter->second->Update(deltaTime, totalTime);
-
-
 	
-	
-		// set cursor to center of screen
-		SetCursorPos(
-			GetWindowLocation().x + GetWidth() / 2,
-			GetWindowLocation().y + GetHeight() / 2
-		);
+	// set cursor to center of screen
+	SetCursorPos(
+		GetWindowLocation().x + GetWidth() / 2,
+		GetWindowLocation().y + GetHeight() / 2
+	);
 
 
-		//check for collisions
-		collisionManager->CollisionUpdate();
-
+	//check for collisions
+	collisionManager->CollisionUpdate();
 }
 
 // --------------------------------------------------------

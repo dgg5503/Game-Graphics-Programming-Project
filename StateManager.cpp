@@ -36,7 +36,7 @@ void StateManager::SetState(GameState newState)
 
 void StateManager::LoadScene(Scene * scene)
 {
-	for (int i = 0; i < scene->GetEntityList().size(); i++)
+	for (size_t i = 0; i < scene->GetEntityList().size(); i++)
 	{
 		Renderer::Instance()->StageEntity(scene->GetEntityList()[i]);
 	}
@@ -45,7 +45,7 @@ void StateManager::LoadScene(Scene * scene)
 
 void StateManager::UnloadScene(Scene * scene)
 {
-	for (int i = 0; i < scene->GetEntityList().size(); i++)
+	for (size_t i = 0; i < scene->GetEntityList().size(); i++)
 	{
 		Renderer::Instance()->UnstageEntity(scene->GetEntityList()[i]);
 	}

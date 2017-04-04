@@ -75,7 +75,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <BrowseInformation>true</BrowseInformation>
+      <BrowseInformation>false</BrowseInformation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -159,6 +159,7 @@
     <ClCompile Include="EntityEnemy.cpp" />
     <ClCompile Include="EntityPlayer.cpp" />
     <ClCompile Include="EntityProjectile.cpp" />
+    <ClCompile Include="EntityStatic.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -168,7 +169,6 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SimpleShader.cpp" />
     <ClCompile Include="StateManager.cpp" />
-    <ClCompile Include="TestEntity.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="UIGamePanel.cpp" />
@@ -184,6 +184,7 @@
     <ClInclude Include="EntityEnemy.h" />
     <ClInclude Include="EntityPlayer.h" />
     <ClInclude Include="EntityProjectile.h" />
+    <ClInclude Include="EntityStatic.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="Header.h" />
@@ -196,7 +197,6 @@
     <ClInclude Include="ShaderConstants.h" />
     <ClInclude Include="SimpleShader.h" />
     <ClInclude Include="StateManager.h" />
-    <ClInclude Include="TestEntity.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UIGamePanel.h" />

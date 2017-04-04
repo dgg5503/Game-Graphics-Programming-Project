@@ -377,6 +377,7 @@ void inline Transform::CalculateRightUpForward()
 	XMMATRIX dirs = XMMatrixRotationQuaternion(quat);
 
 	// Load into forward, up, right
+	// Daily reminder this is probably really unsafe...
 	XMStoreFloat3x3(reinterpret_cast<XMFLOAT3X3*>(&right), dirs);
 
 	// WARNING: IF FORWARD FLIPS OUT, CONSIDER SAFER METHOD BELOW THIS LINE

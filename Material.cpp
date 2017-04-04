@@ -27,17 +27,18 @@ Material::Material(SimpleVertexShader * const vertexShader,
 
 Material::Material(SimpleVertexShader * const vertexShader,
 	SimplePixelShader * const pixelShader,
-	Texture2D ** const textures,
-	size_t numTextures) :
+	Texture2D* const albedoTexture,
+	Texture2D* const normalTexture) :
 	vertexShader(vertexShader),
 	pixelShader(pixelShader)
 {
 	// Save multiple textures
-	textureList.numTextures = numTextures;
-	textureList.textures = new Texture2D*[numTextures];
+	textureList.numTextures = 2;
+	textureList.textures = new Texture2D*[2];
 	
 	// copy pointers
-	memcpy(textureList.textures, textures, sizeof(Texture2D*) * numTextures);
+	textureList.textures[0] = albedoTexture;
+	textureList.textures[1] = normalTexture;
 
 	// assigned next ID
 	materialID = staticMaterialID++;

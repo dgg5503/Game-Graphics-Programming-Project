@@ -173,16 +173,19 @@ void Mesh::LoadOBJ(const char * const objFile, ID3D11Device* const device)
 			// - OBJ File indices are 1-based, so
 			//    they need to be adusted
 			Vertex v1;
+			memset(&v1, 0, sizeof(Vertex));
 			v1.Position = positions[i[0] - 1];
 			v1.UV = uvs[i[1] - 1];
 			v1.Normal = normals[i[2] - 1];
 
 			Vertex v2;
+			memset(&v2, 0, sizeof(Vertex));
 			v2.Position = positions[i[3] - 1];
 			v2.UV = uvs[i[4] - 1];
 			v2.Normal = normals[i[5] - 1];
 
 			Vertex v3;
+			memset(&v3, 0, sizeof(Vertex));
 			v3.Position = positions[i[6] - 1];
 			v3.UV = uvs[i[7] - 1];
 			v3.Normal = normals[i[8] - 1];
@@ -228,6 +231,7 @@ void Mesh::LoadOBJ(const char * const objFile, ID3D11Device* const device)
 			{
 				// Make the last vertex
 				Vertex v4;
+				memset(&v4, 0, sizeof(Vertex));
 				v4.Position = positions[i[9] - 1];
 				v4.UV = uvs[i[10] - 1];
 				v4.Normal = normals[i[11] - 1];
@@ -315,7 +319,7 @@ void Mesh::LoadFBX(const char * const fbxFile, ID3D11Device* const device)
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[i];
 											 
-		for (int i = 0; i < mesh->mNumVertices; i++)
+		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 		{
 			//positions
 			aiVector3D pos = mesh->mVertices[i];
@@ -347,21 +351,24 @@ void Mesh::LoadFBX(const char * const fbxFile, ID3D11Device* const device)
 		}
 
 		//TODO - fix this, i think the problem is here but i could be wrong
-		for (int i = 0; i < mesh->mNumFaces; i++) {
+		for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
 			const aiFace& face = mesh->mFaces[i];
 			//should always be 3 thanks to post processing
 			if (face.mNumIndices == 3) {
 				Vertex v1;
+				memset(&v1, 0, sizeof(Vertex));
 				v1.Position = positions[face.mIndices[0]];
 				v1.UV = uvs[face.mIndices[0]];
 				v1.Normal = normals[face.mIndices[0]];
 
 				Vertex v2;
+				memset(&v2, 0, sizeof(Vertex));
 				v2.Position = positions[face.mIndices[1]];
 				v2.UV = uvs[face.mIndices[1]];
 				v2.Normal = normals[face.mIndices[1]];
 
 				Vertex v3;
+				memset(&v3, 0, sizeof(Vertex));
 				v3.Position = positions[face.mIndices[2]];
 				v3.UV = uvs[face.mIndices[2]];
 				v3.Normal = normals[face.mIndices[2]];
@@ -379,6 +386,10 @@ void Mesh::LoadFBX(const char * const fbxFile, ID3D11Device* const device)
 		}
 
 		//not implemented yet
+		// !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! 
+		// CALC TANGENTS CALLED BELOW FOR NOW, REMOVE FUNCTION CALL WHEN THIS
+		// IS IMPLEMENTED
+		// !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! WARNING !! 
 		/*
 		for (int i = 0; i < mesh->mNumVertices; i++) {
 			aiVector3D tan = mesh->mTangents[i];
@@ -398,6 +409,9 @@ void Mesh::LoadFBX(const char * const fbxFile, ID3D11Device* const device)
 	meshParams.indices = &indices[0];
 	meshParams.numVerts = vertCounter;
 	meshParams.numIndices = vertCounter;
+
+	// Calc tangents (remove this later)
+	CalculateTangents(&verts[0], vertCounter, &indices[0], vertCounter);
 
 	// upload model
 	UploadModel(meshParams, device);

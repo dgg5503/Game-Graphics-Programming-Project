@@ -57,6 +57,9 @@ public:
 	// Texture factory. CALLER SHOULD FREE CREATED VARIABLES
 	Texture2D* const CreateTexture2D(const wchar_t * path, Texture2DType type);
 
+	// Get the map of material IDs to entity pointers that are to be rendered
+	const std::unordered_multimap<unsigned int, Entity*>& GetRenderBatches() const;
+
 private:
 	// Instance specific stuff
 	Renderer(DXWindow* const window);

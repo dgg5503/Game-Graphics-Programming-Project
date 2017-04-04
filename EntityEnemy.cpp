@@ -35,7 +35,7 @@ void EntityEnemy::Update(float deltaTime, float totalTime)
 
 void EntityEnemy::MoveToRandomPosition()
 {
-	transform.SetPosition(rand() % 10 - 5, rand() % 10 - 5, 0.0f);
+	transform.SetPosition(rand() % 10 - 5.0f, rand() % 10 - 5.0f, 0.0f);
 }
 
 void EntityEnemy::SetSpeed(float speed)
@@ -82,7 +82,7 @@ void EntityEnemy::ChangeHealth(float healthDelta)
 	}
 
 	// Set new scale
-	float scale = (health) / healthMax * .5;
+	float scale = (health) / healthMax * .5f;
 	transform.SetScale(DirectX::XMFLOAT3(scale, scale, scale));
 	GetCollider()->SetScale(DirectX::XMFLOAT3(scale/2, scale/2, scale/2));
 }

@@ -13,10 +13,10 @@ public:
 	);
 
 	Material(
-		SimpleVertexShader* const vertexShader,		// Required shader needed to draw stuff
-		SimplePixelShader* const pixelShader,		// Required shader needed to draw stuff
-		Texture2D** const textures,					// Textures to use for this material
-		size_t numTextures							// number of textures
+		SimpleVertexShader * const vertexShader,	// Required shader needed to draw stuff
+		SimplePixelShader * const pixelShader,		// Required shader needed to draw stuff
+		Texture2D * const albedoTexture,			// albedo texture
+		Texture2D * const normalTexture				// normal texture
 	);
 
 	~Material();

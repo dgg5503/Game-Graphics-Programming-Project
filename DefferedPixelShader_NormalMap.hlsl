@@ -39,7 +39,7 @@ PSOutput main(VertexToPixel input)
 	output.worldPos = float4(input.worldPos, 1.0f);
 
 	// convert normals to color space
-	output.normals = float4((normalize(mul(normalSampled, TBN)) + 1.0f) / 2.0f, 1.0f);
+	output.normals = float4(normalize(mul(normalSampled.xyz, TBN) + 1.0f) / 2.0f, 1.0f);
 
 	// return to render targets
 	return output;

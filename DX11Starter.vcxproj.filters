@@ -87,7 +87,7 @@
     <ClCompile Include="Entity.cpp">
       <Filter>Entities</Filter>
     </ClCompile>
-    <ClCompile Include="EntityTest.cpp">
+    <ClCompile Include="EntityStatic.cpp">
       <Filter>Entities</Filter>
     </ClCompile>
   </ItemGroup>
@@ -173,7 +173,7 @@
     <ClInclude Include="Entity.h">
       <Filter>Entities</Filter>
     </ClInclude>
-    <ClInclude Include="EntityTest.h">
+    <ClInclude Include="EntityStatic.h">
       <Filter>Entities</Filter>
     </ClInclude>
   </ItemGroup>

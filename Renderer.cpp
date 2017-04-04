@@ -524,7 +524,7 @@ void Renderer::Render(const Camera * const camera)
 	}
 
 	// Unbind shader srv and sampler state from last ps
-	static ID3D11ShaderResourceView* null[] = { nullptr, nullptr, nullptr, nullptr };
+	static ID3D11ShaderResourceView* const null[] = { nullptr, nullptr, nullptr, nullptr };
 	context->PSSetShaderResources(0, 4, null);
 
 	// Turn off ZBUFFER
@@ -725,3 +725,12 @@ Texture2D * const Renderer::CreateTexture2D(const wchar_t * path, Texture2DType 
 		return nullptr;
 	return new Texture2D(path, type, sampler, device, context);
 }
+
+// --------------------------------------------------------
+// Gets the map of material IDs to entity pointers that are to be rendered.
+// --------------------------------------------------------
+const std::unordered_multimap<unsigned int, Entity*>& Renderer::GetRenderBatches() const
+{
+	return renderBatches;
+}
+

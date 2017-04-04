@@ -25,7 +25,7 @@
 #include "EntityPlayer.h"
 #include "EntityEnemy.h"
 #include "EntityProjectile.h"
-#include "EntityTest.h"
+#include "EntityStatic.h"
 
 // Managers
 #include "ProjectileManager.h"

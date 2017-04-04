@@ -17,7 +17,7 @@ ProjectileManager::~ProjectileManager()
 std::vector<EntityProjectile*> ProjectileManager::BuildProjectiles(Mesh * mesh, Material * material)
 {
 	EntityProjectile* projectile;
-	for (auto i = 0; i < this->numberOfProjectiles; ++i) {
+	for (unsigned int i = 0; i < this->numberOfProjectiles; ++i) {
 		projectiles[i] = projectile = new EntityProjectile(mesh, material);
 		
 		projectile->transform.SetScale(0.15f, 0.15f, 0.15f);

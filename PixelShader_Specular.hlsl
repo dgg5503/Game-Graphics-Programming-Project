@@ -1,3 +1,6 @@
+// Ignore loop unroll warning
+#pragma warning(disable: 3557)
+
 // Light limits
 #include "ShaderConstants.h"
 #include "Vertex.hlsli"

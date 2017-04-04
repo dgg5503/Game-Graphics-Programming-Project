@@ -44,7 +44,7 @@ void CollisionManager::StageCollider(Collider * const c)
 void CollisionManager::UnstageCollider(Collider * const c)
 {
 	//remove from whatever list is being used
-	for (int i = colliderVector.size() - 1; i >= 0; i--) {
+	for (size_t i = colliderVector.size() - 1; i >= 0; i--) {
 		if (colliderVector[i] == c) {
 			//swap so that the one to remove is at the back
 			std::swap(colliderVector[i], colliderVector.back());
@@ -58,7 +58,7 @@ void CollisionManager::CollisionUpdate()
 {
 	//add to grid
 	grid.clear();
-	for (int i = 0; i < colliderVector.size(); i++) {
+	for (size_t i = 0; i < colliderVector.size(); i++) {
 		//Collider* obj = (Collider*)collidableTags[i];
 		Collider* obj = colliderVector[i];
 		grid.insert(obj->GetPosition(), *obj->GetScale(), obj);
@@ -439,7 +439,7 @@ Grid::Grid(float maxScale, XMFLOAT3 halfWidth)
 	XMVECTOR hwVec = XMLoadFloat3(&halfWidth);
 	XMFLOAT3 temp;
 	XMStoreFloat3(&temp, hwVec / maxScale);
-	cols = temp.x;
+	cols = static_cast<int>(temp.x);
 }
 
 Grid::~Grid()
@@ -460,17 +460,18 @@ void Grid::clear()
 void Grid::insert(XMFLOAT3 colLoc, XMFLOAT3 colHalf, void(*colAddress))
 {
 	//calc min and max ijk
+	float colFloat = static_cast<float>(cols);
 	XMVECTOR hwVec = XMLoadFloat3(&halfWidth);
 	XMVECTOR clVec = XMLoadFloat3(&colLoc);
 	XMVECTOR chVec = XMLoadFloat3(&colHalf);
 	XMFLOAT3 ijkMin, ijkMax;
-	XMStoreFloat3(&ijkMin, (clVec - chVec + hwVec)* XMLoadFloat3(&XMFLOAT3(cols, cols, cols)) / (2.0f * hwVec));
-	XMStoreFloat3(&ijkMax, (clVec + chVec + hwVec)*XMLoadFloat3(&XMFLOAT3(cols, cols, cols)) / (2.0f * hwVec));
+	XMStoreFloat3(&ijkMin, (clVec - chVec + hwVec)* XMLoadFloat3(&XMFLOAT3(colFloat, colFloat, colFloat)) / (2.0f * hwVec));
+	XMStoreFloat3(&ijkMax, (clVec + chVec + hwVec)*XMLoadFloat3(&XMFLOAT3(colFloat, colFloat, colFloat)) / (2.0f * hwVec));
 
 	//calc hash
-	for (int i = ijkMin.x; i <= ijkMax.x; i++) {
-		for (int j = ijkMin.y; j <= ijkMax.y; j++) {
-			for (int k = ijkMin.z; k <= ijkMax.z; k++) {
+	for (int i = static_cast<int>(ijkMin.x); i <= static_cast<int>(ijkMax.x); i++) {
+		for (int j = static_cast<int>(ijkMin.y); j <= static_cast<int>(ijkMax.y); j++) {
+			for (int k = static_cast<int>(ijkMin.z); k <= static_cast<int>(ijkMax.z); k++) {
 				int h = i + cols*j + cols*cols*k;
 				//insert
 				grid[h].push_front(colAddress);

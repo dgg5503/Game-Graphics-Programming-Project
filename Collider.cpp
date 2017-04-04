@@ -76,7 +76,7 @@ const XMFLOAT4 * const Collider::GetRotation() const
 	return &rotation;
 }
 
-const Collider::ColliderType const Collider::GetType() const
+const Collider::ColliderType Collider::GetType() const
 {
 	return colType;
 }
