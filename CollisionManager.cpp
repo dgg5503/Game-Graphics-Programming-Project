@@ -84,9 +84,9 @@ void CollisionManager::CollisionUpdate()
 				if (collides(*obji, *objj))
 				{
 					//pass in collision data to the collision functions in the entities
-					Collision c = {objj->GetParentEntity(), objj, objj->GetParentEntity()->transform};//want point in space of collision? normal if possible?
+					Collision c = { objj->GetParentEntity(), objj, objj->GetParentEntity()->transform, collisionPoint };//want point in space of collision? normal if possible?
 					obji->GetParentEntity()->OnCollision(c);
-					Collision c2 = { obji->GetParentEntity(), obji, obji->GetParentEntity()->transform };
+					Collision c2 = { obji->GetParentEntity(), obji, obji->GetParentEntity()->transform, collisionPoint };
 					objj->GetParentEntity()->OnCollision(c2);
 				}
 			}
@@ -241,6 +241,7 @@ XMFLOAT3 CollisionManager::nearPtOBB(const Collider & obb, XMFLOAT3 axisToC)
 	axisToCVec += pos;
 
 	XMStoreFloat3(&axisToC, axisToCVec);
+	collisionPoint = axisToC;
 	return axisToC;
 }
 
@@ -256,6 +257,7 @@ XMFLOAT3 CollisionManager::nearPtAABB(const Collider & aabb, XMFLOAT3 axis)
 	XMVECTOR pos = XMLoadFloat3(&aabb.GetPosition());
 	axisVec += pos;
 	XMStoreFloat3(&axis, axisVec);
+	collisionPoint = axis;
 	return axis;
 }
 
@@ -273,6 +275,7 @@ XMFLOAT3 CollisionManager::nearPtPlane(const Collider & plane, const Collider & 
 
 	XMFLOAT3 p;
 	XMStoreFloat3(&p, nor);
+	collisionPoint = p;
 	return p;
 }
 
@@ -284,6 +287,8 @@ bool CollisionManager::collidesAABBvAABB(const Collider & a, const Collider & b)
 	if (testAxis(a, b, axis)) return false;
 	axis = XMFLOAT3(1, 0, 0);//x
 	if (testAxis(a, b, axis)) return false;
+	
+	//TODO: Calculate nearest point ... how?
 
 	return true;
 }
@@ -295,6 +300,19 @@ bool CollisionManager::collidesSpherevSphere(const Collider & a, const Collider 
 	XMFLOAT3 axis;
 	XMStoreFloat3(&axis, aPos - bPos);
 	if (testAxis(a, b, axis)) return false;
+
+	//calculate nearest point
+	//normalize axis
+	XMVECTOR axisVec = XMLoadFloat3(&axis);
+	axisVec = DirectX::XMVector3Normalize(axisVec);
+	//multiply by radius
+	axisVec *= a.GetMaxScale();
+	//add to position of object to get world coordinates?
+	XMVECTOR posVec = XMLoadFloat3(&a.GetPosition());
+	axisVec += posVec;
+	XMStoreFloat3(&axis, axisVec);
+	collisionPoint = axis;
+
 
 	return true;
 }
@@ -346,6 +364,8 @@ bool CollisionManager::collidesOBBvOBB(const Collider & a, const Collider & b) {
 			if (testAxis(a, b, axis)) return false;
 		}
 	}
+
+	//TODO: Calculate nearest point
 
 	return true;
 }

@@ -10,6 +10,7 @@ struct Collision {
 	Entity* otherEntity;
 	Collider* otherCollider;
 	Transform otherTransform;
+	XMFLOAT3 point;
 };
 
 class Entity

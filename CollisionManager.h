@@ -41,6 +41,7 @@ private:
 	Grid grid;
 	void CollisionInit();
 	std::vector<Collider*> colliderVector;
+	XMFLOAT3 collisionPoint;
 
 	//typedefs
 	typedef bool (CollisionManager::*collisionFunction)(const Collider&, const Collider&);
