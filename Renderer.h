@@ -17,7 +17,7 @@
 #include "GameState.h"
 
 // defines
-#define BUFFER_COUNT 3
+#define BUFFER_COUNT 4
 
 // We can include the correct library files here
 // instead of in Visual Studio settings if we want
@@ -92,6 +92,9 @@ private:
 
 	SimpleVertexShader* deferredVS;
 	SimplePixelShader* deferredLightingPS;
+
+	// -- POSTPROCESSING GLOW --
+	ID3D11BlendState* alphaBlendState;
 
 	// -- UI --
 	UIPanel* panel;

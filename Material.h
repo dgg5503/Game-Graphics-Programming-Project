@@ -19,6 +19,14 @@ public:
 		Texture2D * const normalTexture				// normal texture
 	);
 
+	Material(
+		SimpleVertexShader * const vertexShader,	// Required shader needed to draw stuff
+		SimplePixelShader * const pixelShader,		// Required shader needed to draw stuff
+		Texture2D * const albedoTexture,			// albedo texture
+		Texture2D * const normalTexture,			// normal texture
+		Texture2D * const emissionTexture			// emission texture
+		);
+
 	~Material();
 
 	// Set vertex/pixel shader information

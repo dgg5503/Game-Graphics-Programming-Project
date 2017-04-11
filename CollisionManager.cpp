@@ -44,7 +44,7 @@ void CollisionManager::StageCollider(Collider * const c)
 void CollisionManager::UnstageCollider(Collider * const c)
 {
 	//remove from whatever list is being used
-	for (size_t i = colliderVector.size() - 1; i >= 0; i--) {
+	for (size_t i = colliderVector.size() - 1; i < colliderVector.size(); i--) {
 		if (colliderVector[i] == c) {
 			//swap so that the one to remove is at the back
 			std::swap(colliderVector[i], colliderVector.back());
@@ -358,7 +358,7 @@ bool CollisionManager::collidesOBBvOBB(const Collider & a, const Collider & b) {
 
 		for (int j = 0; j < 3; j++) {
 			//cross product axes
-			DirectX::XMVector3Cross(XMLoadFloat4(&a.GetRotationColumn(i)), XMLoadFloat4(&b.GetRotationColumn(j)));
+			axisVec = DirectX::XMVector3Cross(XMLoadFloat4(&a.GetRotationColumn(i)), XMLoadFloat4(&b.GetRotationColumn(j)));
 			XMStoreFloat3(&axis, axisVec);
 			//axis = glm::cross(((XMFLOAT3X3)a.transform.getRotMat())[i], ((XMFLOAT3X3)b.transform.getRotMat())[j]);
 			if (testAxis(a, b, axis)) return false;

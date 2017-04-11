@@ -8,6 +8,7 @@
 Texture2D colorTexture			: register(t0);
 Texture2D worldPosTexture		: register(t1);
 Texture2D normalsTexture		: register(t2);
+Texture2D emissionTexture		: register(t3);
 SamplerState deferredSampler	: register(s0);
 
 // Light data for all lights
@@ -47,9 +48,20 @@ struct TargetCoords
 	float2 uv		: TEXCOORD;
 };
 
+//???
+struct DeferredOut {
+	float4 colorLightTexture	:	SV_Target0;	//replaces color texture
+};
+
 float4 main(TargetCoords input) : SV_TARGET
 {
-	// Sample color, world pos and normals
+	// Sample color, world pos, normals and emissions
+	float4 emission = emissionTexture.Sample(deferredSampler, input.uv);
+	//this feels gross for some reason
+	if (length(emission.xyz) != 0) {
+		return emission;
+	}
+
 	float4 col = colorTexture.Sample(deferredSampler, input.uv);
 	float3 pos = worldPosTexture.Sample(deferredSampler, input.uv).xyz;
 

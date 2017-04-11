@@ -1,11 +1,12 @@
 #include "EntityProjectile.h"
+#include "EntityFactory.h"
 
-
-EntityProjectile::EntityProjectile(Mesh * mesh, Material * material) : Entity(mesh, material)
+EntityProjectile::EntityProjectile(Mesh* mesh, Material* material) : Entity(mesh, material)
 {
 	direction = XMFLOAT3(0, 0, 0);
 	speed = 5.0f;
 	this->AddTag("Projectile");
+	isUpdating = false;
 }
 
 EntityProjectile::~EntityProjectile()
@@ -22,9 +23,21 @@ void EntityProjectile::Update(float deltaTime, float totalTime)
 	transform.Move(movement.x, movement.y, movement.z);
 }
 
+void EntityProjectile::Fire(XMFLOAT3 position, XMFLOAT3 direction, float speed)
+{
+	transform.SetPosition(position);
+	SetDirection(direction);
+	SetSpeed(speed);
+
+	isUpdating = true;
+	entityFactory->ChangeEntityCollision(this, true);
+}
+
 void EntityProjectile::Remove()
 {
 	transform.SetPosition(0, 0, -200);
+	isUpdating = false;
+	entityFactory->ChangeEntityCollision(this, false);
 }
 
 void EntityProjectile::SetSpeed(float speed)

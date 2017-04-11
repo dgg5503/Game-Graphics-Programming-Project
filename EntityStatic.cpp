@@ -4,6 +4,7 @@
 
 EntityStatic::EntityStatic(Mesh * mesh, Material * material) : Entity(mesh, material)
 {
+	isUpdating = false;
 }
 
 
