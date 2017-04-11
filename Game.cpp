@@ -212,14 +212,11 @@ void Game::CreateEntities()
 
 
 	// Player entity
-<<<<<<< HEAD
 	EntityPlayer* player;
-	entities["player"] = player = new EntityPlayer(meshes["player"], materials["stone"]);
-=======
-	EntityPlayer* player = (EntityPlayer*)entityFactory
-		.CreateEntity(ENTITY_TYPE::PLAYER, "player", meshes["sphere"], materials["stone"]);
+	//entities["player"] = player = new EntityPlayer(meshes["player"], materials["stone"]);
+	player = (EntityPlayer*)entityFactory
+		.CreateEntity(ENTITY_TYPE::PLAYER, "player", meshes["player"], materials["stone"]);
 	player->SetSpeed(2.0f);
->>>>>>> 1314674cc8ac9efc10aee9e12f68be32f4d8b574
 	player->SetSpeed(2.0f);
 	player->SetProjectileManager(projectileManager);
 	player->transform.SetPosition(0, 0, 0.0f);
@@ -230,13 +227,10 @@ void Game::CreateEntities()
 	// Enemy entities
 	EntityEnemy* enemy;
 	for (auto i = 0u; i < 5; ++i) {
-<<<<<<< HEAD
 		auto name = new std::string("Enemy_" + std::to_string(i));
-		entities[name->data()] = enemy = new EntityEnemy(meshes["enemy"], materials["sand"]);
-=======
+		//entities[name->data()] = enemy = new EntityEnemy(meshes["enemy"], materials["sand"]);
 		enemy = (EntityEnemy*)entityFactory
-			.CreateEntity(ENTITY_TYPE::ENEMY, "Enemy_" + std::to_string(i), meshes["cube"], materials["sand"]);
->>>>>>> 1314674cc8ac9efc10aee9e12f68be32f4d8b574
+			.CreateEntity(ENTITY_TYPE::ENEMY, "Enemy_" + std::to_string(i), meshes["enemy"], materials["sand"]);
 		enemy->SetTarget(player);
 		enemy->MoveToRandomPosition();
 		enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
