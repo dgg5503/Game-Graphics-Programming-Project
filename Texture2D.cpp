@@ -34,6 +34,10 @@ Texture2D::Texture2D(const wchar_t * filePath,
 			samplerName = "albedoSampler";
 			srvName = "normalMap";
 			break;
+		case Texture2DType::EMISSION:
+			samplerName = "albedoSampler";
+			srvName = "emissionMap";
+			break;
 		default:
 			// ASSERT?
 			break;
@@ -48,7 +52,9 @@ Texture2D::~Texture2D()
 	// Free DX11 resources
 	// Sampler state actually handled outside of this class!
 	//samplerState->Release();
-	srv->Release();
+
+	//this check because failed textures are nullptr
+	if( srv != nullptr) srv->Release();
 }
 
 // --------------------------------------------------------

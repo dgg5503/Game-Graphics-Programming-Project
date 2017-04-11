@@ -180,9 +180,10 @@ void Game::CreateBasicGeometry()
 	textures["sand"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_DesertSand1_albedo_M.tif", Texture2DType::ALBEDO);
 	textures["stone"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_StoneSurface_albedo_M.tif", Texture2DType::ALBEDO);
 	textures["brick_norm"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_BrownBricks_normalmap_M.tif", Texture2DType::NORMAL);
+	textures["no_emission"] = renderer->CreateTexture2D(L"", Texture2DType::EMISSION);
 
 	// Create our materials
-	materials["brick"] = new Material(vertexShader, pixelShader_normal, textures["brick"], textures["brick_norm"]);
+	materials["brick"] = new Material(vertexShader, pixelShader_normal, textures["brick"], textures["brick_norm"], textures["no_emission"]);
 	materials["sand"] = new Material(vertexShader, pixelShader, textures["sand"]);
 	materials["stone"] = new Material(vertexShader, pixelShader, textures["stone"]);
 
@@ -200,6 +201,7 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::CreateEntities()
 {
+	//leaks here
 	// Projectile Entities
 	projectileManager = new ProjectileManager();
 	auto projectiles = projectileManager->BuildProjectiles(meshes["sphere"], materials["brick"]);
@@ -208,7 +210,7 @@ void Game::CreateEntities()
 		entities[name->data()] = projectiles[i];
 		delete name;
 	}
-
+	
 	// Player entity
 	EntityPlayer* player;
 	entities["player"] = player = new EntityPlayer(meshes["sphere"], materials["stone"]);
@@ -217,7 +219,8 @@ void Game::CreateEntities()
 	player->transform.SetPosition(0, 0, 0.0f);
 	player->transform.SetScale(0.25f, 0.25f, 0.25f);
 	player->SetCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, collider works with radius
-
+	
+	// leaks here
 	// Enemy entities
 	EntityEnemy* enemy;
 	for (auto i = 0u; i < 5; ++i) {
@@ -228,7 +231,7 @@ void Game::CreateEntities()
 		enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
 		enemy->SetCollider(Collider::ColliderType::OBB);
 	}
-
+	
 	// Background entity
 	Entity* background = entities["background"] = new EntityStatic(meshes["cube"], materials["brick"]);
 	background->transform.SetPosition(0, 0, 5.0f);
