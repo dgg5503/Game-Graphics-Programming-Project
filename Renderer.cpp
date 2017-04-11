@@ -94,6 +94,7 @@ Renderer::~Renderer()
 
 	if (deferredVS) { delete deferredVS; }
 	if (deferredLightingPS) { delete deferredLightingPS; }
+	if (deferredCombinePS) { delete deferredCombinePS; }
 }
 
 // --------------------------------------------------------
@@ -256,6 +257,21 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 			return hr;
 	}
 
+	// Create lighting texture
+	hr = device->CreateTexture2D(&renderTargetTextDesc, nullptr, &lightingTexture);
+	if (FAILED(hr))
+		return hr;
+
+	// Create lighting texture
+	hr = device->CreateRenderTargetView(lightingTexture, &renderTargetViewDesc, &lightingRTV);
+	if (FAILED(hr))
+		return hr;
+
+	// Create lighting texture
+	hr = device->CreateShaderResourceView(lightingTexture, &renderTargetSRVDesc, &lightingSRV);
+	if (FAILED(hr))
+		return hr;
+
 	// Setup deferred sampler state
 	D3D11_SAMPLER_DESC targetSamplerDesc = {}; // inits to all zeros :D!
 	targetSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
@@ -278,12 +294,16 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 		return hr;
 
 	// load deferred lighting and vert shader
-	deferredLightingPS = CreateSimplePixelShader();
-	if (!deferredLightingPS->LoadShaderFile(L"./Assets/Shaders/DefferedLighting.cso"))
-		return S_FALSE;
-
 	deferredVS = CreateSimpleVertexShader();
 	if (!deferredVS->LoadShaderFile(L"./Assets/Shaders/Texture2BufferVertexShader.cso"))
+		return S_FALSE;
+
+	deferredCombinePS = CreateSimplePixelShader();
+	if (!deferredCombinePS->LoadShaderFile(L"./Assets/Shaders/DeferredCombine.cso"))
+		return S_FALSE;
+
+	deferredLightingPS = CreateSimplePixelShader();
+	if (!deferredLightingPS->LoadShaderFile(L"./Assets/Shaders/DefferedLighting.cso"))
 		return S_FALSE;
 
 	// Setup texture stuff
@@ -326,6 +346,7 @@ inline void Renderer::ClearRenderTargets()
 	// Clear all render targets
 	for (size_t i = 0; i < BUFFER_COUNT; i++)
 		context->ClearRenderTargetView(targetViews[i], color);
+	context->ClearRenderTargetView(lightingRTV, color);
 
 	// Clear depth buffer
 	// Clear the render target and depth buffer (erases what's on the screen)
@@ -546,13 +567,16 @@ void Renderer::Render(const Camera * const camera)
 	context->OMSetDepthStencilState(nullptr, 0);
 
 	// Set render target to back buffer
-	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+	//context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+
+	// Set render target to light map
+	context->OMSetRenderTargets(1, &lightingRTV, nullptr);
 
 	// Use SRVs of textures we just wrote all our data into
-	deferredLightingPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
+	//deferredLightingPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
 	deferredLightingPS->SetShaderResourceView("worldPosTexture", targetSRVs[1]);
 	deferredLightingPS->SetShaderResourceView("normalsTexture", targetSRVs[2]);
-	deferredLightingPS->SetShaderResourceView("emissionTexture", targetSRVs[3]);
+	//deferredLightingPS->SetShaderResourceView("emissionTexture", targetSRVs[3]);
 	deferredLightingPS->SetSamplerState("deferredSampler", targetSampler);
 
 	// -- Lighting --
@@ -587,6 +611,16 @@ void Renderer::Render(const Camera * const camera)
 	context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
 	// IALayout might need to be set to null here as well
+	context->Draw(3, 0);
+
+	// Combining all stages of deferred rendering into back buffer.
+	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+	deferredCombinePS->SetShaderResourceView("colorTexture", targetSRVs[0]);
+	deferredCombinePS->SetShaderResourceView("lightTexture", lightingSRV);
+	deferredCombinePS->SetShaderResourceView("emissionTexture", targetSRVs[3]);
+	deferredCombinePS->SetSamplerState("deferredSampler", targetSampler);
+	deferredCombinePS->CopyAllBufferData();
+	deferredCombinePS->SetShader();
 	context->Draw(3, 0);
 
 	// Post-processing - Glow needs to blend alphas

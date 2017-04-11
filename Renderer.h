@@ -88,10 +88,17 @@ private:
 	ID3D11Texture2D* targetTexts[BUFFER_COUNT];
 	ID3D11RenderTargetView* targetViews[BUFFER_COUNT];
 	ID3D11ShaderResourceView* targetSRVs[BUFFER_COUNT];
+
+	ID3D11Texture2D* lightingTexture;
+	ID3D11RenderTargetView* lightingRTV;
+	ID3D11ShaderResourceView* lightingSRV;
+
 	ID3D11SamplerState* targetSampler;
 
 	SimpleVertexShader* deferredVS;
 	SimplePixelShader* deferredLightingPS;
+	SimplePixelShader* deferredCombinePS;
+
 
 	// -- POSTPROCESSING GLOW --
 	ID3D11BlendState* alphaBlendState;
