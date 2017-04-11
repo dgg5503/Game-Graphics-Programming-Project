@@ -22,8 +22,8 @@ class Entity
 public:
 	// Construction of an entity requires a mesh and material
 	Entity(
-		Mesh* mesh,
-		Material* material
+		Mesh* mesh = nullptr,
+		Material* material = nullptr
 	);
 	virtual ~Entity();
 

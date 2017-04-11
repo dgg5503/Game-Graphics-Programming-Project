@@ -2,11 +2,9 @@
 
 
 
-StateManager::StateManager(GameState state)
+StateManager::StateManager()
 {
-	currentScene = scenesMap[state];
 }
-
 
 StateManager::~StateManager()
 {
@@ -27,27 +25,20 @@ void StateManager::AddScene(GameState state, Scene * scene)
 
 
 
-void StateManager::SetState(GameState newState)
+void StateManager::SetState(GameState newState, EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)
 {
-	UnloadScene(currentScene);
-	LoadScene(scenesMap[newState]);
+	UnloadScene(currentScene, entityFactory);
+	LoadScene(scenesMap[newState], entityFactory, meshes, materials);
 	currentScene = scenesMap[newState];
 }
 
-void StateManager::LoadScene(Scene * scene)
+void StateManager::LoadScene(Scene* scene, EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)
 {
-	for (size_t i = 0; i < scene->GetEntityList().size(); i++)
-	{
-		Renderer::Instance()->StageEntity(scene->GetEntityList()[i]);
-	}
+	scene->CreateSceneEntities(entityFactory, meshes, materials);
 	//set ui renderer junkety stuff 
 }
 
-void StateManager::UnloadScene(Scene * scene)
+void StateManager::UnloadScene(Scene* scene, EntityFactory& entityFactory)
 {
-	for (size_t i = 0; i < scene->GetEntityList().size(); i++)
-	{
-		Renderer::Instance()->UnstageEntity(scene->GetEntityList()[i]);
-	}
-	//un set ui renderer junkety stuff 
+	entityFactory.Release();
 }

@@ -1,14 +1,18 @@
 #pragma once
+#include "Entity.h"
 #include "EntityProjectile.h"
 
-class ProjectileManager
+class EntityManagerProjectile :
+	public Entity
 {
 public:
-	ProjectileManager();
-	~ProjectileManager();
+	EntityManagerProjectile();
+	~EntityManagerProjectile();
 
 	void SetProjectiles(std::vector<EntityProjectile*> projectiles);
 	EntityProjectile* GetProjectile();
+
+	virtual void Update(float deltaTime, float totalTime) override;
 
 protected:
 	unsigned int numberOfProjectiles;

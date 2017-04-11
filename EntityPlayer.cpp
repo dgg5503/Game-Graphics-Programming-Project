@@ -2,7 +2,7 @@
 
 
 
-EntityPlayer::EntityPlayer(Mesh * mesh, Material * material) : Entity(mesh, material)
+EntityPlayer::EntityPlayer(Mesh* mesh, Material* material) : Entity(mesh, material)
 {
 	fireRate = 0.1f;
 	fireTimer = 0;
@@ -65,7 +65,7 @@ void EntityPlayer::SetSpeed(float speed)
 	this->speed = speed;
 }
 
-void EntityPlayer::SetProjectileManager(ProjectileManager* projectileManager)
+void EntityPlayer::SetProjectileManager(EntityManagerProjectile* projectileManager)
 {
 	this->projectileManager = projectileManager;
 }

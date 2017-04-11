@@ -6,21 +6,22 @@
 class StateManager
 {
 public:
-	StateManager(GameState state);
+	StateManager();
 	~StateManager();
 
 	GameState& GetCurrentState();
 	
 	void AddScene(GameState state, Scene* scene);
-	void SetState(GameState newState);
+	void SetState(GameState newState, EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials);
 private:
 	GameState currentState;
 	Scene* currentScene;
 
+
+
 	std::unordered_map<GameState, Scene*> scenesMap;
 
-	void LoadScene(Scene* scene);
-	void UnloadScene(Scene* scene);
-
+	void LoadScene(Scene* scene, EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials);
+	void UnloadScene(Scene* scene, EntityFactory& entityFactory);
 };
 

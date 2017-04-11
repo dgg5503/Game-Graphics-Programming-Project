@@ -7,6 +7,7 @@
 #include "EntityEnemy.h"
 #include "EntityProjectile.h"
 #include "EntityStatic.h"
+#include "EntityManagerProjectile.h"
 
 // Managers
 #include "CollisionManager.h"
@@ -15,11 +16,12 @@
 class Mesh;
 class Material;
 
-enum ENTITY_TYPE {
+enum EntityType {
 	STATIC,
 	ENEMY,
 	PLAYER,
 	PROJECTILE,
+	MANAGER_PROJECTILE,
 };
 
 
@@ -39,7 +41,7 @@ protected:
 public:
 	void Release();
 	
-	Entity* CreateEntity(ENTITY_TYPE entityType, std::string name, Mesh* mesh = nullptr, Material* material = nullptr);
+	Entity* CreateEntity(EntityType entityType, std::string name, Mesh* mesh = nullptr, Material* material = nullptr);
 	std::vector<EntityProjectile*> CreateProjectileEntities(unsigned int numberOfProjectiles, Mesh* mesh = nullptr, Material* material = nullptr);
 
 	void UpdateEntities(float deltaTime, float  totalTime);
@@ -47,9 +49,6 @@ public:
 	void SetEntityCollision(Entity* entity, bool isColliding);
 	void SetEntityRendering(Entity* entity, bool isRendering);
 	void SetEntityUpdating(Entity* entity, bool isUpdating);
-
-	void SetCollisionManager(CollisionManager* collisionManager);
-	void SetRenderer(Renderer* renderer);
 
 	std::unordered_map<std::string, Entity*> GetEntities();
 };

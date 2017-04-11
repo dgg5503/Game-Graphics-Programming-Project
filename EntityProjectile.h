@@ -1,8 +1,6 @@
 #pragma once
 #include "Entity.h"
 
-class ProjectileManager;
-
 class EntityProjectile :
 	public virtual Entity
 {
@@ -24,8 +22,6 @@ public:
 	XMFLOAT3* GetDirection();
 
 protected:
-	ProjectileManager* manager;	// Pointer to manager
-
 	float speed;
 	XMFLOAT3 direction;
 

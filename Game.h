@@ -23,8 +23,11 @@
 // Entities
 #include "EntityFactory.h"
 
-// Managers
-#include "ProjectileManager.h"
+// Scenes/States
+#include "StateManager.h"
+#include "Scene.h"
+#include "SceneGame.h"
+#include "SceneMenu.h"
 
 
 class Game 
@@ -64,14 +67,14 @@ private:
 	//Collision Manager
 	CollisionManager* collisionManager;
 
-	// Projectile Manager
-	ProjectileManager* projectileManager;
-
 	// Maps of stuff by string
 	std::unordered_map<const char*, Mesh*> meshes;
 	std::unordered_map<const char*, Texture2D*> textures;
 	std::unordered_map<const char*, Material*> materials;
 	std::unordered_map<const char*, UIPanel*> uiPanels;
+
+	// State Manager;
+	StateManager stateManager;
 
 	// Cameras
 	Camera* activeCamera;

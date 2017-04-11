@@ -1,17 +1,14 @@
 #pragma once
 
 #include <vector>
-#include "Entity.h"
+#include "EntityFactory.h"
 #include "Renderer.h"
 #include "UIPanel.h"
 
 class Scene
 {
 public:
-	Scene();
-	~Scene();
-
-	std::vector<Entity*> GetEntityList();
+	virtual void CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials) = 0;
 
 private:
 	// Vector of entities that this scene will load in when activated

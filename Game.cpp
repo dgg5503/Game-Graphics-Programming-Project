@@ -25,6 +25,7 @@ Game::Game(HINSTANCE hInstance)
 	pixelShader_normal = 0;
 	renderer = nullptr;
 	collisionManager = nullptr;
+	stateManager = StateManager();
 
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
@@ -74,7 +75,6 @@ Game::~Game()
 
 	// Shutdown Managers
 	CollisionManager::Shutdown();
-	delete projectileManager;
 }
 
 // --------------------------------------------------------
@@ -86,6 +86,9 @@ void Game::Init()
 	// Initialize renderer singleton/DX
 	renderer = Renderer::Initialize(this);
 	collisionManager = CollisionManager::Initialize(0.25f, XMFLOAT3(3, 3, 0.5));
+
+	stateManager.AddScene(GameState::GAME, new SceneGame());
+	stateManager.AddScene(GameState::MAIN_MENU, new SceneMenu());
 
 	// Initialize starting mouse location to center of screen
 	prevMousePos.x = GetWidth() / 2;
@@ -197,41 +200,7 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::CreateEntities()
 {
-	entityFactory.SetCollisionManager(collisionManager);
-	entityFactory.SetRenderer(renderer);
-
-	// Projectile Entities
-	projectileManager = new ProjectileManager();
-	auto projectiles = entityFactory.CreateProjectileEntities(20, meshes["sphere"], materials["brick"]);
-	projectileManager->SetProjectiles(projectiles);
-
-
-	// Player entity
-	EntityPlayer* player = (EntityPlayer*)entityFactory
-		.CreateEntity(ENTITY_TYPE::PLAYER, "player", meshes["sphere"], materials["stone"]);
-	player->SetSpeed(2.0f);
-	player->SetProjectileManager(projectileManager);
-	player->transform.SetPosition(0, 0, 0.0f);
-	player->transform.SetScale(0.25f, 0.25f, 0.25f);
-	player->SetCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, collider works with radius
-
-	// leaks here
-	// Enemy entities
-	EntityEnemy* enemy;
-	for (auto i = 0u; i < 5; ++i) {
-		enemy = (EntityEnemy*)entityFactory
-			.CreateEntity(ENTITY_TYPE::ENEMY, "Enemy_" + std::to_string(i), meshes["cube"], materials["sand"]);
-		enemy->SetTarget(player);
-		enemy->MoveToRandomPosition();
-		enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
-		enemy->SetCollider(Collider::ColliderType::OBB);
-	}
-
-	// Background entity
-	Entity* background = entityFactory
-		.CreateEntity(ENTITY_TYPE::STATIC, "Background", meshes["cube"], materials["brick"]);
-	background->transform.SetPosition(0, 0, 5.0f);
-	background->transform.SetScale(8.0f, 5.0f, 1.0f);
+	//stateManager.SetState(GameState::MAIN_MENU, entityFactory, meshes, materials);
 }
 
 
@@ -269,6 +238,16 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		activeCamera = debugCamera;
 	}
+
+	if (GetAsyncKeyState('3') & 0x8000)
+	{
+		stateManager.SetState(GameState::MAIN_MENU, entityFactory, meshes, materials);
+	}
+	if (GetAsyncKeyState('4') & 0x8000)
+	{
+		stateManager.SetState(GameState::GAME, entityFactory, meshes, materials);
+	}
+
 
 
 	// Update camera
