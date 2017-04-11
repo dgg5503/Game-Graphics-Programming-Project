@@ -88,5 +88,11 @@ private:
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.
 	POINT prevMousePos;
+
+	//timer for ui
+	wstring timerString;// [MAX_TIMER_BUFFER_LEN];
+	float minutes = 0;
+	float seconds = 0;
+	float milliseconds = 0;
 };
 

@@ -12,6 +12,7 @@ public:
 	~Scene();
 
 	std::vector<Entity*> GetEntityList();
+	UIPanel* GetUIPanel();
 
 private:
 	// Vector of entities that this scene will load in when activated

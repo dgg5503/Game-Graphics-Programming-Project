@@ -116,7 +116,10 @@ void Game::Init()
 	renderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
 
 	// Create a test UI panel
+	uiPanels["test"] = new UIGamePanel();
+	uiPanels["main"] = new UIGamePanel();
 	uiPanels["game"] = new UIGamePanel();
+	uiPanels["end"] = new UIGamePanel();
 
 	// Set the panel as current
 	renderer->SetCurrentPanel(uiPanels["game"]);
@@ -193,6 +196,9 @@ void Game::CreateBasicGeometry()
 	meshes["cone"] = renderer->CreateMesh("./Assets/Models/cone.obj");
 	meshes["cylinder"] = renderer->CreateMesh("./Assets/Models/cylinder.obj");
 	meshes["sphere"] = renderer->CreateMesh("./Assets/Models/sphere.obj");
+	meshes["enemy"] = renderer->CreateMesh("./Assets/Models/enemyBall.fbx");
+	meshes["player"] = renderer->CreateMesh("./Assets/Models/playerShip.fbx");
+
 }
 
 // --------------------------------------------------------
@@ -211,7 +217,7 @@ void Game::CreateEntities()
 
 	// Player entity
 	EntityPlayer* player;
-	entities["player"] = player = new EntityPlayer(meshes["sphere"], materials["stone"]);
+	entities["player"] = player = new EntityPlayer(meshes["player"], materials["stone"]);
 	player->SetSpeed(2.0f);
 	player->SetProjectileManager(projectileManager);
 	player->transform.SetPosition(0, 0, 0.0f);
@@ -222,7 +228,7 @@ void Game::CreateEntities()
 	EntityEnemy* enemy;
 	for (auto i = 0u; i < 5; ++i) {
 		auto name = new std::string("Enemy_" + std::to_string(i));
-		entities[name->data()] = enemy = new EntityEnemy(meshes["cube"], materials["sand"]);
+		entities[name->data()] = enemy = new EntityEnemy(meshes["enemy"], materials["sand"]);
 		enemy->SetTarget(player);
 		enemy->MoveToRandomPosition();
 		enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
@@ -279,6 +285,21 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		activeCamera = debugCamera;
 	}
+
+
+
+	timerString = std::to_wstring(minutes) + L": " + std::to_wstring(seconds) + L": " + std::to_wstring(milliseconds);
+
+	milliseconds += deltaTime * 1000;
+	if (milliseconds >= 1000) {
+		seconds++;
+		milliseconds = 0;
+	}
+	if (seconds >= 60) {
+		minutes++;
+		seconds = 0;
+	}
+	uiPanels["game"]->UpdateText(timerString);
 
 
 	// Update camera

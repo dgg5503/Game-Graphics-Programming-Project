@@ -41,6 +41,7 @@ void StateManager::LoadScene(Scene * scene)
 		Renderer::Instance()->StageEntity(scene->GetEntityList()[i]);
 	}
 	//set ui renderer junkety stuff 
+	Renderer::Instance()->SetCurrentPanel(currentScene->GetUIPanel());
 }
 
 void StateManager::UnloadScene(Scene * scene)
