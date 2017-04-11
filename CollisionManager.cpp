@@ -358,7 +358,7 @@ bool CollisionManager::collidesOBBvOBB(const Collider & a, const Collider & b) {
 
 		for (int j = 0; j < 3; j++) {
 			//cross product axes
-			DirectX::XMVector3Cross(XMLoadFloat4(&a.GetRotationColumn(i)), XMLoadFloat4(&b.GetRotationColumn(j)));
+			axisVec = DirectX::XMVector3Cross(XMLoadFloat4(&a.GetRotationColumn(i)), XMLoadFloat4(&b.GetRotationColumn(j)));
 			XMStoreFloat3(&axis, axisVec);
 			//axis = glm::cross(((XMFLOAT3X3)a.transform.getRotMat())[i], ((XMFLOAT3X3)b.transform.getRotMat())[j]);
 			if (testAxis(a, b, axis)) return false;

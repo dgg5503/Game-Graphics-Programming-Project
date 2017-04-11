@@ -10,6 +10,7 @@ struct PSOutput
 	float4 color		: SV_Target0;
 	float4 worldPos		: SV_Target1;
 	float4 normals		: SV_Target2;
+	float4 emission		: SV_Target3;
 };
 
 // Output all of our data to render targets (screen sized textures)
@@ -26,6 +27,9 @@ PSOutput main(VertexToPixel input)
 
 	// convert normals to color space
 	output.normals = float4((normalize(input.normal) + 1.0f) / 2.0f, 1.0f);
+
+	// set emission to black = 0
+	output.emission = float4(0, 0, 0, 1);
 
 	// return to render targets
 	return output;

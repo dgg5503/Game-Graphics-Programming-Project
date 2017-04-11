@@ -7,7 +7,8 @@
 enum class Texture2DType
 {
 	ALBEDO,
-	NORMAL
+	NORMAL,
+	EMISSION
 };
 
 class Texture2D

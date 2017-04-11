@@ -296,6 +296,21 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	device->CreateSamplerState(&sampDesc, &sampler);
 
+	//Post-processing Stuff- Glow
+	D3D11_BLEND_DESC alphaBlendDesc = {};
+	alphaBlendDesc.AlphaToCoverageEnable = false;
+	alphaBlendDesc.IndependentBlendEnable = false;
+	alphaBlendDesc.RenderTarget[0].BlendEnable = true;
+	alphaBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	alphaBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	alphaBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	alphaBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	alphaBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	alphaBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	alphaBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	device->CreateBlendState(&alphaBlendDesc, &alphaBlendState);
+
 	// Return the "everything is ok" HRESULT value
 	return S_OK;
 }
@@ -524,7 +539,7 @@ void Renderer::Render(const Camera * const camera)
 	}
 
 	// Unbind shader srv and sampler state from last ps
-	static ID3D11ShaderResourceView* const null[] = { nullptr, nullptr, nullptr, nullptr };
+	static ID3D11ShaderResourceView* const null[] = { nullptr, nullptr, nullptr, nullptr, nullptr };
 	context->PSSetShaderResources(0, 4, null);
 
 	// Turn off ZBUFFER
@@ -537,6 +552,7 @@ void Renderer::Render(const Camera * const camera)
 	deferredLightingPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
 	deferredLightingPS->SetShaderResourceView("worldPosTexture", targetSRVs[1]);
 	deferredLightingPS->SetShaderResourceView("normalsTexture", targetSRVs[2]);
+	deferredLightingPS->SetShaderResourceView("emissionTexture", targetSRVs[3]);
 	deferredLightingPS->SetSamplerState("deferredSampler", targetSampler);
 
 	// -- Lighting --
@@ -572,6 +588,18 @@ void Renderer::Render(const Camera * const camera)
 	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
 	// IALayout might need to be set to null here as well
 	context->Draw(3, 0);
+
+	// Post-processing - Glow needs to blend alphas
+	/*
+	// Use SRVs of textures we just wrote all our data into
+	GlowPS->SetShaderResourceView("colorLightTexture", targetSRVs[0]);	//Deferred lighting should write to this
+	GlowPS->SetShaderResourceView("emissionTexture", targetSRVs[3]);	//Original emission texture from before lighting
+	GlowPS->SetSamplerState("pixelSampler", targetSampler);
+	context->OMSetBlendState(
+		alphaBlendState,
+		0,
+		0xFFFFFFFF);
+	*/
 
 	// Render UI
 	RenderUI();
