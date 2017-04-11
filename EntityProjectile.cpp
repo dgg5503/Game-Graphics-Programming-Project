@@ -29,15 +29,15 @@ void EntityProjectile::Fire(XMFLOAT3 position, XMFLOAT3 direction, float speed)
 	SetDirection(direction);
 	SetSpeed(speed);
 
-	isUpdating = true;
-	entityFactory->ChangeEntityCollision(this, true);
+	SetIsUpdating(true);
+	SetIsColliding(true);
 }
 
 void EntityProjectile::Remove()
 {
 	transform.SetPosition(0, 0, -200);
-	isUpdating = false;
-	entityFactory->ChangeEntityCollision(this, false);
+	SetIsUpdating(false);
+	SetIsColliding(false);
 }
 
 void EntityProjectile::SetSpeed(float speed)

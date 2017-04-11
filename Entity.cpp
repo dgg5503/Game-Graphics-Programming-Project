@@ -1,4 +1,5 @@
 #include "Entity.h"
+#include "EntityFactory.h"
 
 // --------------------------------------------------------
 // Constructor
@@ -58,6 +59,36 @@ void Entity::SetEntityFactory(EntityFactory* entityFactory)
 	this->entityFactory = entityFactory;
 }
 
+void Entity::SetIsUpdating(bool isUpdating)
+{
+	entityFactory->SetEntityUpdating(this, isUpdating);
+}
+
+void Entity::SetIsRendering(bool isRendering)
+{
+	entityFactory->SetEntityRendering(this, isRendering);
+}
+
+void Entity::SetIsColliding(bool isColliding)
+{
+	entityFactory->SetEntityCollision(this, isColliding);
+}
+
+bool Entity::GetIsUpdating()
+{
+	return isUpdating;
+}
+
+bool Entity::GetIsRendering()
+{
+	return isRendering;
+}
+
+bool Entity::GetIsColliding()
+{
+	return isColliding;
+}
+
 // --------------------------------------------------------
 // Set the current mesh of this entity
 //
@@ -113,7 +144,7 @@ void Entity::SetCollider(Collider::ColliderType type, XMFLOAT3 scale, XMFLOAT3 o
 	collider = new Collider(type, offset, scale, rotation);
 	collider->SetParentEntity(this);
 
-	isColliding = true;
+	entityFactory->SetEntityCollision(this, true);
 }
 
 void Entity::SetName(std::string name)

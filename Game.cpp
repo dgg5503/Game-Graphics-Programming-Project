@@ -198,6 +198,7 @@ void Game::CreateBasicGeometry()
 void Game::CreateEntities()
 {
 	entityFactory.SetCollisionManager(collisionManager);
+	entityFactory.SetRenderer(renderer);
 
 	// Projectile Entities
 	projectileManager = new ProjectileManager();
@@ -208,7 +209,6 @@ void Game::CreateEntities()
 	// Player entity
 	EntityPlayer* player = (EntityPlayer*)entityFactory
 		.CreateEntity(ENTITY_TYPE::PLAYER, "player", meshes["sphere"], materials["stone"]);
-	player->SetSpeed(2.0f);
 	player->SetSpeed(2.0f);
 	player->SetProjectileManager(projectileManager);
 	player->transform.SetPosition(0, 0, 0.0f);
@@ -232,19 +232,6 @@ void Game::CreateEntities()
 		.CreateEntity(ENTITY_TYPE::STATIC, "Background", meshes["cube"], materials["brick"]);
 	background->transform.SetPosition(0, 0, 5.0f);
 	background->transform.SetScale(8.0f, 5.0f, 1.0f);
-
-	// Stage all entities for rendering
-	auto entities = entityFactory.GetEntities();
-	for (auto it = entities.begin(); it != entities.end(); it++) {
-		// Stage renderer
-		if (it->second->isRendering) {
-		renderer->StageEntity(it->second);
-		}
-		// Stage Colliders
-		if (it->second->isColliding) {
-			collisionManager->StageCollider(it->second->GetCollider());
-		}
-	}
 }
 
 
