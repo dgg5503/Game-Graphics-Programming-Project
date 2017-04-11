@@ -92,5 +92,9 @@ private:
 	float minutes = 0;
 	float seconds = 0;
 	float milliseconds = 0;
+
+	//mouse x and y positions
+	float mouseY;
+	float mouseX;
 };
 

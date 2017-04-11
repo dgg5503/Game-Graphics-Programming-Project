@@ -1,8 +1,9 @@
 #include "UIGamePanel.h"
 
-UIGamePanel::UIGamePanel()
+UIGamePanel::UIGamePanel(float _x, float _y)
 {
-
+	x = _x;
+	y = _y;
 }
 
 UIGamePanel::~UIGamePanel()
@@ -18,7 +19,7 @@ void UIGamePanel::Draw(SpriteBatch * const spriteBatch,
 	//fontMap.at("arial")->MeasureString(timerString) // Measure 
 	
 	// Print time and other game related UI stuff
-	fontMap.at("arial")->DrawString(spriteBatch, text.c_str() , XMFLOAT2(0, 0));
+	fontMap.at("arial")->DrawString(spriteBatch, text.c_str() , XMFLOAT2(x, y));
 }
 
 void UIGamePanel::Update(float deltaTime, float totalTime)

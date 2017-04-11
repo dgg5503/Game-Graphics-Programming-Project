@@ -112,10 +112,10 @@ void Game::Init()
 	renderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
 
 	// Create a test UI panel
-	uiPanels["test"] = new UIGamePanel();
-	uiPanels["main"] = new UIGamePanel();
-	uiPanels["game"] = new UIGamePanel();
-	uiPanels["end"] = new UIGamePanel();
+	uiPanels["test"] = new UIGamePanel(0, 0);
+	uiPanels["main"] = new UIGamePanel(0, 0);
+	uiPanels["game"] = new UIGamePanel(GetWidth()/2, 0);
+	uiPanels["end"] = new UIGamePanel(0, 0);
 
 	// Set the panel as current
 	renderer->SetCurrentPanel(uiPanels["game"]);
@@ -294,7 +294,7 @@ void Game::Update(float deltaTime, float totalTime)
 	}
 
 
-
+	//ui panels text updating
 	timerString = std::to_wstring(minutes) + L": " + std::to_wstring(seconds) + L": " + std::to_wstring(milliseconds);
 
 	milliseconds += deltaTime * 1000;
@@ -307,6 +307,14 @@ void Game::Update(float deltaTime, float totalTime)
 		seconds = 0;
 	}
 	uiPanels["game"]->UpdateText(timerString);
+	//
+
+
+	//mouse pos
+	POINT cursorPos;
+	GetCursorPos(&cursorPos);
+	mouseX = cursorPos.x;
+	mouseY = cursorPos.y;
 
 
 	// Update camera

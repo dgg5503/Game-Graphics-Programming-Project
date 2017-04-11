@@ -6,7 +6,7 @@
 class UIGamePanel : public UIPanel
 {
 public:
-	UIGamePanel();
+	UIGamePanel(float _x, float _y);
 	virtual ~UIGamePanel();
 
 	// Implement required functions
@@ -17,4 +17,6 @@ public:
 
 private:
 	wstring text;
+	float x;
+	float y;
 };
