@@ -90,6 +90,9 @@
     <ClCompile Include="EntityStatic.cpp">
       <Filter>Entities</Filter>
     </ClCompile>
+    <ClCompile Include="EntityFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -175,6 +178,9 @@
     </ClInclude>
     <ClInclude Include="EntityStatic.h">
       <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityFactory.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

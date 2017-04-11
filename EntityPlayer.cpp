@@ -86,7 +86,5 @@ void EntityPlayer::FireProjectile(XMFLOAT3 direction)
 	const XMFLOAT3* position = transform.GetPosition();
 
 	// Fire projectile
-	projectile->transform.SetPosition(*position);
-	projectile->SetDirection(direction);
-	projectile->SetSpeed(5.0f);
+	projectile->Fire(*position, direction, 5.0f);
 }

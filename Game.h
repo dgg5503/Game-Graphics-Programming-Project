@@ -21,11 +21,7 @@
 #include "CollisionManager.h"
 
 // Entities
-#include "Entity.h"
-#include "EntityPlayer.h"
-#include "EntityEnemy.h"
-#include "EntityProjectile.h"
-#include "EntityStatic.h"
+#include "EntityFactory.h"
 
 // Managers
 #include "ProjectileManager.h"
@@ -59,6 +55,9 @@ private:
 	void CreateBasicGeometry();
 	void CreateEntities();
 
+	// Entities
+	EntityFactory entityFactory;
+
 	// Renderers
 	Renderer* renderer;
 
@@ -72,7 +71,6 @@ private:
 	std::unordered_map<const char*, Mesh*> meshes;
 	std::unordered_map<const char*, Texture2D*> textures;
 	std::unordered_map<const char*, Material*> materials;
-	std::unordered_map<const char*, Entity*> entities;
 	std::unordered_map<const char*, UIPanel*> uiPanels;
 
 	// Cameras

@@ -7,7 +7,7 @@ public:
 	ProjectileManager();
 	~ProjectileManager();
 
-	std::vector<EntityProjectile*> BuildProjectiles(Mesh* mesh, Material* material);
+	void SetProjectiles(std::vector<EntityProjectile*> projectiles);
 	EntityProjectile* GetProjectile();
 
 protected:

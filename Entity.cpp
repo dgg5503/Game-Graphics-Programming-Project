@@ -11,8 +11,10 @@ Entity::Entity(Mesh* mesh, Material* material) :
 	mesh(mesh),
 	material(material)
 {
-	// Ensure we're starting out with a mesh
-	assert(mesh != nullptr);
+	// True when the entity can be rendered
+	isRendering = mesh != nullptr && material != nullptr;
+	isUpdating = true;
+	isColliding = false;
 
 	collider = nullptr;
 }
@@ -50,6 +52,11 @@ void Entity::PrepareMaterial(SimpleVertexShader* const vertexShader)
 	//pixelShader->SetShader();
 }
 */
+
+void Entity::SetEntityFactory(EntityFactory* entityFactory)
+{
+	this->entityFactory = entityFactory;
+}
 
 // --------------------------------------------------------
 // Set the current mesh of this entity
@@ -105,6 +112,8 @@ void Entity::SetCollider(Collider::ColliderType type, XMFLOAT3 scale, XMFLOAT3 o
 	}
 	collider = new Collider(type, offset, scale, rotation);
 	collider->SetParentEntity(this);
+
+	isColliding = true;
 }
 
 void Entity::SetName(std::string name)

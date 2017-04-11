@@ -44,7 +44,7 @@ void CollisionManager::StageCollider(Collider * const c)
 void CollisionManager::UnstageCollider(Collider * const c)
 {
 	//remove from whatever list is being used
-	for (size_t i = colliderVector.size() - 1; i >= 0; i--) {
+	for (size_t i = colliderVector.size() - 1; i < colliderVector.size(); i--) {
 		if (colliderVector[i] == c) {
 			//swap so that the one to remove is at the back
 			std::swap(colliderVector[i], colliderVector.back());

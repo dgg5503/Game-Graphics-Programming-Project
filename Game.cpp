@@ -26,9 +26,6 @@ Game::Game(HINSTANCE hInstance)
 	renderer = nullptr;
 	collisionManager = nullptr;
 
-	// Reserve ents
-	entities.reserve(16);
-
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
 	CreateConsoleWindow(500, 120, 32, 120);
@@ -44,8 +41,7 @@ Game::Game(HINSTANCE hInstance)
 Game::~Game()
 {
 	// Free all entities
-	for (auto it = entities.begin(); it != entities.end(); it++)
-		delete it->second;
+	entityFactory.Release();
 
 	// Free all meshes
 	for (auto it = meshes.begin(); it != meshes.end(); it++)
@@ -200,29 +196,30 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::CreateEntities()
 {
+	entityFactory.SetCollisionManager(collisionManager);
+
 	// Projectile Entities
 	projectileManager = new ProjectileManager();
-	auto projectiles = projectileManager->BuildProjectiles(meshes["sphere"], materials["brick"]);
-	for (size_t i = 0; i < projectiles.size(); ++i) {
-		auto name = new std::string("Projectile_" + std::to_string(i));
-		entities[name->data()] = projectiles[i];
-		delete name;
-	}
+	auto projectiles = entityFactory.CreateProjectileEntities(20, meshes["sphere"], materials["brick"]);
+	projectileManager->SetProjectiles(projectiles);
+
 
 	// Player entity
-	EntityPlayer* player;
-	entities["player"] = player = new EntityPlayer(meshes["sphere"], materials["stone"]);
+	EntityPlayer* player = (EntityPlayer*)entityFactory
+		.CreateEntity(ENTITY_TYPE::PLAYER, "player", meshes["sphere"], materials["stone"]);
+	player->SetSpeed(2.0f);
 	player->SetSpeed(2.0f);
 	player->SetProjectileManager(projectileManager);
 	player->transform.SetPosition(0, 0, 0.0f);
 	player->transform.SetScale(0.25f, 0.25f, 0.25f);
 	player->SetCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, collider works with radius
 
+
 	// Enemy entities
 	EntityEnemy* enemy;
 	for (auto i = 0u; i < 5; ++i) {
-		auto name = new std::string("Enemy_" + std::to_string(i));
-		entities[name->data()] = enemy = new EntityEnemy(meshes["cube"], materials["sand"]);
+		enemy = (EntityEnemy*)entityFactory
+			.CreateEntity(ENTITY_TYPE::ENEMY, "Enemy_" + std::to_string(i), meshes["cube"], materials["sand"]);
 		enemy->SetTarget(player);
 		enemy->MoveToRandomPosition();
 		enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
@@ -230,15 +227,20 @@ void Game::CreateEntities()
 	}
 
 	// Background entity
-	Entity* background = entities["background"] = new EntityStatic(meshes["cube"], materials["brick"]);
+	Entity* background = entityFactory
+		.CreateEntity(ENTITY_TYPE::STATIC, "Background", meshes["cube"], materials["brick"]);
 	background->transform.SetPosition(0, 0, 5.0f);
 	background->transform.SetScale(8.0f, 5.0f, 1.0f);
 
 	// Stage all entities for rendering
+	auto entities = entityFactory.GetEntities();
 	for (auto it = entities.begin(); it != entities.end(); it++) {
-		renderer->StageEntity(it->second);
-		//stage colliders
-		if (it->second->GetCollider() != nullptr) {
+		// Stage renderer
+		if (it->second->isRendering) {
+			renderer->StageEntity(it->second);
+		}
+		// Stage Colliders
+		if (it->second->isColliding) {
 			collisionManager->StageCollider(it->second->GetCollider());
 		}
 	}
@@ -285,8 +287,7 @@ void Game::Update(float deltaTime, float totalTime)
 	activeCamera->Update(deltaTime, totalTime);
 
 	// Update all entities
-	for (auto iter = entities.begin(); iter != entities.end(); ++iter)
-		iter->second->Update(deltaTime, totalTime);
+	entityFactory.UpdateEntities(deltaTime, totalTime);
 	
 	// set cursor to center of screen
 	SetCursorPos(

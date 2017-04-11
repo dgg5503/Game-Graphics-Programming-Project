@@ -12,6 +12,8 @@ public:
 
 	void Update(float deltaTime, float totalTime) override;
 
+	void Fire(XMFLOAT3 position, XMFLOAT3 direction, float speed);
+
 	// Remove the bullet from the field (Moving it out of frame)
 	void Remove();
 
