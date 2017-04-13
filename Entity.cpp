@@ -8,16 +8,16 @@
 //
 // mesh - The mesh this entity will represent
 // --------------------------------------------------------
-Entity::Entity(Mesh* mesh, Material* material) :
+Entity::Entity(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
+	entityFactory(entityFactory),
+	name(name),
 	mesh(mesh),
 	material(material)
 {
 	// True when the entity can be rendered
-	isRendering = mesh != nullptr && material != nullptr;
-	isUpdating = true;
-	isColliding = false;
-
-	collider = nullptr;
+	SetIsRendering(mesh != nullptr && material != nullptr);
+	SetIsUpdating(true);
+	SetIsColliding(false);
 }
 
 // --------------------------------------------------------

@@ -3,7 +3,7 @@
 
 SceneGame::SceneGame()
 {
-	uiPanel = gameUI = new UIGamePanel(0, 0);
+	uiPanel = uiGamePanel = new UIGamePanel(0, 0);
 }
 
 
@@ -46,7 +46,7 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 
 void SceneGame::UpdateScene(float deltaTime, float totalTime)
 {
-	gameUI->UpdateHealth(player->health);
+	uiGamePanel->UpdateHealth(player->health);
 
 	if (player->health) {
 		timerString = std::to_wstring(minutes) + L": " + std::to_wstring(seconds) + L": " + std::to_wstring(milliseconds);
@@ -59,6 +59,6 @@ void SceneGame::UpdateScene(float deltaTime, float totalTime)
 			minutes++;
 			seconds = 0;
 		}
-		gameUI->UpdateText(timerString);
+		uiGamePanel->UpdateText(timerString);
 	}
 }

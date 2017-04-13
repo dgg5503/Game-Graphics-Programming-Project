@@ -8,6 +8,10 @@ StateManager::StateManager()
 
 StateManager::~StateManager()
 {
+	for (auto iter = scenesMap.begin(); iter != scenesMap.end(); ++iter)
+	{
+		delete iter->second;
+	}
 }
 
 GameState& StateManager::GetCurrentState()
@@ -27,7 +31,6 @@ Scene* StateManager::GetCurrentScene()
 {
 	return currentScene;
 }
-
 
 
 void StateManager::SetState(GameState newState, EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)

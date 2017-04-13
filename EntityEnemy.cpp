@@ -1,15 +1,14 @@
 #include "EntityEnemy.h"
 
 
-EntityEnemy::EntityEnemy(Mesh * mesh, Material * material) : Entity(mesh, material)
+EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * mesh, Material * material) : 
+	Entity(entityFactory, name, mesh, material)
 {
 	this->AddTag("Enemy");
 
 	this->speed = 1.0f;
 	this->health = 0;
 	this->healthMax = 1.0f;
-
-	transform.SetRotation(1, 1, 1, 1);
 }
 
 EntityEnemy::~EntityEnemy()

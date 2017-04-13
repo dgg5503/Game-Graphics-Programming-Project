@@ -193,7 +193,7 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::CreateEntities()
 {
-	//stateManager.SetState(GameState::MAIN_MENU, entityFactory, meshes, materials);
+	stateManager.SetState(GameState::MAIN_MENU, entityFactory, meshes, materials);
 }
 
 

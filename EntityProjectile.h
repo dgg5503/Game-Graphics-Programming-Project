@@ -5,7 +5,7 @@ class EntityProjectile :
 	public virtual Entity
 {
 public:
-	EntityProjectile(Mesh* mesh, Material* material);
+	EntityProjectile(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material);
 	~EntityProjectile();
 
 	void Update(float deltaTime, float totalTime) override;

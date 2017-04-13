@@ -22,6 +22,8 @@ class Entity
 public:
 	// Construction of an entity requires a mesh and material
 	Entity(
+		EntityFactory* entityFactory,
+		std::string name,
 		Mesh* mesh = nullptr,
 		Material* material = nullptr
 	);
@@ -61,7 +63,7 @@ public:
 	void AddTag(std::string tag);
 	void RemoveTag(std::string tag);
 
-protected:
+private:
 	EntityFactory* entityFactory;
 
 	// Properties

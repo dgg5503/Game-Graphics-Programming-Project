@@ -2,11 +2,11 @@
 
 
 
-EntityPlayer::EntityPlayer(Mesh* mesh, Material* material) : Entity(mesh, material)
+EntityPlayer::EntityPlayer(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
+	Entity(entityFactory, name, mesh, material)
 {
-	fireRate = 0.2f;
+	fireRate = 0.15f;
 	fireTimer = 0;
-
 	maxHealth = health = 100;
 }
 

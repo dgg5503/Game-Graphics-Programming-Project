@@ -6,13 +6,13 @@ class EntityManagerProjectile :
 	public Entity
 {
 public:
-	EntityManagerProjectile();
+	EntityManagerProjectile(EntityFactory* entityFactory, std::string name);
 	~EntityManagerProjectile();
+
+	virtual void Update(float deltaTime, float totalTime) override;
 
 	void SetProjectiles(std::vector<EntityProjectile*> projectiles);
 	EntityProjectile* GetProjectile();
-
-	virtual void Update(float deltaTime, float totalTime) override;
 
 protected:
 	unsigned int numberOfProjectiles;

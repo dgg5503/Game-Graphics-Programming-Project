@@ -8,7 +8,7 @@ class EntityPlayer :
 	public Entity
 {
 public:
-	EntityPlayer(Mesh* mesh, Material* material);
+	EntityPlayer(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material);
 	~EntityPlayer();
 
 	// Set new update
@@ -18,7 +18,6 @@ public:
 	void SetSpeed(float speed);
 	float GetSpeed();
 	void SetProjectileManager(EntityManagerProjectile* projectileManager);
-
 
 	// Change health by amount
 	void ChangeHealth(int healthDelta);

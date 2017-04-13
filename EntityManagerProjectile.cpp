@@ -2,10 +2,11 @@
 
 
 
-EntityManagerProjectile::EntityManagerProjectile() : Entity()
+EntityManagerProjectile::EntityManagerProjectile(EntityFactory* entityFactory, std::string name) :
+	Entity(entityFactory, name)
 {
 	currentIndex = 0;
-	isUpdating = false;
+	SetIsUpdating(false);
 }
 
 

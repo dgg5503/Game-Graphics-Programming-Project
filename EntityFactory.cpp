@@ -10,33 +10,22 @@ Entity* EntityFactory::CreateEntity(EntityType entityType, std::string name, Mes
 	switch (entityType)
 	{
 	case EntityType::STATIC:
-		entity = new EntityStatic(mesh, material);
+		entity = new EntityStatic(this, name, mesh, material);
 		break;
 	case EntityType::PLAYER:
-		entity = new EntityPlayer(mesh, material);
+		entity = new EntityPlayer(this, name, mesh, material);
 		break;
 	case EntityType::ENEMY:
-		entity = new EntityEnemy(mesh, material);
+		entity = new EntityEnemy(this, name, mesh, material);
 		break;
 	case EntityType::PROJECTILE:
-		entity = new EntityProjectile(mesh, material);
+		entity = new EntityProjectile(this, name, mesh, material);
 		break;
 	case EntityType::MANAGER_PROJECTILE:
-		entity = new EntityManagerProjectile();
+		entity = new EntityManagerProjectile(this, name);
 		break;
 	}
-
-	entity->SetName(name);
-	entity->SetEntityFactory(this);
-	entities[name.data()] = entity;
-
-	if (entity->isUpdating) {
-		AddEntityToUpdate(entity);
-	}
-	if (entity->isRendering) {
-		Renderer::Instance()->StageEntity(entity);
-	}
-
+	entities[entity->GetName()] = entity;
 	return entity;
 }
 

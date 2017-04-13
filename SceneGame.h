@@ -16,7 +16,7 @@ private:
 	EntityPlayer* player;
 
 	// User Interface
-	UIGamePanel* gameUI;
+	UIGamePanel* uiGamePanel;
 
 	//timer for ui
 	wstring timerString;// [MAX_TIMER_BUFFER_LEN];

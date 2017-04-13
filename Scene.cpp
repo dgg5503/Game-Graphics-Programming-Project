@@ -1,5 +1,11 @@
 #include "Scene.h"
 
+Scene::~Scene()
+{
+	if (uiPanel)
+		delete uiPanel;
+}
+
 void Scene::UpdateScene(float deltaTime, float totalTime)
 {
 }

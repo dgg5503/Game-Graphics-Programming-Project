@@ -1,12 +1,13 @@
 #include "EntityProjectile.h"
 #include "EntityFactory.h"
 
-EntityProjectile::EntityProjectile(Mesh* mesh, Material* material) : Entity(mesh, material)
+EntityProjectile::EntityProjectile(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
+	Entity(entityFactory, name, mesh, material)
 {
 	direction = XMFLOAT3(0, 0, 0);
 	speed = 5.0f;
 	this->AddTag("Projectile");
-	isUpdating = false;
+	SetIsUpdating(true);
 }
 
 EntityProjectile::~EntityProjectile()
