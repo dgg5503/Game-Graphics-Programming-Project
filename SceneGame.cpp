@@ -1,8 +1,15 @@
 #include "SceneGame.h"
 
 
+SceneGame::SceneGame()
+{
+	uiPanel = gameUI = new UIGamePanel(0, 0);
+}
+
 void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)
 {
+	health = 100;
+
 	// Projectile Entities
 	EntityManagerProjectile* projectileManager =
 		(EntityManagerProjectile*)entityFactory.CreateEntity(EntityType::MANAGER_PROJECTILE, "Projectile Manager");
@@ -11,8 +18,8 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 
 
 	// Player entity
-	EntityPlayer* player = (EntityPlayer*)entityFactory
-		.CreateEntity(EntityType::PLAYER, "player", meshes["sphere"], materials["stone"]);
+	player = (EntityPlayer*)entityFactory
+		.CreateEntity(EntityType::PLAYER, "player", meshes["player"], materials["stone"]);
 	player->SetSpeed(2.0f);
 	player->SetProjectileManager(projectileManager);
 	player->transform.SetPosition(0, 0, 0.0f);
@@ -24,7 +31,7 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 	EntityEnemy* enemy;
 	for (auto i = 0u; i < 5; ++i) {
 		enemy = (EntityEnemy*)entityFactory
-			.CreateEntity(EntityType::ENEMY, "Enemy_" + std::to_string(i), meshes["cube"], materials["sand"]);
+			.CreateEntity(EntityType::ENEMY, "Enemy_" + std::to_string(i), meshes["enemy"], materials["sand"]);
 		enemy->SetTarget(player);
 		enemy->MoveToRandomPosition();
 		enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
@@ -36,4 +43,22 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 		.CreateEntity(EntityType::STATIC, "Background", meshes["cube"], materials["brick"]);
 	background->transform.SetPosition(0, 0, 5.0f);
 	background->transform.SetScale(8.0f, 5.0f, 1.0f);
+}
+
+void SceneGame::UpdateScene(float deltaTime, float totalTime)
+{
+	//ui panels text updating
+	timerString = std::to_wstring(minutes) + L": " + std::to_wstring(seconds) + L": " + std::to_wstring(milliseconds);
+
+	milliseconds += deltaTime * 1000;
+	if (milliseconds >= 1000) {
+		seconds++;
+		milliseconds = 0;
+	}
+	if (seconds >= 60) {
+		minutes++;
+		seconds = 0;
+	}
+	gameUI->UpdateText(timerString);
+	gameUI->UpdateHealth(player->health);
 }

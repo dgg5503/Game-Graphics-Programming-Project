@@ -115,7 +115,10 @@ void Game::Init()
 	renderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
 
 	// Create a test UI panel
-	uiPanels["game"] = new UIGamePanel();
+	uiPanels["test"] = new UIGamePanel(0, 0);
+	uiPanels["main"] = new UIGamePanel(0, 0);
+	uiPanels["game"] = new UIGamePanel(GetWidth()/2, 0);
+	uiPanels["end"] = new UIGamePanel(0, 0);
 
 	// Set the panel as current
 	renderer->SetCurrentPanel(uiPanels["game"]);
@@ -193,6 +196,9 @@ void Game::CreateBasicGeometry()
 	meshes["cone"] = renderer->CreateMesh("./Assets/Models/cone.obj");
 	meshes["cylinder"] = renderer->CreateMesh("./Assets/Models/cylinder.obj");
 	meshes["sphere"] = renderer->CreateMesh("./Assets/Models/sphere.obj");
+	meshes["enemy"] = renderer->CreateMesh("./Assets/Models/enemyBall.fbx");
+	meshes["player"] = renderer->CreateMesh("./Assets/Models/playerShip.fbx");
+
 }
 
 // --------------------------------------------------------
@@ -248,6 +254,11 @@ void Game::Update(float deltaTime, float totalTime)
 		stateManager.SetState(GameState::GAME, entityFactory, meshes, materials);
 	}
 
+	//mouse pos
+	POINT cursorPos;
+	GetCursorPos(&cursorPos);
+	mouseX = cursorPos.x;
+	mouseY = cursorPos.y;
 
 
 	// Update camera
@@ -265,6 +276,11 @@ void Game::Update(float deltaTime, float totalTime)
 
 	//check for collisions
 	collisionManager->CollisionUpdate();
+
+	// Update Scene
+	auto temp = stateManager.GetCurrentScene();
+	if(stateManager.GetCurrentScene() != nullptr)
+		stateManager.GetCurrentScene()->UpdateScene(deltaTime, totalTime);
 }
 
 // --------------------------------------------------------

@@ -6,6 +6,8 @@ EntityPlayer::EntityPlayer(Mesh* mesh, Material* material) : Entity(mesh, materi
 {
 	fireRate = 0.1f;
 	fireTimer = 0;
+
+	maxHealth = health = 100;
 }
 
 EntityPlayer::~EntityPlayer()
@@ -16,18 +18,29 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 {
 	// Move the player around
 	XMFLOAT3 movement = XMFLOAT3(0,0,0);
-	if (GetAsyncKeyState('W') & 0x8000)
+	bool isSteering = false;
+	if (GetAsyncKeyState('W') & 0x8000) {
+		isSteering = true;
 		movement.y += 1.0;
-	if (GetAsyncKeyState('S') & 0x8000)
+	}
+	else if (GetAsyncKeyState('S') & 0x8000)
+	{
+		isSteering = true;
 		movement.y -= 1.0;
-	if (GetAsyncKeyState('D') & 0x8000)
+	}
+	if (GetAsyncKeyState('D') & 0x8000) {
+		isSteering = true;
 		movement.x += 1.0;
-	if (GetAsyncKeyState('A') & 0x8000)
+	}
+	else if (GetAsyncKeyState('A') & 0x8000)
+	{
+		isSteering = true;
 		movement.x -= 1.0;
-
+	}
 	XMStoreFloat3(&movement, XMVector3Normalize(XMLoadFloat3(&movement)) * speed * deltaTime);
 
 	transform.Move(movement.x, movement.y, movement.z);
+	transform.SetRotation(0, 0, 1, atan2f(movement.y, movement.x));
 
 	// Handle firing
 	fireTimer += deltaTime;
@@ -77,6 +90,13 @@ float EntityPlayer::GetSpeed()
 
 void EntityPlayer::OnCollision(Collision other)
 {
+	if (other.otherEntity->HasTag("Enemy")) {
+		EntityEnemy* enemy = (EntityEnemy*)other.otherEntity;
+		enemy->MoveToRandomPosition();
+		enemy->ChangeHealth(-1000);		
+
+		health--;
+	}
 }
 
 void EntityPlayer::FireProjectile(XMFLOAT3 direction)

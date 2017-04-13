@@ -22,6 +22,9 @@
     <Filter Include="Scenes">
       <UniqueIdentifier>{07f3283d-4c56-4d59-af38-fa661749a1e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI Panels">
+      <UniqueIdentifier>{f27e4958-e628-4646-b2b6-ce6113c7122b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -55,9 +58,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CameraGame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UIGamePanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StateManager.cpp">
@@ -102,6 +102,9 @@
     <ClCompile Include="SceneMenu.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="UIGamePanel.cpp">
+      <Filter>UI Panels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -141,12 +144,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CameraGame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UIPanel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UIGamePanel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameState.h">
@@ -197,6 +194,12 @@
     <ClInclude Include="SceneMenu.h">
       <Filter>Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="UIPanel.h">
+      <Filter>UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="UIGamePanel.h">
+      <Filter>UI Panels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -232,10 +235,25 @@
     <FxCompile Include="VerticalBlurVertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="ParticleUpdateCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticleEmitCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticleDrawArgsCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticleVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Vertex.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Particle.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

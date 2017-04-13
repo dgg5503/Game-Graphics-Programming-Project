@@ -63,7 +63,7 @@ Renderer::Renderer(DXWindow* const window)
 Renderer::~Renderer()
 {
 	// Free sampler state which is being used for all textures
-	sampler->Release();
+	objectTextureSampler->Release();
 
 	// Free fonts
 	for (auto it = fontMap.begin(); it != fontMap.end(); it++)
@@ -294,7 +294,7 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // Trilinear
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	device->CreateSamplerState(&sampDesc, &sampler);
+	device->CreateSamplerState(&sampDesc, &objectTextureSampler);
 
 	//Post-processing Stuff- Glow
 	D3D11_BLEND_DESC alphaBlendDesc = {};
@@ -602,7 +602,8 @@ void Renderer::Render(const Camera * const camera)
 	*/
 
 	// Render UI
-	RenderUI();
+	if (panel)
+		RenderUI();
 
 	// Unbind all sampler states and srvs
 	context->PSSetShaderResources(0, 4, null);
@@ -697,7 +698,6 @@ void Renderer::OnResize(unsigned int width, unsigned int height)
 // --------------------------------------------------------
 void Renderer::SetCurrentPanel(UIPanel * panel)
 {
-	assert(panel != nullptr);
 	this->panel = panel;
 }
 
@@ -751,7 +751,7 @@ Texture2D * const Renderer::CreateTexture2D(const wchar_t * path, Texture2DType 
 {
 	if (!path)
 		return nullptr;
-	return new Texture2D(path, type, sampler, device, context);
+	return new Texture2D(path, type, objectTextureSampler, device, context);
 }
 
 // --------------------------------------------------------

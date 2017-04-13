@@ -12,10 +12,12 @@ public:
 	GameState& GetCurrentState();
 	
 	void AddScene(GameState state, Scene* scene);
+	Scene* GetCurrentScene();
+
 	void SetState(GameState newState, EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials);
 private:
 	GameState currentState;
-	Scene* currentScene;
+	Scene* currentScene = nullptr;
 
 
 

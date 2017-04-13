@@ -29,6 +29,8 @@ void EntityEnemy::Update(float deltaTime, float totalTime)
 		transform.Move(direction.x * deltaTime * speed, direction.y * deltaTime * speed, direction.z * deltaTime * speed);
 	}
 
+	transform.SetRotation(1, 1, 1, totalTime);
+
 	// Regenerate health overtime
 	ChangeHealth(0.25f * deltaTime);
 }
