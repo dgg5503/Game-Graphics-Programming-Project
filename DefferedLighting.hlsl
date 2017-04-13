@@ -74,7 +74,7 @@ DefferedOut main(TargetCoords input)
 	//this feels gross for some reason
 	if (length(emission.xyz) != 0) {
 		output.color = emission;
-		output.blur = PixelToBlur(output.color);
+		output.blur = output.color;//PixelToBlur(output.color);
 		return output;
 	}
 
@@ -157,6 +157,6 @@ DefferedOut main(TargetCoords input)
 	//return float4(pos, 1.0f);
 	output.color = (totalLight + AmbientColor) * col;
 	//return (totalLight + AmbientColor) * col;
-	output.blur = PixelToBlur(output.color);
+	output.blur = output.color;//PixelToBlur(output.color);
 	return output;
 }

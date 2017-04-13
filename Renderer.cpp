@@ -629,7 +629,7 @@ void Renderer::Render(const Camera * const camera)
 	//context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 	//TODO : Set 2 render targets - 1) Final with lighting		2) Selected pixels beyond a certain color range (select as they are being created in 1)
 	//unable to reuse the targetSRVs or RTVs (I think they are related) so we need two more (final and blur select?)
-	context->OMSetRenderTargets(2, postProcessRTVs, depthStencilView);
+	context->OMSetRenderTargets(2, postProcessRTVs, nullptr);
 	//===================== Render problems start on the above line =============================================
 	//nothing is passed into the two targets
 
@@ -676,10 +676,10 @@ void Renderer::Render(const Camera * const camera)
 	context->Draw(3, 0);
 
 	//reset SRVs
-	deferredLightingPS->SetShaderResourceView("colorTexture", 0);
-	deferredLightingPS->SetShaderResourceView("worldPosTexture", 0);
-	deferredLightingPS->SetShaderResourceView("normalsTexture", 0);
-	deferredLightingPS->SetShaderResourceView("emissionTexture", 0);
+	//deferredLightingPS->SetShaderResourceView("colorTexture", 0);
+	//deferredLightingPS->SetShaderResourceView("worldPosTexture", 0);
+	//deferredLightingPS->SetShaderResourceView("normalsTexture", 0);
+	//deferredLightingPS->SetShaderResourceView("emissionTexture", 0);
 
 	/**/
 	// Post-processing
