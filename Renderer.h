@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
+#include <algorithm>
 #include "UIPanel.h"
 #include "Material.h"
 #include "Camera.h"
@@ -18,6 +19,8 @@
 
 // defines
 #define BUFFER_COUNT 4
+#define BLUR_DISTANCE 4
+//#define MAX_BLUR_DISTANCE 12
 
 // We can include the correct library files here
 // instead of in Visual Studio settings if we want
@@ -93,8 +96,23 @@ private:
 	SimpleVertexShader* deferredVS;
 	SimplePixelShader* deferredLightingPS;
 
+	ID3D11Texture2D* postProcessTexts[2];
+	ID3D11RenderTargetView* postProcessRTVs[2];//with lighting & selected pixels
+	ID3D11ShaderResourceView* postProcessSRVs[2];
+
 	// -- POSTPROCESSING GLOW --
-	ID3D11BlendState* alphaBlendState;
+	float texelWidth;	//change on resize
+	float texelHeight;	//change on resize
+	float blurDist;	//not const or define so it can change later (ie. settings if we ever have them)
+	//float weights[MAX_BLUR_DISTANCE];
+	XMFLOAT4 colorThreshold;
+	//ID3D11Texture2D* blurText;
+	//ID3D11RenderTargetView* blurRTV;
+	//ID3D11ShaderResourceView* blurSRV;
+
+	SimplePixelShader* horizontalBlurPS;
+	SimplePixelShader* verticalBlurPS;
+	SimplePixelShader* postPS;
 
 	// -- UI --
 	UIPanel* panel;

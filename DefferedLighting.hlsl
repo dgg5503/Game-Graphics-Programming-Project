@@ -39,6 +39,9 @@ cbuffer LightData : register(b0)
 	// global light information
 	// Ambient color used for entire scene
 	float4 AmbientColor;
+
+	//Blur pixel threshold -- I see no reason to make it in a buffer of its own
+	float4 BlurColor;
 };
 
 // Input info from vertex shader
@@ -48,18 +51,31 @@ struct TargetCoords
 	float2 uv		: TEXCOORD;
 };
 
-//???
-struct DeferredOut {
-	float4 colorLightTexture	:	SV_Target0;	//replaces color texture
+// Output info for color with light and pixels to blur
+struct DefferedOut {
+	float4 color		: SV_Target0;
+	float4 blur			: SV_Target1;
 };
 
-float4 main(TargetCoords input) : SV_TARGET
+float4 PixelToBlur(float4 col) {
+	float sum = col.x + col.y + col.z;
+	if (col.x >= BlurColor.x || col.y >= BlurColor.y || col.z >= BlurColor.z) {
+		return col;
+	}
+	return float4(0, 0, 0, 0);
+};
+
+DefferedOut main(TargetCoords input)
 {
+	DefferedOut output;
+
 	// Sample color, world pos, normals and emissions
 	float4 emission = emissionTexture.Sample(deferredSampler, input.uv);
 	//this feels gross for some reason
 	if (length(emission.xyz) != 0) {
-		return emission;
+		output.color = emission;
+		output.blur = PixelToBlur(output.color);
+		return output;
 	}
 
 	float4 col = colorTexture.Sample(deferredSampler, input.uv);
@@ -139,5 +155,8 @@ float4 main(TargetCoords input) : SV_TARGET
 	//   interpolated for each pixel between the corresponding vertices 
 	//   of the triangle we're rendering
 	//return float4(pos, 1.0f);
-	return (totalLight + AmbientColor) * col;
+	output.color = (totalLight + AmbientColor) * col;
+	//return (totalLight + AmbientColor) * col;
+	output.blur = PixelToBlur(output.color);
+	return output;
 }

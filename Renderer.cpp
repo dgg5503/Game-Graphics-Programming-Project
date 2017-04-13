@@ -55,6 +55,37 @@ Renderer::Renderer(DXWindow* const window)
 	// Initialize UI stuff
 	spriteBatch = new SpriteBatch(context);
 	panel = nullptr;
+
+	//Set data using window size etc.
+	texelWidth = 1.0f / window->GetWidth();
+	texelHeight = 1.0f / window->GetHeight();
+	blurDist = BLUR_DISTANCE;
+	colorThreshold = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+	/*
+	float normalization = 0;
+	//fill weights array
+	for (int i = 0; i <= blurDist; i++) {
+		weights[i] = .045*pow(i*(4/ blurDist), 3) - .269*pow(i*(4 / blurDist), 2) + .129*(i*(4 / blurDist)) + 1;
+		//clamp from 0.1f to 1.0f -- oddly enough there is no clmap function I could find
+		if (weights[i] < 0.1f) {
+			weights[i] = 0.1f;
+		}
+		else if (weights[i] > 1.0f) {
+			weights[i] = 1.0f;
+		}
+		//add to normalization
+		normalization += weights[i];
+
+		normalization -= weights[0];
+		normalization *= 2.0f;
+		normalization += weights[0];
+	}
+	
+	//normalize weights
+	for (int i = 0; i <= blurDist; i++) {
+		weights[i] = weights[i] / normalization;
+	}
+	*/
 }
 
 // --------------------------------------------------------
@@ -84,6 +115,16 @@ Renderer::~Renderer()
 			targetSRVs[i]->Release();
 	}
 
+	for (size_t i = 0; i < 2; i++)
+	{
+		if (postProcessTexts[i])
+			postProcessTexts[i]->Release();
+		if (postProcessRTVs[i])
+			postProcessRTVs[i]->Release();
+		if (postProcessSRVs[i])
+			postProcessSRVs[i]->Release();
+	}
+
 	if (targetSampler) { targetSampler->Release(); }
 	if (depthStencilView) { depthStencilView->Release(); }
 	if (depthBufferTexture) { depthBufferTexture->Release(); }
@@ -94,6 +135,9 @@ Renderer::~Renderer()
 
 	if (deferredVS) { delete deferredVS; }
 	if (deferredLightingPS) { delete deferredLightingPS; }
+	if (horizontalBlurPS) { delete horizontalBlurPS; }
+	if (verticalBlurPS) { delete verticalBlurPS; }
+	if (postPS) { delete postPS; }
 }
 
 // --------------------------------------------------------
@@ -227,6 +271,13 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 			return hr;
 	}
 
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		hr = device->CreateTexture2D(&renderTargetTextDesc, nullptr, &postProcessTexts[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
 	// Setup render target view description
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
 	renderTargetViewDesc.Format = renderTargetTextDesc.Format;
@@ -237,6 +288,13 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
 	{
 		hr = device->CreateRenderTargetView(targetTexts[i], &renderTargetViewDesc, &targetViews[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		hr = device->CreateRenderTargetView(postProcessTexts[i], &renderTargetViewDesc, &postProcessRTVs[i]);
 		if (FAILED(hr))
 			return hr;
 	}
@@ -252,6 +310,13 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
 	{
 		hr = device->CreateShaderResourceView(targetTexts[i], &renderTargetSRVDesc, &targetSRVs[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		hr = device->CreateShaderResourceView(postProcessTexts[i], &renderTargetSRVDesc, &postProcessSRVs[i]);
 		if (FAILED(hr))
 			return hr;
 	}
@@ -296,20 +361,35 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	device->CreateSamplerState(&sampDesc, &objectTextureSampler);
 
-	//Post-processing Stuff- Glow
-	D3D11_BLEND_DESC alphaBlendDesc = {};
-	alphaBlendDesc.AlphaToCoverageEnable = false;
-	alphaBlendDesc.IndependentBlendEnable = false;
-	alphaBlendDesc.RenderTarget[0].BlendEnable = true;
-	alphaBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	alphaBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	alphaBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	alphaBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	alphaBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	alphaBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	alphaBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	//================================== Post-processing Stuff ====================================
+	/*
+	hr = device->CreateTexture2D(&renderTargetTextDesc, nullptr, &blurText);
+	if (FAILED(hr))
+		return hr;
 
-	device->CreateBlendState(&alphaBlendDesc, &alphaBlendState);
+	hr = device->CreateRenderTargetView(blurText, &renderTargetViewDesc, &blurRTV);
+	if (FAILED(hr))
+		return hr;
+
+	hr = device->CreateShaderResourceView(blurText, &renderTargetSRVDesc, &blurSRV);
+	if (FAILED(hr))
+		return hr;
+	*/
+
+	// load horizontal shader
+	horizontalBlurPS = CreateSimplePixelShader();
+	if (!horizontalBlurPS->LoadShaderFile(L"./Assets/Shaders/HorizontalBlurPixelShader.cso"))
+		return S_FALSE;
+
+	// load vertical blur shader
+	verticalBlurPS = CreateSimplePixelShader();
+	if (!verticalBlurPS->LoadShaderFile(L"./Assets/Shaders/VerticalBlurPixelShader.cso"))
+		return S_FALSE;
+
+	// load vertical blur shader
+	postPS = CreateSimplePixelShader();
+	if (!postPS->LoadShaderFile(L"./Assets/Shaders/PostProcessPixelShader.cso"))
+		return S_FALSE;
 
 	// Return the "everything is ok" HRESULT value
 	return S_OK;
@@ -539,14 +619,19 @@ void Renderer::Render(const Camera * const camera)
 	}
 
 	// Unbind shader srv and sampler state from last ps
-	static ID3D11ShaderResourceView* const null[] = { nullptr, nullptr, nullptr, nullptr, nullptr };
+	static ID3D11ShaderResourceView* const null[] = { nullptr, nullptr, nullptr, nullptr };
 	context->PSSetShaderResources(0, 4, null);
 
 	// Turn off ZBUFFER
 	context->OMSetDepthStencilState(nullptr, 0);
 
 	// Set render target to back buffer
-	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+	//context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+	//TODO : Set 2 render targets - 1) Final with lighting		2) Selected pixels beyond a certain color range (select as they are being created in 1)
+	//unable to reuse the targetSRVs or RTVs (I think they are related) so we need two more (final and blur select?)
+	context->OMSetRenderTargets(2, postProcessRTVs, depthStencilView);
+	//===================== Render problems start on the above line =============================================
+	//nothing is passed into the two targets
 
 	// Use SRVs of textures we just wrote all our data into
 	deferredLightingPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
@@ -574,6 +659,7 @@ void Renderer::Render(const Camera * const camera)
 		sizeof(SpotLight) * MAX_SPOT_LIGHTS		    // size of struct * maxdirlights
 	);
 	deferredLightingPS->SetFloat4("AmbientColor", ambientColor);
+	deferredLightingPS->SetFloat4("BlurColor", colorThreshold);
 
 	// -- Copy pixel data --
 	deferredVS->CopyAllBufferData();
@@ -589,17 +675,79 @@ void Renderer::Render(const Camera * const camera)
 	// IALayout might need to be set to null here as well
 	context->Draw(3, 0);
 
-	// Post-processing - Glow needs to blend alphas
-	/*
-	// Use SRVs of textures we just wrote all our data into
-	GlowPS->SetShaderResourceView("colorLightTexture", targetSRVs[0]);	//Deferred lighting should write to this
-	GlowPS->SetShaderResourceView("emissionTexture", targetSRVs[3]);	//Original emission texture from before lighting
-	GlowPS->SetSamplerState("pixelSampler", targetSampler);
-	context->OMSetBlendState(
-		alphaBlendState,
-		0,
-		0xFFFFFFFF);
-	*/
+	//reset SRVs
+	deferredLightingPS->SetShaderResourceView("colorTexture", 0);
+	deferredLightingPS->SetShaderResourceView("worldPosTexture", 0);
+	deferredLightingPS->SetShaderResourceView("normalsTexture", 0);
+	deferredLightingPS->SetShaderResourceView("emissionTexture", 0);
+
+	/**/
+	// Post-processing
+	// Horizontal blur
+	context->PSSetShaderResources(0, 4, null);	//what?
+	context->OMSetRenderTargets(1, &targetViews[0], depthStencilView);//go elsewhere --> 0 in targetViews (recycling)
+
+	horizontalBlurPS->SetShaderResourceView("blurTexture", postProcessSRVs[1]);//from deferredPS 0=lighting 1=pixels to blur
+	horizontalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	horizontalBlurPS->SetFloat("blurDistance", blurDist);
+	horizontalBlurPS->SetFloat("texelSize", texelWidth);
+
+	// -- Copy pixel data --
+	//deferredVS->CopyAllBufferData();	//haven't changed it so no resetting?
+	horizontalBlurPS->CopyAllBufferData();
+
+	// Set pixel data
+	//deferredVS->SetShader();	//haven't changed it so no resetting?
+	horizontalBlurPS->SetShader();
+
+	//No changing context?
+	context->Draw(3, 0);
+
+	//reset SRVs
+	horizontalBlurPS->SetShaderResourceView("blurTexture", 0);
+
+
+	// Vertical blur
+	context->PSSetShaderResources(0, 4, null);//needed?
+	context->OMSetRenderTargets(1, &targetViews[1], depthStencilView);//go elsewhere --> 1 in targetViews (recycling)
+
+	verticalBlurPS->SetShaderResourceView("horizBlurTexture", targetSRVs[0]);
+	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	verticalBlurPS->SetFloat("blurDistance", blurDist);
+	verticalBlurPS->SetFloat("texelSize", texelHeight);
+
+	// -- Copy pixel data --
+	//deferredVS->CopyAllBufferData();	//haven't changed it so no resetting?
+	verticalBlurPS->CopyAllBufferData();
+
+	// Set pixel data
+	//deferredVS->SetShader();	//haven't changed it so no resetting?
+	verticalBlurPS->SetShader();
+
+	//No changing context?
+	context->Draw(3, 0);
+
+	verticalBlurPS->SetShaderResourceView("horizBlurTexture", 0);
+
+
+	//Add all post processing effects together
+	context->PSSetShaderResources(0, 4, null);//needed?
+	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+
+	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
+	postPS->SetShaderResourceView("blurTexture", targetSRVs[1]);
+	postPS->SetSamplerState("finalSampler", targetSampler);
+
+	postPS->CopyAllBufferData();
+	postPS->SetShader();
+
+	//I am assuming draw is called after every setting of shaders
+	context->Draw(3, 0);
+
+	//reset SRVs
+	postPS->SetShaderResourceView("colorTexture", 0);
+	postPS->SetShaderResourceView("blurTexture", 0);
+	/**/
 
 	// Render UI
 	RenderUI();
@@ -629,6 +777,9 @@ void Renderer::Render(const Camera * const camera)
 // --------------------------------------------------------
 void Renderer::OnResize(unsigned int width, unsigned int height)
 {
+	//used in post processing
+	texelWidth = 1.0f / width;
+	texelHeight = 1.0f / height;
 	/*
 	// Release existing DirectX views and buffers
 	if (depthStencilView) { depthStencilView->Release(); }
