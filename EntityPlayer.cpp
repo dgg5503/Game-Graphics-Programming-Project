@@ -4,7 +4,7 @@
 
 EntityPlayer::EntityPlayer(Mesh* mesh, Material* material) : Entity(mesh, material)
 {
-	fireRate = 0.1f;
+	fireRate = 0.2f;
 	fireTimer = 0;
 
 	maxHealth = health = 100;
@@ -83,6 +83,19 @@ void EntityPlayer::SetProjectileManager(EntityManagerProjectile* projectileManag
 	this->projectileManager = projectileManager;
 }
 
+void EntityPlayer::ChangeHealth(int healthDelta)
+{
+	health += healthDelta;
+	if (health <= 0) {
+		health = 0;
+		SetIsRendering(false);
+		SetIsColliding(false);
+	}
+	else if (health > maxHealth) {
+		health = maxHealth;
+	}
+}
+
 float EntityPlayer::GetSpeed()
 {
 	return speed;
@@ -92,10 +105,10 @@ void EntityPlayer::OnCollision(Collision other)
 {
 	if (other.otherEntity->HasTag("Enemy")) {
 		EntityEnemy* enemy = (EntityEnemy*)other.otherEntity;
-		enemy->MoveToRandomPosition();
-		enemy->ChangeHealth(-1000);		
+		enemy->MoveToRandomPosition();	
 
-		health--;
+		ChangeHealth(enemy->GetHealth() * -10);
+		enemy->ChangeHealth(-1000);
 	}
 }
 

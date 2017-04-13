@@ -56,10 +56,6 @@ Game::~Game()
 	for (auto it = materials.begin(); it != materials.end(); it++)
 		delete it->second;
 
-	// Free all UI panels
-	for (auto it = uiPanels.begin(); it != uiPanels.end(); it++)
-		delete it->second;
-
 	// Clean up cameras
 	delete debugCamera;
 	delete gameCamera;
@@ -113,15 +109,6 @@ void Game::Init()
 
 	// Load font 
 	renderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
-
-	// Create a test UI panel
-	uiPanels["test"] = new UIGamePanel(0, 0);
-	uiPanels["main"] = new UIGamePanel(0, 0);
-	uiPanels["game"] = new UIGamePanel(GetWidth()/2, 0);
-	uiPanels["end"] = new UIGamePanel(0, 0);
-
-	// Set the panel as current
-	renderer->SetCurrentPanel(uiPanels["game"]);
 }
 
 // --------------------------------------------------------
@@ -278,7 +265,6 @@ void Game::Update(float deltaTime, float totalTime)
 	collisionManager->CollisionUpdate();
 
 	// Update Scene
-	auto temp = stateManager.GetCurrentScene();
 	if(stateManager.GetCurrentScene() != nullptr)
 		stateManager.GetCurrentScene()->UpdateScene(deltaTime, totalTime);
 }
@@ -308,7 +294,7 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	prevMousePos.x = x;
 	prevMousePos.y = y;
 
-	// Caputure the mouse so we keep getting mouse move
+	// Capture the mouse so we keep getting mouse move
 	// events even if the mouse leaves the window.  we'll be
 	// releasing the capture once a mouse button is released
 	SetCapture(hWnd);

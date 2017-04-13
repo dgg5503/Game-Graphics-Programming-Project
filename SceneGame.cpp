@@ -6,6 +6,7 @@ SceneGame::SceneGame()
 	uiPanel = gameUI = new UIGamePanel(0, 0);
 }
 
+
 void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)
 {
 	health = 100;
@@ -24,12 +25,10 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 	player->SetProjectileManager(projectileManager);
 	player->transform.SetPosition(0, 0, 0.0f);
 	player->transform.SetScale(0.25f, 0.25f, 0.25f);
-	player->SetCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, collider works with radius
+	player->SetCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));
 
-																						  // leaks here
-																						  // Enemy entities
 	EntityEnemy* enemy;
-	for (auto i = 0u; i < 5; ++i) {
+	for (auto i = 0u; i < 10; ++i) {
 		enemy = (EntityEnemy*)entityFactory
 			.CreateEntity(EntityType::ENEMY, "Enemy_" + std::to_string(i), meshes["enemy"], materials["sand"]);
 		enemy->SetTarget(player);
@@ -47,18 +46,19 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 
 void SceneGame::UpdateScene(float deltaTime, float totalTime)
 {
-	//ui panels text updating
-	timerString = std::to_wstring(minutes) + L": " + std::to_wstring(seconds) + L": " + std::to_wstring(milliseconds);
-
-	milliseconds += deltaTime * 1000;
-	if (milliseconds >= 1000) {
-		seconds++;
-		milliseconds = 0;
-	}
-	if (seconds >= 60) {
-		minutes++;
-		seconds = 0;
-	}
-	gameUI->UpdateText(timerString);
 	gameUI->UpdateHealth(player->health);
+
+	if (player->health) {
+		timerString = std::to_wstring(minutes) + L": " + std::to_wstring(seconds) + L": " + std::to_wstring(milliseconds);
+		milliseconds += deltaTime * 1000;
+		if (milliseconds >= 1000) {
+			seconds++;
+			milliseconds = 0;
+		}
+		if (seconds >= 60) {
+			minutes++;
+			seconds = 0;
+		}
+		gameUI->UpdateText(timerString);
+	}
 }

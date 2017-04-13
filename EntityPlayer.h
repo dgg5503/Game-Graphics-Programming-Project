@@ -19,16 +19,17 @@ public:
 	float GetSpeed();
 	void SetProjectileManager(EntityManagerProjectile* projectileManager);
 
+
+	// Change health by amount
+	void ChangeHealth(int healthDelta);
+
 	int health, maxHealth;
 
 protected:
 	float speed;		// The speed the player can move at
 	float fireTimer;	// Stores time since last firing
-	float fireRate;		// The maximun rate of firing
+	float fireRate;		// The maximum rate of firing
 	EntityManagerProjectile* projectileManager;	// Pointer to manager
-
-	XMFLOAT3 acceleration;
-	XMFLOAT3 velocity;
 
 	void FireProjectile(XMFLOAT3 direction);	// Fire a projectile
 
