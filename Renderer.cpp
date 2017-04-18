@@ -407,6 +407,9 @@ inline void Renderer::ClearRenderTargets()
 	for (size_t i = 0; i < BUFFER_COUNT; i++)
 		context->ClearRenderTargetView(targetViews[i], color);
 
+	for (size_t i = 0; i < 2; i++)
+		context->ClearRenderTargetView(postProcessRTVs[i], color);
+
 	// Clear depth buffer
 	// Clear the render target and depth buffer (erases what's on the screen)
 	//  - Do this ONCE PER FRAME
@@ -682,9 +685,13 @@ void Renderer::Render(const Camera * const camera)
 	deferredLightingPS->SetShaderResourceView("emissionTexture", 0);
 
 	/**/
+	//Clear target views to reuse
+	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	for (size_t i = 0; i < BUFFER_COUNT; i++)
+		context->ClearRenderTargetView(targetViews[i], color);
 	// Post-processing
 	// Horizontal blur
-	context->PSSetShaderResources(0, 4, null);	//what?
+	context->PSSetShaderResources(0, 4, null);
 	context->OMSetRenderTargets(1, &targetViews[0], depthStencilView);//go elsewhere --> 0 in targetViews (recycling)
 
 	horizontalBlurPS->SetShaderResourceView("blurTexture", postProcessSRVs[1]);//from deferredPS 0=lighting 1=pixels to blur
@@ -700,6 +707,10 @@ void Renderer::Render(const Camera * const camera)
 	//deferredVS->SetShader();	//haven't changed it so no resetting?
 	horizontalBlurPS->SetShader();
 
+	// Paint info to full screen quad
+	//context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+	//context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
+
 	//No changing context?
 	context->Draw(3, 0);
 
@@ -708,7 +719,7 @@ void Renderer::Render(const Camera * const camera)
 
 
 	// Vertical blur
-	context->PSSetShaderResources(0, 4, null);//needed?
+	context->PSSetShaderResources(0, 4, null);
 	context->OMSetRenderTargets(1, &targetViews[1], depthStencilView);//go elsewhere --> 1 in targetViews (recycling)
 
 	verticalBlurPS->SetShaderResourceView("horizBlurTexture", targetSRVs[0]);
@@ -724,6 +735,10 @@ void Renderer::Render(const Camera * const camera)
 	//deferredVS->SetShader();	//haven't changed it so no resetting?
 	verticalBlurPS->SetShader();
 
+	// Paint info to full screen quad
+	//context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+	//context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
+
 	//No changing context?
 	context->Draw(3, 0);
 
@@ -731,15 +746,21 @@ void Renderer::Render(const Camera * const camera)
 
 
 	//Add all post processing effects together
-	context->PSSetShaderResources(0, 4, null);//needed?
+	context->PSSetShaderResources(0, 4, null);
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
 	postPS->SetShaderResourceView("blurTexture", targetSRVs[1]);
 	postPS->SetSamplerState("finalSampler", targetSampler);
 
+	//deferredVS->CopyAllBufferData();
 	postPS->CopyAllBufferData();
+	//deferredVS->SetShader();
 	postPS->SetShader();
+
+	// Paint info to full screen quad
+	//context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+	//context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
 
 	//I am assuming draw is called after every setting of shaders
 	context->Draw(3, 0);

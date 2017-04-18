@@ -12,22 +12,8 @@ cbuffer data : register(b0) {
 	float texelSize; //dist to next pixel -->calculated in code b/c only need to calculate once or when resized, not every pixel/draw/etc.
 }
 
-// Input info from vertex shader
-struct BlurPixelInput
-{
-	float4 position		: SV_POSITION;
-	float2 tex			: TEXCOORD0;	//origin coord
-	float2 texCoord1	: TEXCOORD1;	//coordinates 4 to the left and 4 to the right to be written to for blur
-	float2 texCoord2	: TEXCOORD2;	//technically only need the original tex position
-	float2 texCoord3	: TEXCOORD3;
-	float2 texCoord4	: TEXCOORD4;
-	float2 texCoord5	: TEXCOORD5;
-	float2 texCoord6	: TEXCOORD6;
-	float2 texCoord7	: TEXCOORD7;
-	float2 texCoord8	: TEXCOORD8;
-	float2 texCoord9	: TEXCOORD9;
-};
 
+//Input from vertex shader
 struct TargetCoords
 {
 	float4 position	: SV_POSITION;

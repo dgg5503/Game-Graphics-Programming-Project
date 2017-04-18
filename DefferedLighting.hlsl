@@ -74,7 +74,7 @@ DefferedOut main(TargetCoords input)
 	//this feels gross for some reason
 	if (length(emission.xyz) != 0) {
 		output.color = emission;
-		output.blur = PixelToBlur(output.color);
+		output.blur = PixelToBlur(emission);
 		return output;
 	}
 
