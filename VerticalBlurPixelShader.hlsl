@@ -17,8 +17,14 @@ struct TargetCoords
 	float2 uv		: TEXCOORD;
 };
 
-float4 main(TargetCoords input) : SV_TARGET	//replaces worldPos as they are not necessary anymore, and I do not think writing over what i am reading is good practice
+struct BlurOutput
 {
+	float4 blurred	: SV_Target0;
+};
+
+BlurOutput main(TargetCoords input)
+{
+	BlurOutput output;
 	float blurD = clamp(blurDistance, 0, MAX_BLUR_PIXELS - 1);
 	float weights[MAX_BLUR_PIXELS];
 	float normalization = 0;
@@ -34,8 +40,8 @@ float4 main(TargetCoords input) : SV_TARGET	//replaces worldPos as they are not 
 	normalization += weights[0];
 
 	//normalize weights
-	for (int i = 0; i <= blurD; i++) {
-		weights[i] = weights[i] / normalization;
+	for (int j = 0; j <= blurD; j++) {
+		weights[j] = weights[j] / normalization;
 	}
 	/*
 	float weight0, weight1, weight2, weight3, weight4;	//alphas of pixels by distance
@@ -66,8 +72,8 @@ float4 main(TargetCoords input) : SV_TARGET	//replaces worldPos as they are not 
 	*/
 	//add the weighted colors together
 	float4 color = float4(0, 0, 0, 0);
-	for (int i = -blurD; i <= blurD; i++) {
-		color += horizBlurTexture.Sample(blurSampler, input.uv + float2(0.0f, texelSize * i)) * weights[abs(i)];	//how to use diff weights -- need to calc weights depending on blurDistance
+	for (int k = -blurD; k <= blurD; k++) {
+		color += horizBlurTexture.Sample(blurSampler, input.uv + float2(0.0f, texelSize * k)) * weights[abs(k)];	//how to use diff weights -- need to calc weights depending on blurDistance
 	}
 	/*
 	color += blurTexture.Sample(blurSampler, input.texCoord1) * weight4;
@@ -83,6 +89,7 @@ float4 main(TargetCoords input) : SV_TARGET	//replaces worldPos as they are not 
 
 	//set alpha to 1
 	color.a = 1.0f;
+	output.blurred = color;
 
-	return color;
+	return output;
 }

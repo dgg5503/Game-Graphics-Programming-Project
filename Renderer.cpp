@@ -715,7 +715,7 @@ void Renderer::Render(const Camera * const camera)
 	context->Draw(3, 0);
 
 	//reset SRVs
-	horizontalBlurPS->SetShaderResourceView("blurTexture", 0);
+	//horizontalBlurPS->SetShaderResourceView("blurTexture", 0);
 
 
 	// Vertical blur
@@ -742,7 +742,7 @@ void Renderer::Render(const Camera * const camera)
 	//No changing context?
 	context->Draw(3, 0);
 
-	verticalBlurPS->SetShaderResourceView("horizBlurTexture", 0);
+	//verticalBlurPS->SetShaderResourceView("horizBlurTexture", 0);
 
 
 	//Add all post processing effects together
