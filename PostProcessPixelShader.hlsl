@@ -17,5 +17,5 @@ float4 main(TargetCoords input) : SV_TARGET
 	float4 blur = blurTexture.Sample(finalSampler, input.uv);
 	float4 diff = (col - (col - blur))/2;
 	float4 final = col + diff;
-	return final;
+	return float4(1.0f, 0, 0, 1);
 }
