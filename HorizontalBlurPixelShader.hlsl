@@ -26,9 +26,8 @@ struct BlurOutput
 };
 
 
-BlurOutput main(TargetCoords input)
+float4 main(TargetCoords input) : SV_TARGET
 {
-	BlurOutput output;
 	float blurD = clamp(blurDistance, 0, MAX_BLUR_PIXELS - 1);
 	float weights[MAX_BLUR_PIXELS];
 	/*
@@ -112,7 +111,6 @@ BlurOutput main(TargetCoords input)
 
 	//set alpha to 1
 	color.a = 1.0f;
-	output.blurred = color;
 	//second shader should blur vertically
-	return output;
+	return color;
 }
