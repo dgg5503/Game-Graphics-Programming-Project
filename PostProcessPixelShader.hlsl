@@ -15,7 +15,9 @@ float4 main(TargetCoords input) : SV_TARGET
 {
 	float4 col = colorTexture.Sample(finalSampler, input.uv);
 	float4 blur = blurTexture.Sample(finalSampler, input.uv);
-	float4 diff = (col - blur)/2;
-	float4 final = col + diff;
+	//float4 diff = (blur - col)/2;
+	float4 final = col + blur / 2;
+	final.xyz = clamp(final.xyz, col.xyz, float3(1, 1, 1));
+	final.a = 1.0;
 	return final;
 }
