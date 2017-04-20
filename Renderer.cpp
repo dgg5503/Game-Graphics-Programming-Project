@@ -719,7 +719,7 @@ void Renderer::Render(const Camera * const camera)
 
 
 	// Vertical blur
-	context->PSSetShaderResources(0, 4, null);
+	context->PSSetShaderResources(0, 1, null);
 	context->OMSetRenderTargets(1, &targetViews[1], depthStencilView);//go elsewhere --> 1 in targetViews (recycling)
 
 	verticalBlurPS->SetShaderResourceView("horizBlurTexture", targetSRVs[0]);
@@ -746,7 +746,7 @@ void Renderer::Render(const Camera * const camera)
 
 
 	//Add all post processing effects together
-	context->PSSetShaderResources(0, 4, null);
+	context->PSSetShaderResources(0, 1, null);
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
