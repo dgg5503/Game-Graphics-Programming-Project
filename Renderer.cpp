@@ -622,8 +622,8 @@ void Renderer::Render(const Camera * const camera)
 	}
 
 	// Unbind shader srv and sampler state from last ps
-	static ID3D11ShaderResourceView* const null[] = { nullptr, nullptr, nullptr, nullptr };
-	context->PSSetShaderResources(0, 4, null);
+	static ID3D11ShaderResourceView* const null[] = { nullptr, nullptr, nullptr, nullptr, nullptr };
+	context->PSSetShaderResources(0, 5, null);
 
 	// Turn off ZBUFFER
 	context->OMSetDepthStencilState(nullptr, 0);
@@ -678,21 +678,17 @@ void Renderer::Render(const Camera * const camera)
 	// IALayout might need to be set to null here as well
 	context->Draw(3, 0);
 
-	//reset SRVs
-	//deferredLightingPS->SetShaderResourceView("colorTexture", 0);
-	//deferredLightingPS->SetShaderResourceView("worldPosTexture", 0);
-	//deferredLightingPS->SetShaderResourceView("normalsTexture", 0);
-	//deferredLightingPS->SetShaderResourceView("emissionTexture", 0);
 
 	/**/
 	//Clear target views to reuse
 	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	for (size_t i = 0; i < BUFFER_COUNT; i++)
 		context->ClearRenderTargetView(targetViews[i], color);
+
 	// Post-processing
 	// Horizontal blur
-	context->PSSetShaderResources(0, 4, null);
-	context->OMSetRenderTargets(1, &targetViews[0], depthStencilView);//go elsewhere --> 0 in targetViews (recycling)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &targetViews[0], nullptr);//go elsewhere --> 0 in targetViews (recycling)
 
 	horizontalBlurPS->SetShaderResourceView("blurTexture", postProcessSRVs[1]);//from deferredPS 0=lighting 1=pixels to blur
 	horizontalBlurPS->SetSamplerState("blurSampler", targetSampler);
@@ -714,13 +710,10 @@ void Renderer::Render(const Camera * const camera)
 	//No changing context?
 	context->Draw(3, 0);
 
-	//reset SRVs
-	//horizontalBlurPS->SetShaderResourceView("blurTexture", 0);
-
 
 	// Vertical blur
-	context->PSSetShaderResources(0, 1, null);
-	context->OMSetRenderTargets(1, &targetViews[1], depthStencilView);//go elsewhere --> 1 in targetViews (recycling)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &targetViews[1], nullptr);//go elsewhere --> 1 in targetViews (recycling)
 
 	verticalBlurPS->SetShaderResourceView("horizBlurTexture", targetSRVs[0]);
 	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
@@ -742,12 +735,10 @@ void Renderer::Render(const Camera * const camera)
 	//No changing context?
 	context->Draw(3, 0);
 
-	//verticalBlurPS->SetShaderResourceView("horizBlurTexture", 0);
-
 
 	//Add all post processing effects together
-	context->PSSetShaderResources(0, 1, null);
-	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &backBufferRTV, nullptr);
 
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
 	postPS->SetShaderResourceView("blurTexture", targetSRVs[1]);
@@ -774,7 +765,7 @@ void Renderer::Render(const Camera * const camera)
 	RenderUI();
 
 	// Unbind all sampler states and srvs
-	context->PSSetShaderResources(0, 4, null);
+	context->PSSetShaderResources(0, 5, null);
 
 	// Fixes depth buffer issue regarding SpriteBatch2D
 	context->OMSetDepthStencilState(nullptr, 0);
