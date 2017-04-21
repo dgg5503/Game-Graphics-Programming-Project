@@ -14,9 +14,11 @@ public:
 		const std::unordered_map<const char*, SpriteFont*>& fontMap);
 	void Update(float deltaTime, float totalTime);
 	void UpdateText(wstring _text);
+	void UpdateHealth(int health);
 
 private:
 	wstring text;
+	int health = 0;
 	float x;
 	float y;
 };

@@ -25,6 +25,7 @@ Game::Game(HINSTANCE hInstance)
 	pixelShader_normal = 0;
 	renderer = nullptr;
 	collisionManager = nullptr;
+	stateManager = StateManager();
 
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
@@ -55,10 +56,6 @@ Game::~Game()
 	for (auto it = materials.begin(); it != materials.end(); it++)
 		delete it->second;
 
-	// Free all UI panels
-	for (auto it = uiPanels.begin(); it != uiPanels.end(); it++)
-		delete it->second;
-
 	// Clean up cameras
 	delete debugCamera;
 	delete gameCamera;
@@ -74,7 +71,6 @@ Game::~Game()
 
 	// Shutdown Managers
 	CollisionManager::Shutdown();
-	delete projectileManager;
 }
 
 // --------------------------------------------------------
@@ -86,6 +82,9 @@ void Game::Init()
 	// Initialize renderer singleton/DX
 	renderer = Renderer::Initialize(this);
 	collisionManager = CollisionManager::Initialize(0.25f, XMFLOAT3(3, 3, 0.5));
+
+	stateManager.AddScene(GameState::GAME, new SceneGame());
+	stateManager.AddScene(GameState::MAIN_MENU, new SceneMenu());
 
 	// Initialize starting mouse location to center of screen
 	prevMousePos.x = GetWidth() / 2;
@@ -110,15 +109,6 @@ void Game::Init()
 
 	// Load font 
 	renderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
-
-	// Create a test UI panel
-	uiPanels["test"] = new UIGamePanel(0, 0);
-	uiPanels["main"] = new UIGamePanel(0, 0);
-	uiPanels["game"] = new UIGamePanel(GetWidth()/2, 0);
-	uiPanels["end"] = new UIGamePanel(0, 0);
-
-	// Set the panel as current
-	renderer->SetCurrentPanel(uiPanels["game"]);
 }
 
 // --------------------------------------------------------
@@ -203,58 +193,7 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::CreateEntities()
 {
-	entityFactory.SetCollisionManager(collisionManager);
-
-	// Projectile Entities
-	projectileManager = new ProjectileManager();
-	auto projectiles = entityFactory.CreateProjectileEntities(20, meshes["sphere"], materials["brick"]);
-	projectileManager->SetProjectiles(projectiles);
-
-
-	// Player entity
-	EntityPlayer* player;
-	//entities["player"] = player = new EntityPlayer(meshes["player"], materials["stone"]);
-	player = (EntityPlayer*)entityFactory
-		.CreateEntity(ENTITY_TYPE::PLAYER, "player", meshes["player"], materials["stone"]);
-	player->SetSpeed(2.0f);
-	player->SetSpeed(2.0f);
-	player->SetProjectileManager(projectileManager);
-	player->transform.SetPosition(0, 0, 0.0f);
-	player->transform.SetScale(0.25f, 0.25f, 0.25f);
-	player->SetCollider(Collider::ColliderType::SPHERE, XMFLOAT3(0.125f, 0.125f, 0.125f));//sphere mesh is 1 unit in diameter, collider works with radius
-
-	// leaks here
-	// Enemy entities
-	EntityEnemy* enemy;
-	for (auto i = 0u; i < 5; ++i) {
-		auto name = new std::string("Enemy_" + std::to_string(i));
-		//entities[name->data()] = enemy = new EntityEnemy(meshes["enemy"], materials["sand"]);
-		enemy = (EntityEnemy*)entityFactory
-			.CreateEntity(ENTITY_TYPE::ENEMY, "Enemy_" + std::to_string(i), meshes["enemy"], materials["sand"]);
-		enemy->SetTarget(player);
-		enemy->MoveToRandomPosition();
-		enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
-		enemy->SetCollider(Collider::ColliderType::OBB);
-	}
-
-	// Background entity
-	Entity* background = entityFactory
-		.CreateEntity(ENTITY_TYPE::STATIC, "Background", meshes["cube"], materials["brick"]);
-	background->transform.SetPosition(0, 0, 5.0f);
-	background->transform.SetScale(8.0f, 5.0f, 1.0f);
-
-	// Stage all entities for rendering
-	auto entities = entityFactory.GetEntities();
-	for (auto it = entities.begin(); it != entities.end(); it++) {
-		// Stage renderer
-		if (it->second->isRendering) {
-		renderer->StageEntity(it->second);
-		}
-		// Stage Colliders
-		if (it->second->isColliding) {
-			collisionManager->StageCollider(it->second->GetCollider());
-		}
-	}
+	stateManager.SetState(GameState::MAIN_MENU, entityFactory, meshes, materials);
 }
 
 
@@ -293,22 +232,14 @@ void Game::Update(float deltaTime, float totalTime)
 		activeCamera = debugCamera;
 	}
 
-
-	//ui panels text updating
-	timerString = std::to_wstring(minutes) + L": " + std::to_wstring(seconds) + L": " + std::to_wstring(milliseconds);
-
-	milliseconds += deltaTime * 1000;
-	if (milliseconds >= 1000) {
-		seconds++;
-		milliseconds = 0;
+	if (GetAsyncKeyState('3') & 0x8000)
+	{
+		stateManager.SetState(GameState::MAIN_MENU, entityFactory, meshes, materials);
 	}
-	if (seconds >= 60) {
-		minutes++;
-		seconds = 0;
+	if (GetAsyncKeyState('4') & 0x8000)
+	{
+		stateManager.SetState(GameState::GAME, entityFactory, meshes, materials);
 	}
-	uiPanels["game"]->UpdateText(timerString);
-	//
-
 
 	//mouse pos
 	POINT cursorPos;
@@ -332,6 +263,10 @@ void Game::Update(float deltaTime, float totalTime)
 
 	//check for collisions
 	collisionManager->CollisionUpdate();
+
+	// Update Scene
+	if(stateManager.GetCurrentScene() != nullptr)
+		stateManager.GetCurrentScene()->UpdateScene(deltaTime, totalTime);
 }
 
 // --------------------------------------------------------
@@ -359,7 +294,7 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	prevMousePos.x = x;
 	prevMousePos.y = y;
 
-	// Caputure the mouse so we keep getting mouse move
+	// Capture the mouse so we keep getting mouse move
 	// events even if the mouse leaves the window.  we'll be
 	// releasing the capture once a mouse button is released
 	SetCapture(hWnd);

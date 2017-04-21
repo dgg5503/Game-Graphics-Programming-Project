@@ -1,22 +1,16 @@
 #include "Scene.h"
 
-
-
-Scene::Scene()
-{
-}
-
-
 Scene::~Scene()
 {
+	if (uiPanel)
+		delete uiPanel;
 }
 
-std::vector<Entity*> Scene::GetEntityList()
+void Scene::UpdateScene(float deltaTime, float totalTime)
 {
-	return entityList;
 }
 
-UIPanel * Scene::GetUIPanel()
+UIPanel* Scene::GetUIPanel()
 {
-	return uiPanel;
+	return this->uiPanel;
 }

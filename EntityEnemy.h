@@ -5,7 +5,7 @@ class EntityEnemy :
 	public Entity
 {
 public:
-	EntityEnemy(Mesh* mesh, Material* material);
+	EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material);
 	~EntityEnemy();
 
 	void Update(float deltaTime, float totalTime) override;

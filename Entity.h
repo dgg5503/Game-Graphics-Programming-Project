@@ -17,11 +17,15 @@ struct Collision {
 
 class Entity
 {
+	friend EntityFactory;
+
 public:
 	// Construction of an entity requires a mesh and material
 	Entity(
-		Mesh* mesh,
-		Material* material
+		EntityFactory* entityFactory,
+		std::string name,
+		Mesh* mesh = nullptr,
+		Material* material = nullptr
 	);
 	virtual ~Entity();
 
@@ -31,17 +35,20 @@ public:
 
 	virtual void OnCollision(Collision collision);
 
-
-	// Properties
-	bool isUpdating;
-	bool isRendering;
-	bool isColliding;
-
 	// Public transform so we can access information!
 	Transform transform;
 
 	// Getters and Setters
 	void SetEntityFactory(EntityFactory* entityFactory);
+
+	void SetIsUpdating(bool isUpdating);
+	void SetIsRendering(bool isRendering);
+	void SetIsColliding(bool isColliding);
+
+	bool GetIsUpdating();
+	bool GetIsRendering();
+	bool GetIsColliding();
+
 	void SetMesh(Mesh* mesh);
 	void SetMaterial(Material* material);
 	void SetCollider(Collider::ColliderType type, XMFLOAT3 scale = XMFLOAT3(0, 0, 0), XMFLOAT3 offset = XMFLOAT3(0, 0, 0), XMFLOAT4 rotation = XMFLOAT4(0, 0, 0, 0));
@@ -56,8 +63,13 @@ public:
 	void AddTag(std::string tag);
 	void RemoveTag(std::string tag);
 
-protected:
+private:
 	EntityFactory* entityFactory;
+
+	// Properties
+	bool isUpdating;
+	bool isRendering;
+	bool isColliding;
 
 	// Identifiers
 	std::string name;

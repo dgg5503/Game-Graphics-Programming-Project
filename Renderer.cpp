@@ -762,7 +762,8 @@ void Renderer::Render(const Camera * const camera)
 	/**/
 
 	// Render UI
-	RenderUI();
+	if (panel)
+		RenderUI();
 
 	// Unbind all sampler states and srvs
 	context->PSSetShaderResources(0, 5, null);
@@ -860,7 +861,6 @@ void Renderer::OnResize(unsigned int width, unsigned int height)
 // --------------------------------------------------------
 void Renderer::SetCurrentPanel(UIPanel * panel)
 {
-	assert(panel != nullptr);
 	this->panel = panel;
 }
 

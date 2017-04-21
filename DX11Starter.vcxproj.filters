@@ -19,6 +19,12 @@
     <Filter Include="Entities">
       <UniqueIdentifier>{4f8f637a-e4b0-4056-8f4f-1a23801bffda}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{07f3283d-4c56-4d59-af38-fa661749a1e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI Panels">
+      <UniqueIdentifier>{f27e4958-e628-4646-b2b6-ce6113c7122b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -54,12 +60,6 @@
     <ClCompile Include="CameraGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIGamePanel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StateManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -81,9 +81,6 @@
     <ClCompile Include="EntityProjectile.cpp">
       <Filter>Entities</Filter>
     </ClCompile>
-    <ClCompile Include="ProjectileManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Entity.cpp">
       <Filter>Entities</Filter>
     </ClCompile>
@@ -92,6 +89,21 @@
     </ClCompile>
     <ClCompile Include="EntityFactory.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityManagerProjectile.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGame.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneMenu.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="UIGamePanel.cpp">
+      <Filter>UI Panels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -134,16 +146,7 @@
     <ClInclude Include="CameraGame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIPanel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UIGamePanel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StateManager.h">
@@ -170,9 +173,6 @@
     <ClInclude Include="EntityProjectile.h">
       <Filter>Entities</Filter>
     </ClInclude>
-    <ClInclude Include="ProjectileManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Entity.h">
       <Filter>Entities</Filter>
     </ClInclude>
@@ -181,6 +181,24 @@
     </ClInclude>
     <ClInclude Include="EntityFactory.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityManagerProjectile.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGame.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneMenu.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="UIPanel.h">
+      <Filter>UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="UIGamePanel.h">
+      <Filter>UI Panels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
