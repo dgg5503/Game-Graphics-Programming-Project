@@ -94,6 +94,7 @@ Renderer::~Renderer()
 
 	if (deferredVS) { delete deferredVS; }
 	if (deferredLightingPS) { delete deferredLightingPS; }
+	if (particleRenderer) { particleRenderer->Shutdown();  delete particleRenderer; }
 }
 
 // --------------------------------------------------------
@@ -310,6 +311,11 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	alphaBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	device->CreateBlendState(&alphaBlendDesc, &alphaBlendState);
+
+	particleRenderer = new ParticleRenderer(*this);
+	hr = particleRenderer->Initialize();
+	if (FAILED(hr))
+		return hr;
 
 	// Return the "everything is ok" HRESULT value
 	return S_OK;
@@ -538,6 +544,10 @@ void Renderer::Render(const Camera * const camera)
 		it = bucket.second;
 	}
 
+	
+	// -- Particles (deferred rendering) --
+	particleRenderer->Render(camera);
+
 	// Unbind shader srv and sampler state from last ps
 	static ID3D11ShaderResourceView* const null[] = { nullptr, nullptr, nullptr, nullptr, nullptr };
 	context->PSSetShaderResources(0, 4, null);
@@ -546,7 +556,7 @@ void Renderer::Render(const Camera * const camera)
 	context->OMSetDepthStencilState(nullptr, 0);
 
 	// Set render target to back buffer
-	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+	context->OMSetRenderTargets(1, &backBufferRTV, nullptr);
 
 	// Use SRVs of textures we just wrote all our data into
 	deferredLightingPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
@@ -586,8 +596,14 @@ void Renderer::Render(const Camera * const camera)
 	// Paint lighting info to full screen quad
 	context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
-	// IALayout might need to be set to null here as well
 	context->Draw(3, 0);
+
+	// -- Particles (forward rendering) --
+	// Turn on blending 
+	//context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
+
+	//context->OMSetBlendState(alphaBlendState, 0, 0xFFFFFFFF);
+	//particleRenderer->Render(camera);
 
 	// Post-processing - Glow needs to blend alphas
 	/*
@@ -614,6 +630,18 @@ void Renderer::Render(const Camera * const camera)
 	//  - Puts the final frame we're drawing into the window so the user can see it
 	//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
 	swapChain->Present(0, 0);
+}
+
+// --------------------------------------------------------
+// Update exclusively for compute shaders that should be 
+// dispatched during the update section of the engine.
+//
+// dt - delta time of last two frames
+// totalTime - total time application has been open
+// --------------------------------------------------------
+void Renderer::UpdateCS(float dt, float totalTime)
+{
+	particleRenderer->Update(dt, totalTime);
 }
 
 // --------------------------------------------------------
@@ -734,6 +762,14 @@ SimplePixelShader * const Renderer::CreateSimplePixelShader() const
 }
 
 // --------------------------------------------------------
+// Create and return a simple compute shader
+// --------------------------------------------------------
+SimpleComputeShader * const Renderer::CreateSimpleComputeShader() const
+{
+	return new SimpleComputeShader(device, context);
+}
+
+// --------------------------------------------------------
 // Create and return a mesh.
 // --------------------------------------------------------
 Mesh * const Renderer::CreateMesh(const char * path) const
@@ -747,11 +783,11 @@ Mesh * const Renderer::CreateMesh(const char * path) const
 // Create and return a texture.
 // TODO: Allow for different sampler options?
 // --------------------------------------------------------
-Texture2D * const Renderer::CreateTexture2D(const wchar_t * path, Texture2DType type)
+Texture2D * const Renderer::CreateTexture2D(const wchar_t * path, Texture2DType type, Texture2DFileType fileType)
 {
 	if (!path)
 		return nullptr;
-	return new Texture2D(path, type, objectTextureSampler, device, context);
+	return new Texture2D(path, type, fileType, objectTextureSampler, device, context);
 }
 
 // --------------------------------------------------------

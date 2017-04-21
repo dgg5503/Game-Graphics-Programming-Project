@@ -13,6 +13,7 @@
 #include "ShaderConstants.h"
 #include "Entity.h"
 #include "DXWindow.h"
+#include "ParticleRenderer.h"
 
 #include "GameState.h"
 
@@ -27,6 +28,8 @@ class Entity; // forward declaration to fix cyclic dep
 
 class Renderer
 {
+	friend class ParticleRenderer;
+
 public:
 	// Instance specific stuff
 	static Renderer * const Initialize(DXWindow* const window);
@@ -37,6 +40,7 @@ public:
 	void StageEntity(Entity* const entity);
 	void UnstageEntity(Entity * const entity);
 	void Render(const Camera * const camera);
+	void UpdateCS(float dt, float totalTime); // update exclusively for compute shader use
 	void OnResize(unsigned int width, unsigned int height);
 
 	// UI Renderer Specific
@@ -50,12 +54,13 @@ public:
 	// Shader factory. CALLER SHOULD FREE CREATED VARIABLES
 	SimpleVertexShader* const CreateSimpleVertexShader() const;
 	SimplePixelShader* const CreateSimplePixelShader() const;
+	SimpleComputeShader * const CreateSimpleComputeShader() const;
 
 	// Mesh factory. CALLER SHOULD FREE CREATED VARIABLES
 	Mesh* const CreateMesh(const char* path) const;
 
 	// Texture factory. CALLER SHOULD FREE CREATED VARIABLES
-	Texture2D* const CreateTexture2D(const wchar_t * path, Texture2DType type);
+	Texture2D* const CreateTexture2D(const wchar_t * path, Texture2DType type, Texture2DFileType fileType = Texture2DFileType::OTHER);
 
 	// Get the map of material IDs to entity pointers that are to be rendered
 	const std::unordered_multimap<unsigned int, Entity*>& GetRenderBatches() const;
@@ -104,6 +109,9 @@ private:
 
 	// -- TEXTURE --
 	ID3D11SamplerState* objectTextureSampler;
+
+	// -- PARTICLES --
+	ParticleRenderer* particleRenderer;
 
 	// -- LIGHTING --
 	// Lights

@@ -79,6 +79,7 @@ public:
 	// Sets arbitrary shader data
 	bool SetData(std::string name, const void* data, unsigned int size);
 	bool SetDataAligned(std::string name, const void* data, unsigned int size);
+	bool SetStruct(std::string firstMember, const void * data, unsigned int size);
 	bool SetInt(std::string name, int data);
 	bool SetFloat(std::string name, float data);
 	bool SetFloat2(std::string name, const float data[2]);

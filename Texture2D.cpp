@@ -8,20 +8,40 @@
 // --------------------------------------------------------
 Texture2D::Texture2D(const wchar_t * filePath,
 	Texture2DType type,
+	Texture2DFileType fileType,
 	ID3D11SamplerState * const samplerState,
 	ID3D11Device * const device,
 	ID3D11DeviceContext * const context) :
 	samplerState(samplerState)
 {
-	// Load a texture
-	if (DirectX::CreateWICTextureFromFile(
-		device,
-		context,
-		filePath,
-		0, // we dont need the texture ref itself
-		&srv
-	) != S_OK)
-		fprintf(stderr, "[Texture2D] Failed to load texture %ls\n", filePath);
+	switch (fileType)
+	{
+	case Texture2DFileType::OTHER:
+		// Load a texture
+		if (DirectX::CreateWICTextureFromFile(
+			device,
+			context,
+			filePath,
+			0, // we dont need the texture ref itself
+			&srv
+		) != S_OK)
+			fprintf(stderr, "[Texture2D] Failed to load texture %ls\n", filePath);
+		break;
+	case Texture2DFileType::DDS:
+		// Load a texture
+		if (DirectX::CreateDDSTextureFromFile(
+			device,
+			context,
+			filePath,
+			0, // we dont need the texture ref itself
+			&srv
+		) != S_OK)
+			fprintf(stderr, "[Texture2D] Failed to load texture %ls\n", filePath);
+		break;
+	default:
+		break;
+	}
+
 
 	// Set texture type information
 	switch (type)

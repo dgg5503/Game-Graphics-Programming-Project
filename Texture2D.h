@@ -2,6 +2,7 @@
 
 #include <d3d11.h>
 #include <WICTextureLoader.h>
+#include <DDSTextureLoader.h>
 #include <stdio.h>
 
 enum class Texture2DType
@@ -11,15 +12,22 @@ enum class Texture2DType
 	EMISSION
 };
 
+enum class Texture2DFileType
+{
+	OTHER,
+	DDS
+};
+
 class Texture2D
 {
 public:
 	Texture2D(
-		const wchar_t* filePath,				// Path to texture 2D
-		Texture2DType type,						// Texture type
-		ID3D11SamplerState* const samplerState, // Sampler state to use for this texture
-		ID3D11Device* const device,				// GFX device used to create texture
-		ID3D11DeviceContext* const context		// GFX context used to create texture
+		const wchar_t* filePath,								// Path to texture 2D
+		Texture2DType type,										// Texture type
+		Texture2DFileType fileType,								// File type of texture, other by default
+		ID3D11SamplerState* const samplerState,					// Sampler state to use for this texture
+		ID3D11Device* const device,								// GFX device used to create texture
+		ID3D11DeviceContext* const context						// GFX context used to create texture
 	);
 	~Texture2D();
 

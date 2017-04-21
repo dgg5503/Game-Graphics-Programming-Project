@@ -417,6 +417,55 @@ bool ISimpleShader::SetDataAligned(std::string name, const void * data, unsigned
 }
 
 // --------------------------------------------------------
+// Sets arbitrary amount of data from a given variable onwards.
+// Trusting the user that the size of the data matches that of
+// the copying location.
+//
+// firstMember	- The name of the first member of the struct
+// data			- The data to set in the buffer
+// size			- The size of the data
+//
+// Returns true if data is copied, false if variable doesn't 
+// exist
+// --------------------------------------------------------
+bool ISimpleShader::SetStruct(std::string firstMember, const void * data, unsigned int size)
+{
+	// Ensure pwr of 16 size
+	if ((size & 0xF) != 0)
+		return false;
+
+	// Look for the key
+	std::unordered_map<std::string, SimpleShaderVariable>::iterator result =
+		varTable.find(firstMember);
+
+	// Did we find the key?
+	if (result == varTable.end())
+		return false;
+
+	// Grab the result from the iterator
+	SimpleShaderVariable* var = &(result->second);
+
+	// Assume data size is correct...
+	// Is the data size correct ?
+	// Ensure size is <=, at most itll fit snuggly
+	// at least padding will not be included in size
+	//if (var->Size > size)
+	//	return false;
+
+	// Copy as much data as the var, not the requested size
+	// It is possible we could overwrite data in another struct
+	// like so { ... vec3 } { vec1 vec1 }, if we use size, the
+	// first vec1 in 2nd struct will be clobbered
+	memcpy(
+		constantBuffers[var->ConstantBufferIndex].LocalDataBuffer + var->ByteOffset,
+		data,
+		size);
+
+	// Success
+	return true;
+}
+
+// --------------------------------------------------------
 // Sets INTEGER data
 // --------------------------------------------------------
 bool ISimpleShader::SetInt(std::string name, int data)

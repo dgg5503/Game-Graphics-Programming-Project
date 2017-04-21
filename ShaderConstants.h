@@ -3,4 +3,5 @@
 #define MAX_DIR_LIGHTS 1
 #define MAX_POINT_LIGHTS 1
 #define MAX_SPOT_LIGHTS 1
+#define NUM_PARTICLE_THREADS 32
 #endif
