@@ -60,7 +60,7 @@ Renderer::Renderer(DXWindow* const window)
 	texelWidth = 1.0f / window->GetWidth();
 	texelHeight = 1.0f / window->GetHeight();
 	blurDist = BLUR_DISTANCE;
-	colorThreshold = .09f;
+	colorThreshold = .5;
 	/*
 	float normalization = 0;
 	//fill weights array
@@ -737,7 +737,7 @@ void Renderer::Render(const Camera * const camera)
 	context->OMSetRenderTargets(1, &backBufferRTV, nullptr);
 
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
-	postPS->SetShaderResourceView("blurTexture", targetSRVs[1]);
+	postPS->SetShaderResourceView("bloomTexture", targetSRVs[1]);
 	postPS->SetSamplerState("finalSampler", targetSampler);
 
 	postPS->CopyAllBufferData();
