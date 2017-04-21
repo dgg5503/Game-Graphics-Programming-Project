@@ -67,21 +67,21 @@ private:
 	EntityFactory* entityFactory;
 
 	// Properties
-	bool isUpdating;
-	bool isRendering;
-	bool isColliding;
+	bool isUpdating = false;
+	bool isRendering = false;
+	bool isColliding = false;
 
 	// Identifiers
 	std::string name;
 	std::vector<std::string> tags;
 
 	// Mesh class this entity will draw with
-	Mesh* mesh;
+	Mesh* mesh = nullptr;
 	
 	// Material containing shaders that this entity will draw with
-	Material* material;
+	Material* material = nullptr;
 
 	//temp maybe
-	Collider* collider;
+	Collider* collider = nullptr;
 };
 

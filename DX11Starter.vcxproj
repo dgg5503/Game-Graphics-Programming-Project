@@ -168,7 +168,6 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ParticleEmitter.cpp" />
     <ClCompile Include="ParticleRenderer.cpp" />
-    <ClCompile Include="ProjectileManager.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneGame.cpp" />
@@ -203,7 +202,6 @@
     <ClInclude Include="ParticleEmitter.h" />
     <ClInclude Include="ParticleLayout.h" />
     <ClInclude Include="ParticleRenderer.h" />
-    <ClInclude Include="ProjectileManager.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneGame.h" />
