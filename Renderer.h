@@ -105,7 +105,7 @@ private:
 	float texelHeight;	//change on resize
 	float blurDist;	//not const or define so it can change later (ie. settings if we ever have them)
 	//float weights[MAX_BLUR_DISTANCE];
-	XMFLOAT4 colorThreshold;
+	float colorThreshold;
 	//ID3D11Texture2D* blurText;
 	//ID3D11RenderTargetView* blurRTV;
 	//ID3D11ShaderResourceView* blurSRV;
