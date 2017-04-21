@@ -41,7 +41,7 @@ cbuffer LightData : register(b0)
 	float4 AmbientColor;
 
 	//Blur pixel threshold -- I see no reason to make it in a buffer of its own
-	float4 BlurColor;
+	float ColorThreshold;
 };
 
 // Input info from vertex shader
@@ -57,13 +57,6 @@ struct DefferedOut {
 	float4 blur			: SV_Target1;
 };
 
-float4 PixelToBlur(float4 col) {
-	float sum = col.x + col.y + col.z;
-	if (col.x >= BlurColor.x || col.y >= BlurColor.y || col.z >= BlurColor.z) {
-		return col;
-	}
-	return float4(0, 0, 0, 0);
-};
 
 DefferedOut main(TargetCoords input)
 {
@@ -74,7 +67,7 @@ DefferedOut main(TargetCoords input)
 	//this feels gross for some reason
 	if (length(emission.xyz) != 0) {
 		output.color = emission;
-		output.blur = emission * 0.09;
+		output.blur = emission * ColorThreshold;
 		return output;
 	}
 
@@ -157,6 +150,6 @@ DefferedOut main(TargetCoords input)
 	//return float4(pos, 1.0f);
 	output.color = (totalLight + AmbientColor) * col;
 	//return (totalLight + AmbientColor) * col;
-	output.blur = output.color * 0.09;
+	output.blur = output.color * ColorThreshold;
 	return output;
 }

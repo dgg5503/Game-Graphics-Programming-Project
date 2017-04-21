@@ -60,7 +60,7 @@ Renderer::Renderer(DXWindow* const window)
 	texelWidth = 1.0f / window->GetWidth();
 	texelHeight = 1.0f / window->GetHeight();
 	blurDist = BLUR_DISTANCE;
-	colorThreshold = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+	colorThreshold = .09f;
 	/*
 	float normalization = 0;
 	//fill weights array
@@ -673,7 +673,7 @@ void Renderer::Render(const Camera * const camera)
 		sizeof(SpotLight) * MAX_SPOT_LIGHTS		    // size of struct * maxdirlights
 	);
 	deferredLightingPS->SetFloat4("AmbientColor", ambientColor);
-	deferredLightingPS->SetFloat4("BlurColor", colorThreshold);
+	deferredLightingPS->SetFloat("ColorThreshold", colorThreshold);
 
 	// -- Copy pixel data --
 	deferredVS->CopyAllBufferData();
@@ -696,7 +696,7 @@ void Renderer::Render(const Camera * const camera)
 		context->ClearRenderTargetView(targetViews[i], color);
 
 	// Post-processing
-	// Horizontal blur
+	// Horizontal blur - bloom
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &targetViews[0], nullptr);//go elsewhere --> 0 in targetViews (recycling)
 
@@ -706,22 +706,15 @@ void Renderer::Render(const Camera * const camera)
 	horizontalBlurPS->SetFloat("texelSize", texelWidth);
 
 	// -- Copy pixel data --
-	//deferredVS->CopyAllBufferData();	//haven't changed it so no resetting?
 	horizontalBlurPS->CopyAllBufferData();
 
 	// Set pixel data
-	//deferredVS->SetShader();	//haven't changed it so no resetting?
 	horizontalBlurPS->SetShader();
 
-	// Paint info to full screen quad
-	//context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
-	//context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
-
-	//No changing context?
 	context->Draw(3, 0);
 
 
-	// Vertical blur
+	// Vertical blur - bloom
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &targetViews[1], nullptr);//go elsewhere --> 1 in targetViews (recycling)
 
@@ -731,18 +724,11 @@ void Renderer::Render(const Camera * const camera)
 	verticalBlurPS->SetFloat("texelSize", texelHeight);
 
 	// -- Copy pixel data --
-	//deferredVS->CopyAllBufferData();	//haven't changed it so no resetting?
 	verticalBlurPS->CopyAllBufferData();
 
 	// Set pixel data
-	//deferredVS->SetShader();	//haven't changed it so no resetting?
 	verticalBlurPS->SetShader();
 
-	// Paint info to full screen quad
-	//context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
-	//context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
-
-	//No changing context?
 	context->Draw(3, 0);
 
 
@@ -754,21 +740,14 @@ void Renderer::Render(const Camera * const camera)
 	postPS->SetShaderResourceView("blurTexture", targetSRVs[1]);
 	postPS->SetSamplerState("finalSampler", targetSampler);
 
-	//deferredVS->CopyAllBufferData();
 	postPS->CopyAllBufferData();
-	//deferredVS->SetShader();
 	postPS->SetShader();
 
-	// Paint info to full screen quad
-	//context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
-	//context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
-
-	//I am assuming draw is called after every setting of shaders
 	context->Draw(3, 0);
 
 	//reset SRVs
-	postPS->SetShaderResourceView("colorTexture", 0);
-	postPS->SetShaderResourceView("blurTexture", 0);
+	//postPS->SetShaderResourceView("colorTexture", 0);
+	//postPS->SetShaderResourceView("blurTexture", 0);
 	/**/
 
 	// Render UI
