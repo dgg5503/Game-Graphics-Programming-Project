@@ -1,4 +1,5 @@
 #include "Entity.h"
+#include "EntityFactory.h"
 
 // --------------------------------------------------------
 // Constructor
@@ -7,16 +8,16 @@
 //
 // mesh - The mesh this entity will represent
 // --------------------------------------------------------
-Entity::Entity(Mesh* mesh, Material* material) :
+Entity::Entity(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
+	entityFactory(entityFactory),
+	name(name),
 	mesh(mesh),
 	material(material)
 {
 	// True when the entity can be rendered
-	isRendering = mesh != nullptr && material != nullptr;
-	isUpdating = true;
-	isColliding = false;
-
-	collider = nullptr;
+	SetIsRendering(mesh != nullptr && material != nullptr);
+	SetIsUpdating(true);
+	SetIsColliding(false);
 }
 
 // --------------------------------------------------------
@@ -56,6 +57,36 @@ void Entity::PrepareMaterial(SimpleVertexShader* const vertexShader)
 void Entity::SetEntityFactory(EntityFactory* entityFactory)
 {
 	this->entityFactory = entityFactory;
+}
+
+void Entity::SetIsUpdating(bool isUpdating)
+{
+	entityFactory->SetEntityUpdating(this, isUpdating);
+}
+
+void Entity::SetIsRendering(bool isRendering)
+{
+	entityFactory->SetEntityRendering(this, isRendering);
+}
+
+void Entity::SetIsColliding(bool isColliding)
+{
+	entityFactory->SetEntityCollision(this, isColliding);
+}
+
+bool Entity::GetIsUpdating()
+{
+	return isUpdating;
+}
+
+bool Entity::GetIsRendering()
+{
+	return isRendering;
+}
+
+bool Entity::GetIsColliding()
+{
+	return isColliding;
 }
 
 // --------------------------------------------------------
@@ -113,7 +144,7 @@ void Entity::SetCollider(Collider::ColliderType type, XMFLOAT3 scale, XMFLOAT3 o
 	collider = new Collider(type, offset, scale, rotation);
 	collider->SetParentEntity(this);
 
-	isColliding = true;
+	entityFactory->SetEntityCollision(this, true);
 }
 
 void Entity::SetName(std::string name)

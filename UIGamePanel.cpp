@@ -19,14 +19,21 @@ void UIGamePanel::Draw(SpriteBatch * const spriteBatch,
 	//fontMap.at("arial")->MeasureString(timerString) // Measure 
 	
 	// Print time and other game related UI stuff
-	//fontMap.at("arial")->DrawString(spriteBatch, text.c_str() , XMFLOAT2(x, y));
+	fontMap.at("arial")->DrawString(spriteBatch, text.c_str() , XMFLOAT2(x, y));
+	fontMap.at("arial")->DrawString(spriteBatch, std::to_wstring(health).c_str(), XMFLOAT2(x, y + 32));
 }
 
 void UIGamePanel::Update(float deltaTime, float totalTime)
 {
+
 }
 
 void UIGamePanel::UpdateText(wstring _text)
 {
 	text = _text;
+}
+
+void UIGamePanel::UpdateHealth(int health)
+{
+	this->health = health;
 }

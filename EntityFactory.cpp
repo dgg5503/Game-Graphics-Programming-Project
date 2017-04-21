@@ -3,34 +3,29 @@
 
 using namespace std;
 
-Entity* EntityFactory::CreateEntity(ENTITY_TYPE entityType, std::string name, Mesh* mesh, Material* material)
+Entity* EntityFactory::CreateEntity(EntityType entityType, std::string name, Mesh* mesh, Material* material)
 {
 	Entity* entity = nullptr;
 
 	switch (entityType)
 	{
-	case ENTITY_TYPE::STATIC:
-		entity = new EntityStatic(mesh, material);
+	case EntityType::STATIC:
+		entity = new EntityStatic(this, name, mesh, material);
 		break;
-	case ENTITY_TYPE::PLAYER:
-		entity = new EntityPlayer(mesh, material);
+	case EntityType::PLAYER:
+		entity = new EntityPlayer(this, name, mesh, material);
 		break;
-	case ENTITY_TYPE::ENEMY:
-		entity = new EntityEnemy(mesh, material);
+	case EntityType::ENEMY:
+		entity = new EntityEnemy(this, name, mesh, material);
 		break;
-	case ENTITY_TYPE::PROJECTILE:
-		entity = new EntityProjectile(mesh, material);
-		entity->transform.SetScale(0.15f, 0.15f, 0.15f);
-		entity->transform.SetPosition(0, 0, 200.0f);
-		entity->SetCollider(Collider::SPHERE, XMFLOAT3(0.15f / 2, 0.15f / 2, 0.15f / 2));
+	case EntityType::PROJECTILE:
+		entity = new EntityProjectile(this, name, mesh, material);
+		break;
+	case EntityType::MANAGER_PROJECTILE:
+		entity = new EntityManagerProjectile(this, name);
 		break;
 	}
-
-	entity->SetName(name);
-	entity->SetEntityFactory(this);
-
-	entities[name.data()] = entity;
-
+	entities[entity->GetName()] = entity;
 	return entity;
 }
 
@@ -41,11 +36,11 @@ vector<EntityProjectile*> EntityFactory::CreateProjectileEntities(unsigned int n
 
 	for (auto i = 0u; i < numberOfProjectiles; ++i) {
 		projectiles[i] = projectile = 
-			dynamic_cast<EntityProjectile*>(CreateEntity(ENTITY_TYPE::PROJECTILE, "Projectile_" + std::to_string(i), mesh, material));
+			dynamic_cast<EntityProjectile*>(CreateEntity(EntityType::PROJECTILE, "Projectile_" + std::to_string(i), mesh, material));
 		projectile->transform.SetScale(0.15f, 0.15f, 0.15f);
 		projectile->transform.SetPosition(0, 0, 200.0f);
 		projectile->SetCollider(Collider::SPHERE, XMFLOAT3(0.15f / 2, 0.15f / 2, 0.15f / 2));
-		projectile->isColliding = false;
+		SetEntityCollision(projectile, false);
 	}
 
 	return projectiles;
@@ -53,14 +48,12 @@ vector<EntityProjectile*> EntityFactory::CreateProjectileEntities(unsigned int n
 
 void EntityFactory::UpdateEntities(float deltaTime, float totalTime)
 {
-	for (auto iter = entities.begin(); iter != entities.end(); ++iter) {
-		if (iter->second->isUpdating) {
-			iter->second->Update(deltaTime, totalTime);
-		}
+	for (auto iter = updatingEntities.begin(); iter != updatingEntities.end(); ++iter) {
+		iter->second->Update(deltaTime, totalTime);
 	}
 }
 
-void EntityFactory::ChangeEntityCollision(Entity* entity, bool isColliding)
+void EntityFactory::SetEntityCollision(Entity* entity, bool isColliding)
 {
 	if (entity->isColliding == isColliding) {
 		return;
@@ -68,12 +61,27 @@ void EntityFactory::ChangeEntityCollision(Entity* entity, bool isColliding)
 
 	entity->isColliding = isColliding;
 
-	isColliding ? collisionManager->StageCollider(entity->GetCollider()) : collisionManager->UnstageCollider(entity->GetCollider());
+	isColliding ? CollisionManager::Instance()->StageCollider(entity->GetCollider()) : CollisionManager::Instance()->UnstageCollider(entity->GetCollider());
 }
 
-void EntityFactory::SetCollisionManager(CollisionManager* collisionManager)
+void EntityFactory::SetEntityRendering(Entity* entity, bool isRendering)
 {
-	this->collisionManager = collisionManager;
+	if (entity->isRendering == isRendering) {
+		return;
+	}
+	entity->isRendering = isRendering;
+
+	isRendering ? Renderer::Instance()->StageEntity(entity) : Renderer::Instance()->UnstageEntity(entity);
+}
+
+void EntityFactory::SetEntityUpdating(Entity* entity, bool isUpdating)
+{
+	if (entity->isUpdating == isUpdating) {
+		return;
+	}
+	entity->isUpdating = isUpdating;
+
+	isUpdating ? AddEntityToUpdate(entity) :RemoveEntityFromUpdate(entity);
 }
 
 std::unordered_map<std::string, Entity*> EntityFactory::GetEntities()
@@ -81,9 +89,28 @@ std::unordered_map<std::string, Entity*> EntityFactory::GetEntities()
 	return entities;
 }
 
+void EntityFactory::AddEntityToUpdate(Entity* entity)
+{
+	updatingEntities[entity->GetName()] = entity;
+}
+
+void EntityFactory::RemoveEntityFromUpdate(Entity* entity)
+{
+	updatingEntities.erase(entity->GetName());
+}
+
 void EntityFactory::Release()
 {
 	// Free all entities
-	for (auto it = entities.begin(); it != entities.end(); it++)
-		delete it->second;
+	for (auto iter = entities.begin(); iter != entities.end(); iter++) {
+		Entity* entity = iter->second;
+		if (entity->isUpdating)
+			RemoveEntityFromUpdate(entity);
+		if(entity->isColliding)
+			CollisionManager::Instance()->UnstageCollider(iter->second->GetCollider());
+		if(entity->isRendering)
+			Renderer::Instance()->UnstageEntity(iter->second);
+		delete entity;
+	}
+	entities.clear();
 }

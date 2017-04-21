@@ -1,15 +1,14 @@
 #include "EntityEnemy.h"
 
 
-EntityEnemy::EntityEnemy(Mesh * mesh, Material * material) : Entity(mesh, material)
+EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * mesh, Material * material) : 
+	Entity(entityFactory, name, mesh, material)
 {
 	this->AddTag("Enemy");
 
 	this->speed = 1.0f;
 	this->health = 0;
 	this->healthMax = 1.0f;
-
-	transform.SetRotation(1, 1, 1, 1);
 }
 
 EntityEnemy::~EntityEnemy()
@@ -28,6 +27,8 @@ void EntityEnemy::Update(float deltaTime, float totalTime)
 		// Move towards target
 		transform.Move(direction.x * deltaTime * speed, direction.y * deltaTime * speed, direction.z * deltaTime * speed);
 	}
+
+	transform.SetRotation(1, 1, 1, totalTime);
 
 	// Regenerate health overtime
 	ChangeHealth(0.25f * deltaTime);

@@ -2,10 +2,12 @@
 
 
 
-EntityPlayer::EntityPlayer(Mesh * mesh, Material * material) : Entity(mesh, material)
+EntityPlayer::EntityPlayer(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
+	Entity(entityFactory, name, mesh, material)
 {
-	fireRate = 0.1f;
+	fireRate = 0.15f;
 	fireTimer = 0;
+	maxHealth = health = 100;
 }
 
 EntityPlayer::~EntityPlayer()
@@ -16,18 +18,29 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 {
 	// Move the player around
 	XMFLOAT3 movement = XMFLOAT3(0,0,0);
-	if (GetAsyncKeyState('W') & 0x8000)
+	bool isSteering = false;
+	if (GetAsyncKeyState('W') & 0x8000) {
+		isSteering = true;
 		movement.y += 1.0;
-	if (GetAsyncKeyState('S') & 0x8000)
+	}
+	else if (GetAsyncKeyState('S') & 0x8000)
+	{
+		isSteering = true;
 		movement.y -= 1.0;
-	if (GetAsyncKeyState('D') & 0x8000)
+	}
+	if (GetAsyncKeyState('D') & 0x8000) {
+		isSteering = true;
 		movement.x += 1.0;
-	if (GetAsyncKeyState('A') & 0x8000)
+	}
+	else if (GetAsyncKeyState('A') & 0x8000)
+	{
+		isSteering = true;
 		movement.x -= 1.0;
-
+	}
 	XMStoreFloat3(&movement, XMVector3Normalize(XMLoadFloat3(&movement)) * speed * deltaTime);
 
 	transform.Move(movement.x, movement.y, movement.z);
+	transform.SetRotation(0, 0, 1, atan2f(movement.y, movement.x));
 
 	// Handle firing
 	fireTimer += deltaTime;
@@ -65,9 +78,22 @@ void EntityPlayer::SetSpeed(float speed)
 	this->speed = speed;
 }
 
-void EntityPlayer::SetProjectileManager(ProjectileManager* projectileManager)
+void EntityPlayer::SetProjectileManager(EntityManagerProjectile* projectileManager)
 {
 	this->projectileManager = projectileManager;
+}
+
+void EntityPlayer::ChangeHealth(int healthDelta)
+{
+	health += healthDelta;
+	if (health <= 0) {
+		health = 0;
+		SetIsRendering(false);
+		SetIsColliding(false);
+	}
+	else if (health > maxHealth) {
+		health = maxHealth;
+	}
 }
 
 float EntityPlayer::GetSpeed()
@@ -77,6 +103,13 @@ float EntityPlayer::GetSpeed()
 
 void EntityPlayer::OnCollision(Collision other)
 {
+	if (other.otherEntity->HasTag("Enemy")) {
+		EntityEnemy* enemy = (EntityEnemy*)other.otherEntity;
+		enemy->MoveToRandomPosition();	
+
+		ChangeHealth(enemy->GetHealth() * -10);
+		enemy->ChangeHealth(-1000);
+	}
 }
 
 void EntityPlayer::FireProjectile(XMFLOAT3 direction)

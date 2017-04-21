@@ -1,13 +1,11 @@
 #pragma once
 #include "Entity.h"
 
-class ProjectileManager;
-
 class EntityProjectile :
 	public virtual Entity
 {
 public:
-	EntityProjectile(Mesh* mesh, Material* material);
+	EntityProjectile(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material);
 	~EntityProjectile();
 
 	void Update(float deltaTime, float totalTime) override;
@@ -24,8 +22,6 @@ public:
 	XMFLOAT3* GetDirection();
 
 protected:
-	ProjectileManager* manager;	// Pointer to manager
-
 	float speed;
 	XMFLOAT3 direction;
 

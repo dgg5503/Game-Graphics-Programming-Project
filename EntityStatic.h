@@ -4,7 +4,7 @@ class EntityStatic :
 	public Entity
 {
 public:
-	EntityStatic(Mesh * mesh, Material * material);
+	EntityStatic(EntityFactory* entityFactory, std::string name, Mesh * mesh, Material * material);
 	virtual ~EntityStatic();
 
 	// Inherited via Entity

@@ -2,9 +2,10 @@
 
 
 
-EntityStatic::EntityStatic(Mesh * mesh, Material * material) : Entity(mesh, material)
+EntityStatic::EntityStatic(EntityFactory* entityFactory, std::string name, Mesh * mesh, Material * material) : 
+	Entity(entityFactory, name, mesh, material)
 {
-	isUpdating = false;
+	SetIsUpdating(false);
 }
 
 
