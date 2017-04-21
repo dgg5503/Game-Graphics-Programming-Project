@@ -29,7 +29,7 @@ PSOutput main(VertexToPixel input)
 	output.normals = float4((normalize(input.normal) + 1.0f) / 2.0f, 1.0f);
 
 	// set emission to black = 0
-	output.emission = float4(1, 0, 0, 1);
+	output.emission = float4(0, 0, 0, 1);
 
 	// return to render targets
 	return output;
