@@ -906,6 +906,22 @@ SimpleComputeShader * const Renderer::CreateSimpleComputeShader() const
 }
 
 // --------------------------------------------------------
+// Create and return a continuous particle emitter
+// --------------------------------------------------------
+ParticleEmitter * const Renderer::CreateContinuousParticleEmitter(const char * name, unsigned int particlesPerSeconds, float seconds) const
+{
+	return particleRenderer->CreateContinuousParticleEmitter(name, particlesPerSeconds, seconds);
+}
+
+// --------------------------------------------------------
+// Create and return a burst particle emitter
+// --------------------------------------------------------
+ParticleEmitter * const Renderer::CreateBurstParticleEmitter(const char * name, unsigned int numParticles) const
+{
+	return particleRenderer->CreateBurstParticleEmitter(name, numParticles);
+}
+
+// --------------------------------------------------------
 // Create and return a mesh.
 // --------------------------------------------------------
 Mesh * const Renderer::CreateMesh(const char * path) const
@@ -932,5 +948,13 @@ Texture2D * const Renderer::CreateTexture2D(const wchar_t * path, Texture2DType 
 const std::unordered_multimap<unsigned int, Entity*>& Renderer::GetRenderBatches() const
 {
 	return renderBatches;
+}
+
+// --------------------------------------------------------
+// Removes all emitters from particle renderer
+// --------------------------------------------------------
+void Renderer::ReleaseParticleRenderer()
+{
+	particleRenderer->Release();
 }
 

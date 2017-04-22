@@ -33,6 +33,9 @@ private:
 	HRESULT Initialize();
 	HRESULT Shutdown();
 
+	// Release ALL emitters
+	void Release();
+
 	ParticleEmitter* const CreateContinuousParticleEmitter(const char* name, unsigned int particlesPerSeconds, float seconds);
 	ParticleEmitter* const CreateBurstParticleEmitter(const char* name, unsigned int numParticles);
 

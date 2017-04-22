@@ -5,6 +5,7 @@
 //#include "Particle.hlsli"
 #include "Vertex.hlsli"
 #include "ParticleLayout.h"
+#include "ShaderConstants.h"
 
 // Constant UV information that will never change
 static float2 uv[4] =
@@ -101,8 +102,8 @@ ParticleVertexToPixel main(uint v_id : SV_VertexID, uint i_id : SV_InstanceID)
 	//output.tangent = halfRight * 2.0f;
     output.worldPos = (float3) mul(float4(verts[particleVertexIndex], 1.0f), world);
     output.position = mul(float4(verts[particleVertexIndex], 1.0f), worldViewProj);
-    output.uv = uv[particleVertexIndex] * float2(0.5f, 1.0f); // replace .5 with 1 / numOfTexts
-    output.uv.x += GetTextureOffset(pFlags) * 0.5f; // replace .5 with 1 / numOfTexts 
+    output.uv = uv[particleVertexIndex] * float2(1.0f / NUM_TEXTURES_IN_ATLAS, 1.0f); // replace .5 with 1 / numOfTexts
+    output.uv.x += GetTextureOffset(pFlags) * (1.0f / NUM_TEXTURES_IN_ATLAS); // replace .5 with 1 / numOfTexts 
     // -------------
     // 0 - 0, .5 | 0 .5
     // 1 - .5, 1 | 0 .5

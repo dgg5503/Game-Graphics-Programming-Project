@@ -58,6 +58,8 @@ public:
 	SimpleVertexShader* const CreateSimpleVertexShader() const;
 	SimplePixelShader* const CreateSimplePixelShader() const;
 	SimpleComputeShader * const CreateSimpleComputeShader() const;
+	ParticleEmitter* const CreateContinuousParticleEmitter(const char* name, unsigned int particlesPerSeconds, float seconds) const;
+	ParticleEmitter* const CreateBurstParticleEmitter(const char* name, unsigned int numParticles) const;
 
 	// Mesh factory. CALLER SHOULD FREE CREATED VARIABLES
 	Mesh* const CreateMesh(const char* path) const;
@@ -67,6 +69,9 @@ public:
 
 	// Get the map of material IDs to entity pointers that are to be rendered
 	const std::unordered_multimap<unsigned int, Entity*>& GetRenderBatches() const;
+
+	// Removes all emitters from particle renderer
+	void ReleaseParticleRenderer();
 
 private:
 	// Instance specific stuff

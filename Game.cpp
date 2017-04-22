@@ -255,10 +255,11 @@ void Game::Update(float deltaTime, float totalTime)
 	entityFactory.UpdateEntities(deltaTime, totalTime);
 	
 	// set cursor to center of screen
-	SetCursorPos(
-		GetWindowLocation().x + GetWidth() / 2,
-		GetWindowLocation().y + GetHeight() / 2
-	);
+	if(activeCamera == debugCamera)
+		SetCursorPos(
+			GetWindowLocation().x + GetWidth() / 2,
+			GetWindowLocation().y + GetHeight() / 2
+		);
 
 
 	//check for collisions

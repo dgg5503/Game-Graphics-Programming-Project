@@ -32,7 +32,7 @@ ParticleRenderer::ParticleRenderer(Renderer & renderer) :
 	// Init random
 	srand(static_cast<unsigned int>(time(nullptr)));
 
-
+	/*
 	ParticleEmitter* test = CreateBurstParticleEmitter("testBurst", 1000);
 	test->SetAlpha(1.0f);
 	test->SetAge(3.0f);
@@ -44,7 +44,9 @@ ParticleRenderer::ParticleRenderer(Renderer & renderer) :
 	test->SetPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	test->SetTextureID(0);
 	test->SetInterpSize(true);
-
+	test->SetLoop(-1);
+	test->Emit();
+	
 	test = CreateContinuousParticleEmitter("testCont", 1, 0.01f);
 	test->SetAlpha(0.5f);
 	test->SetEndAlpha(0.0f);
@@ -73,7 +75,7 @@ ParticleRenderer::ParticleRenderer(Renderer & renderer) :
 	test->SetTextureID(1);
 	test->SetInterpSpeed(true);
 	test->SetInterpAlpha(true);
-	
+	*/
 }
 
 ParticleRenderer::~ParticleRenderer()
@@ -310,11 +312,17 @@ HRESULT ParticleRenderer::Shutdown()
 	// Release textures
 	if (particleTextureAtlas) { delete particleTextureAtlas; }
 
-	// Free all emitters
-	for (auto it = particleEmitters.begin(); it != particleEmitters.end(); it++)
-		delete it->second;
+	Release();
 
 	return S_OK;
+}
+
+void ParticleRenderer::Release()
+{
+	// Free all emitters and reset map
+	for (auto it = particleEmitters.begin(); it != particleEmitters.end(); it++)
+		delete it->second;
+	particleEmitters.empty();
 }
 
 ParticleEmitter * const ParticleRenderer::CreateContinuousParticleEmitter(const char* name, unsigned int particlesPerSeconds, float seconds)
@@ -337,6 +345,20 @@ ParticleEmitter * const ParticleRenderer::CreateBurstParticleEmitter(const char*
 
 void ParticleRenderer::Update(float dt, float totalTime)
 {
+	/*
+	if(GetAsyncKeyState('J') & 0x8000)
+		particleEmitters["testBurst"]->Emit();
+
+	if (GetAsyncKeyState('L') & 0x8000)
+		particleEmitters["testBurst"]->SetLoop(3);
+
+	if (GetAsyncKeyState('K') & 0x8000)
+		particleEmitters["testBurst"]->SetLoop(-1);
+
+	if (GetAsyncKeyState('H') & 0x8000)
+		particleEmitters["testBurst"]->SetLoop(0);
+	*/
+
 	//lastDt = dt;
 	// Update and process particles
 	for (auto it = particleEmitters.begin(); it != particleEmitters.end(); it++)

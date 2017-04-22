@@ -51,7 +51,7 @@ public:
 	void SetEndAlpha(float endAlpha);
 	void SetDirection(DirectX::XMFLOAT3& dir);
 	void SetAge(float age);
-	void SetPosition(DirectX::XMFLOAT3& pos);
+	void SetPosition(const DirectX::XMFLOAT3& pos);
 	void SetNonce(unsigned int nonce);
 	bool SetTextureID(unsigned int textureID);
 
@@ -73,8 +73,11 @@ public:
 	void SetInterpSize(bool val);
 	void SetInterpTint(bool val);
 	
-	// Emitter specific options
-	void SetLoopable(bool val);
+	// Loop options
+	void SetLoop(int loopAmount);
+
+	// Mark as ready to emit
+	void Emit();
 private:
 	ParticleEmitter(unsigned int numParticles);
 	ParticleEmitter(unsigned int particlesPerRate, float rate);
@@ -88,6 +91,8 @@ private:
 	float emitRate;
 	unsigned int numParticles;
 	unsigned int numParticlesAligned;
+	int numLoops;
+	int currNumLoops;
 	bool isActive;
 	bool isLoopable;
 };

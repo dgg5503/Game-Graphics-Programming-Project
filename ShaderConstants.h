@@ -4,4 +4,5 @@
 #define MAX_POINT_LIGHTS 1
 #define MAX_SPOT_LIGHTS 1
 #define NUM_PARTICLE_THREADS 32
+#define NUM_TEXTURES_IN_ATLAS 2
 #endif

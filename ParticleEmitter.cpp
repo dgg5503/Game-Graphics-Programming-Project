@@ -13,7 +13,11 @@
 ParticleEmitter::ParticleEmitter(unsigned int numParticles) :
 	type(ParticleEmitterType::BURST),
 	counter(0),
-	numParticles(numParticles)
+	numLoops(1),
+	currNumLoops(1),
+	numParticles(numParticles),
+	isActive(false),
+	isLoopable(false)
 {
 	// Zero out structs to ensure we're starting fresh.
 	memset(&emitter, 0, sizeof(Emitter));
@@ -25,8 +29,12 @@ ParticleEmitter::ParticleEmitter(unsigned int numParticles) :
 ParticleEmitter::ParticleEmitter(unsigned int particlesPerRate, float rate) :
 	type(ParticleEmitterType::CONTINOUS),
 	counter(0),
+	numLoops(1),
+	currNumLoops(1),
 	numParticles(particlesPerRate),
-	emitRate(rate)
+	emitRate(rate),
+	isActive(false),
+	isLoopable(true)
 {
 	// Zero out structs to ensure we're starting fresh.
 	memset(&emitter, 0, sizeof(Emitter));
@@ -98,7 +106,7 @@ void ParticleEmitter::SetAge(float age)
 	emitter.flags &= (~RAND_AGE);
 }
 
-void ParticleEmitter::SetPosition(DirectX::XMFLOAT3 & pos)
+void ParticleEmitter::SetPosition(const DirectX::XMFLOAT3 & pos)
 {
 	emitter.position = pos;
 }
@@ -216,18 +224,25 @@ void ParticleEmitter::SetInterpTint(bool val)
 		emitter.flags &= (~INTERP_TINT);
 }
 
-bool ParticleEmitter::CanEmit(float dt)
+// Set loop amount to...
+//	-1 for infinite loop
+//	 0 to stop emission
+//	 # for a number of loops
+void ParticleEmitter::SetLoop(int loopAmount = -1)
 {
-	// Decrease counter
-	counter -= dt;
+	numLoops = loopAmount;
+	currNumLoops = numLoops;
+}
 
-	// If not completely past 0, cant emit yet
-	if (counter >= 0.0f)
-		return false;
+void ParticleEmitter::Emit()
+{
+	// If already active, do nothing
+	if (isActive)
+		return;
 
-	// If is looping, refresh.
-
+	// Reset timer and num particles to emit
 	// Both types require numParticles to be set
+	/*
 	emitter.numToEmit = numParticles;
 	switch (type)
 	{
@@ -242,7 +257,48 @@ bool ParticleEmitter::CanEmit(float dt)
 	default:
 		break;
 	}
+	*/
 
-	// We can emit this frame!
-	return true;
+	// Set active
+	isActive = true;
+	
+	// Reset loop count
+	currNumLoops = numLoops;
+}
+
+// TODO: Pretty messy D:... Will come back to clean up later.
+bool ParticleEmitter::CanEmit(float dt)
+{
+	if (isActive)
+	{
+		// Decrease counter
+		counter -= dt;
+		if (counter < 0.0f)
+		{
+			emitter.numToEmit = numParticles;
+			switch (type)
+			{
+			case ParticleEmitterType::BURST:
+				// Based on max possible lifetime
+				counter = DirectX::XMMax<float>(emitter.minAge, emitter.maxAge);
+				break;
+			case ParticleEmitterType::CONTINOUS:
+				// Based on emit rat provided
+				counter = emitRate;
+				break;
+			default:
+				break;
+			}
+
+			if (currNumLoops >= 0 && currNumLoops-- == 0)
+			{
+				isActive = false;
+				counter = 0;
+			}
+
+			return isActive;
+		}
+		return false;
+	}
+	return false;
 }
