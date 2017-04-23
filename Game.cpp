@@ -185,7 +185,10 @@ void Game::CreateBasicGeometry()
 	meshes["sphere"] = renderer->CreateMesh("./Assets/Models/sphere.obj");
 	meshes["enemy"] = renderer->CreateMesh("./Assets/Models/enemyBall.fbx");
 	meshes["player"] = renderer->CreateMesh("./Assets/Models/playerShip.fbx");
-
+	meshes["frame"] = renderer->CreateMesh("./Assets/Models/frame.fbx");
+	meshes["planet"] = renderer->CreateMesh("./Assets/Models/planet.fbx");
+	meshes["meteors"] = renderer->CreateMesh("./Assets/Models/meteors.fbx");
+	meshes["sun"] = renderer->CreateMesh("./Assets/Models/sun.fbx");
 }
 
 // --------------------------------------------------------

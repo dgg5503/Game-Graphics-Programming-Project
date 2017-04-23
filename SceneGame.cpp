@@ -6,7 +6,6 @@ SceneGame::SceneGame()
 	uiPanel = uiGamePanel = new UIGamePanel(0, 0);
 }
 
-
 void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)
 {
 	health = 100;
@@ -37,16 +36,51 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 		enemy->SetCollider(Collider::ColliderType::OBB);
 	}
 
-	// Background entity
-	Entity* background = entityFactory
-		.CreateEntity(EntityType::STATIC, "Background", meshes["cube"], materials["brick"]);
-	background->transform.SetPosition(0, 0, 5.0f);
-	background->transform.SetScale(8.0f, 5.0f, 1.0f);
+	//// Background entity
+	//Entity* background = entityFactory
+	//	.CreateEntity(EntityType::STATIC, "Background", meshes["cube"], materials["brick"]);
+	//background->transform.SetPosition(0, 0, 5.0f);
+	//background->transform.SetScale(8.0f, 5.0f, 1.0f);
+	float s = 1.0; 
+
+	//frame entity
+	Entity* frame = entityFactory
+		.CreateEntity(EntityType::STATIC, "Frame", meshes["frame"], materials["stone"]);
+	frame->transform.SetPosition(0, 0, 0);
+	frame->transform.SetScale(.22f, .3f, 1.0f);
+
+	//planet entity
+	Entity* planet = entityFactory
+		.CreateEntity(EntityType::STATIC, "Planet", meshes["planet"], materials["stone"]);
+	planet->transform.SetPosition(0, 0, 28.0f);
+	planet->transform.SetScale(s, s, s);
+
+	Entity* sun = entityFactory
+		.CreateEntity(EntityType::STATIC, "Sun", meshes["sun"], materials["sand"]);
+	sun->transform.SetPosition(0, 0, 28.0f);
+	sun->transform.SetScale(s, s, s);
+
+	//meteors
+	meteors = entityFactory
+		.CreateEntity(EntityType::STATIC, "meteors", meshes["meteors"], materials["stone"]);
+	meteors->transform.SetPosition(0, 0, 0);
+	meteors->transform.SetScale(s, s, s);
+
+	//meteors2 to fill it out a bit
+	meteors2 = entityFactory
+		.CreateEntity(EntityType::STATIC, "meteors2", meshes["meteors"], materials["stone"]);
+	meteors2->transform.SetPosition(0, 0, 0);
+	meteors2->transform.SetScale(s, s, s);
 }
 
 void SceneGame::UpdateScene(float deltaTime, float totalTime)
 {
 	uiGamePanel->UpdateHealth(player->health);
+
+	//spin meteors
+	meteors->transform.SetRotation(0,1,0, totalTime/20);
+	meteors2->transform.SetRotation(0, 1, 0, (totalTime / 20)+ 80);
+
 
 	if (player->health) {
 		timerString = std::to_wstring(minutes) + L": " + std::to_wstring(seconds) + L": " + std::to_wstring(milliseconds);

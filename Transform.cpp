@@ -228,29 +228,6 @@ void Transform::SetRotation(XMFLOAT4 rotation)
 }
 
 // --------------------------------------------------------
-// Set the rotation of this transform by providing an axis
-// and angle
-//
-// x		- x axis direction
-// y		- y axis direction
-// z		- z axis direction
-// theta	- angle to rotate by
-// --------------------------------------------------------
-void Transform::SetRotation(float x, float y, float z, float theta)
-{
-	// Perform angle axis since thats easier to work with
-	XMFLOAT3 axis(x, y, z);
-		XMStoreFloat4(
-		&rotation,
-		XMQuaternionRotationAxis(
-			XMLoadFloat3(&axis), theta));
-
-	// setting dirty since next time we ask for world, we need to recalc
-	//isRDirty = true;
-	isDirty |= IS_DIRTY_ALL;
-}
-
-// --------------------------------------------------------
 // Get the current position as a an array of floats
 // --------------------------------------------------------
 const XMFLOAT3 * const Transform::GetPosition() const
