@@ -24,6 +24,7 @@ Game::Game(HINSTANCE hInstance)
 	pixelShader = 0;
 	pixelShader_normal = 0;
 	renderer = nullptr;
+	audioEngine = nullptr;
 	collisionManager = nullptr;
 	stateManager = StateManager();
 
@@ -69,6 +70,9 @@ Game::~Game()
 	// Shutdown renderer
 	Renderer::Shutdown();
 
+	// Shutdown audio enginer
+	audioEngine->Shutdown();
+
 	// Shutdown Managers
 	CollisionManager::Shutdown();
 }
@@ -82,6 +86,11 @@ void Game::Init()
 	// Initialize renderer singleton/DX
 	renderer = Renderer::Initialize(this);
 	collisionManager = CollisionManager::Initialize(0.25f, XMFLOAT3(3, 3, 0.5));
+	audioEngine = AudioEngine::InitializeInstance();
+	if (!audioEngine->Initialize())
+		fprintf(stderr, "[Audio] Failed to init audio engine.\n");
+	if (!audioEngine->LoadSoundBanks(L"./Assets/Sound/"))
+		fprintf(stderr, "[Audio] Failed to load sound banks.\n");
 
 	stateManager.AddScene(GameState::GAME, new SceneGame());
 	stateManager.AddScene(GameState::MAIN_MENU, new SceneMenu());
@@ -274,6 +283,9 @@ void Game::Update(float deltaTime, float totalTime)
 	// Update Scene
 	if(stateManager.GetCurrentScene() != nullptr)
 		stateManager.GetCurrentScene()->UpdateScene(deltaTime, totalTime);
+
+	// Process audio
+	audioEngine->ProcessAudio();
 }
 
 // --------------------------------------------------------

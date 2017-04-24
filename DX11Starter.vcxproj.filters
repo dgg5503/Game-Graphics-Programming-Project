@@ -25,6 +25,9 @@
     <Filter Include="UI Panels">
       <UniqueIdentifier>{f27e4958-e628-4646-b2b6-ce6113c7122b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{97960ef5-7424-4e8c-b259-4d143433a5d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -110,6 +113,30 @@
     </ClCompile>
     <ClCompile Include="ParticleEmitter.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioEngine.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioIO\AkDefaultIOHookBlocking.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioIO\AkDefaultIOHookDeferred.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\AkDefaultLowLevelIODispatcher.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\AkFileLocationBase.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\AkFilePackage.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\AkFilePackageLUT.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioIO\stdafx.cpp">
+      <Filter>Audio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -221,6 +248,45 @@
     <ClInclude Include="EmitterLayout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AudioEngine.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioIO\AkDefaultIOHookBlocking.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioIO\AkDefaultIOHookDeferred.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\AkDefaultLowLevelIODispatcher.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioIO\AkFileHelpers.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\AkFileLocationBase.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\AkFilePackage.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\AkFilePackageLowLevelIO.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioIO\AkFilePackageLowLevelIOBlocking.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioIO\AkFilePackageLowLevelIODeferred.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\AkFilePackageLUT.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\AkMultipleFileLocation.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioIO\stdafx.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -288,6 +354,12 @@
     <None Include="packages.config" />
     <None Include="Vertex.hlsli">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="Common\AkFilePackageLowLevelIO.inl">
+      <Filter>Audio</Filter>
+    </None>
+    <None Include="Common\AkMultipleFileLocation.inl">
+      <Filter>Audio</Filter>
     </None>
   </ItemGroup>
 </Project>

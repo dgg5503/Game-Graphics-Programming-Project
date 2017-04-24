@@ -17,6 +17,9 @@
 #include "Renderer.h"
 #include "UIGamePanel.h"
 
+// Audio
+#include "AudioEngine.h"
+
 //Collisions
 #include "CollisionManager.h"
 
@@ -63,6 +66,9 @@ private:
 
 	// Renderers
 	Renderer* renderer;
+	
+	// Audio Engine
+	AudioEngine* audioEngine;
 
 	//Collision Manager
 	CollisionManager* collisionManager;

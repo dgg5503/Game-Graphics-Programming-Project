@@ -69,16 +69,33 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(WWISESDK)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(WWISESDK)\Win32_vc140\$(Configuration)\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(WWISESDK)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(WWISESDK)\Win32_vc140\$(Configuration)\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(WWISESDK)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(WWISESDK)\x64_vc140\$(Configuration)\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(WWISESDK)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(WWISESDK)\x64_vc140\$(Configuration)\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <BrowseInformation>false</BrowseInformation>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;CommunicationCentral.lib;dinput8.lib;dsound.lib;dxguid.lib;ws2_32.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /s /i /e "$(ProjectDir)Assets" "$(OutDir)Assets"</Command>
@@ -95,9 +112,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;CommunicationCentral.lib;dinput8.lib;dsound.lib;dxguid.lib;ws2_32.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /s /i /e "$(ProjectDir)Assets" "$(OutDir)Assets"</Command>
@@ -113,12 +132,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>AK_OPTIMIZED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <Profile>true</Profile>
+      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;dinput8.lib;dsound.lib;dxguid.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /s /i /e "$(ProjectDir)Assets" "$(OutDir)Assets"</Command>
@@ -134,12 +155,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>AK_OPTIMIZED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <Profile>true</Profile>
+      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;dinput8.lib;dsound.lib;dxguid.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /s /i /e "$(ProjectDir)Assets" "$(OutDir)Assets"</Command>
@@ -149,11 +172,19 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioEngine.cpp" />
+    <ClCompile Include="AudioIO\AkDefaultIOHookBlocking.cpp" />
+    <ClCompile Include="AudioIO\AkDefaultIOHookDeferred.cpp" />
+    <ClCompile Include="AudioIO\stdafx.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraDebug.cpp" />
     <ClCompile Include="CameraGame.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="Common\AkDefaultLowLevelIODispatcher.cpp" />
+    <ClCompile Include="Common\AkFileLocationBase.cpp" />
+    <ClCompile Include="Common\AkFilePackage.cpp" />
+    <ClCompile Include="Common\AkFilePackageLUT.cpp" />
     <ClCompile Include="DXWindow.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityEnemy.cpp" />
@@ -179,11 +210,24 @@
     <ClCompile Include="UIGamePanel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioEngine.h" />
+    <ClInclude Include="AudioIO\AkDefaultIOHookBlocking.h" />
+    <ClInclude Include="AudioIO\AkDefaultIOHookDeferred.h" />
+    <ClInclude Include="AudioIO\AkFileHelpers.h" />
+    <ClInclude Include="AudioIO\AkFilePackageLowLevelIOBlocking.h" />
+    <ClInclude Include="AudioIO\AkFilePackageLowLevelIODeferred.h" />
+    <ClInclude Include="AudioIO\stdafx.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraDebug.h" />
     <ClInclude Include="CameraGame.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="CollisionManager.h" />
+    <ClInclude Include="Common\AkDefaultLowLevelIODispatcher.h" />
+    <ClInclude Include="Common\AkFileLocationBase.h" />
+    <ClInclude Include="Common\AkFilePackage.h" />
+    <ClInclude Include="Common\AkFilePackageLowLevelIO.h" />
+    <ClInclude Include="Common\AkFilePackageLUT.h" />
+    <ClInclude Include="Common\AkMultipleFileLocation.h" />
     <ClInclude Include="DXWindow.h" />
     <ClInclude Include="EmitterLayout.h" />
     <ClInclude Include="Entity.h" />
@@ -417,6 +461,8 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Common\AkFilePackageLowLevelIO.inl" />
+    <None Include="Common\AkMultipleFileLocation.inl" />
     <None Include="packages.config" />
     <None Include="Vertex.hlsli" />
   </ItemGroup>

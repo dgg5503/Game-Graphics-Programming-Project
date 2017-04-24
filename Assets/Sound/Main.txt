@@ -1,0 +1,6 @@
+Event	ID	Name			Wwise Object Path	Notes
+	638744943	Fire_Laser_Player			\Default Work Unit\Fire_Laser_Player	
+
+In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
+	206684750	laser	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\laser_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\laser		4352
+
