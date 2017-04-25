@@ -9,6 +9,8 @@
 #include <AK/Tools/Common/AkPlatformFuncs.h>                    // Thread defines
 #include "AudioIO/AkFilePackageLowLevelIOBlocking.h"			// Sample low-level I/O implementation
 #include <assert.h>
+#include <vector>
+#include <memory>
 
 // -- TEMPORARY, REMOVE THIS LATER --
 #include <stdio.h>

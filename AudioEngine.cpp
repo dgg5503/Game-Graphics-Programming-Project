@@ -206,33 +206,32 @@ bool AudioEngine::LoadSoundBanks(wchar_t* path)
 	// Allocate a string with enough space to hold "/*.bnk"
 	// do we need to have "/" at the end of a valid path from above???
 	size_t str_len = wcsnlen(path, MAX_PATH);
-	wchar_t* fileSearch = new wchar_t[str_len + 7];
+
+	std::unique_ptr<wchar_t> fileSearchUPtr(new wchar_t[str_len + 7]);
+	wchar_t* fileSearch = fileSearchUPtr.get();
 	wcsncpy(fileSearch, path, str_len);
 	wcsncpy(fileSearch + str_len, L"/*.bnk", 7);
 
 	// Get all .bnk files in folder
+	AkBankID bankID; // Not used. These banks can be unloaded with their file name.
+	AKRESULT eResult;
 	WIN32_FIND_DATAW findData;
 	HANDLE hFind;
 	hFind = FindFirstFileW(fileSearch, &findData);
+
+	// NOTE: IF IT FAILS HERE, INIT PROBABLY WASNT LOADED YET....
 	if (hFind != INVALID_HANDLE_VALUE)
 	{
 		do {
-			printf("%S\n", findData.cFileName);
+			//
+			// Load banks synchronously (from file name).
+			//
+			eResult = AK::SoundEngine::LoadBank(findData.cFileName, AK_DEFAULT_POOL_ID, bankID);
+			assert(eResult == AK_Success);
 		} while (FindNextFileW(hFind, &findData));
 		FindClose(hFind);
 	}
-	delete[] fileSearch;
-
-	//
-	// Load banks synchronously (from file name).
-	//
-	/*
-	AkBankID bankID; // Not used. These banks can be unloaded with their file name.
-	AKRESULT eResult = AK::SoundEngine::LoadBank(BANKNAME_INIT, AK_DEFAULT_POOL_ID, bankID);
-	assert(eResult == AK_Success);
-	eResult = AK::SoundEngine::LoadBank(BANKNAME_CAR, AK_DEFAULT_POOL_ID, bankID);
-	*/
-
+	fileSearchUPtr.release();
 	return true;
 }
 

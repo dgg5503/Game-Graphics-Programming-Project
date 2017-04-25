@@ -4,6 +4,7 @@
 #include "Transform.h"
 #include "Collider.h"
 #include "Renderer.h"
+#include "AudioEngine.h"
 
 class Renderer; 
 class EntityFactory;

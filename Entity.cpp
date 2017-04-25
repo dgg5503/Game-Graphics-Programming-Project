@@ -18,6 +18,9 @@ Entity::Entity(EntityFactory* entityFactory, std::string name, Mesh* mesh, Mater
 	SetIsRendering(mesh != nullptr && material != nullptr);
 	SetIsUpdating(true);
 	SetIsColliding(false);
+
+	// Register as GO
+	AK::SoundEngine::RegisterGameObj(reinterpret_cast<AkGameObjectID>(this));
 }
 
 // --------------------------------------------------------
@@ -26,6 +29,9 @@ Entity::Entity(EntityFactory* entityFactory, std::string name, Mesh* mesh, Mater
 Entity::~Entity()
 {
 	if (collider != nullptr) delete collider;
+
+	// Unregsiter GO
+	AK::SoundEngine::UnregisterGameObj(reinterpret_cast<AkGameObjectID>(this));
 }
 
 /*
