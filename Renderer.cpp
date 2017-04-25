@@ -367,7 +367,9 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 
 	//================================== Skybox Stuff ====================================
 	// Load the skybox and store it as a texture cube under the hood
-	CreateDDSTextureFromFile(device, L"./Assets/Textures/SunnyCubeMap.dds", 0, &skyboxSRV);
+	auto skyBoxTexturePath = L"./Assets/Textures/starscape.dds";
+	if(CreateDDSTextureFromFile(device, skyBoxTexturePath, 0, &skyboxSRV) != S_OK)
+		fprintf(stderr, "[Skybox] Failed to load skybox texture %ls\n", skyBoxTexturePath);
 
 	// Create a sampler state for texture sampling
 	D3D11_SAMPLER_DESC samplerDesc = {};
@@ -666,6 +668,33 @@ void Renderer::Render(const Camera * const camera)
 		it = bucket.second;
 	}
 
+	// Skybox
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+
+	ID3D11Buffer* skyVB = skyMesh->GetVertexBuffer();
+	ID3D11Buffer* skyIB = skyMesh->GetIndexBuffer();
+
+	context->IASetVertexBuffers(0, 1, &skyVB, &stride, &offset);
+	context->IASetIndexBuffer(skyIB, DXGI_FORMAT_R32_UINT, 0);
+
+	skyVS->SetMatrix4x4("view", view);
+	skyVS->SetMatrix4x4("projection", projection);
+	skyVS->CopyAllBufferData();
+	skyVS->SetShader();
+
+	skyPS->SetShaderResourceView("Skybox", skyboxSRV);
+	skyPS->SetSamplerState("Sampler", sampler);
+	skyPS->CopyAllBufferData();
+	skyPS->SetShader();
+
+	context->RSSetState(rsSky);
+	context->OMSetDepthStencilState(dsSky, 0);
+	context->DrawIndexed(skyMesh->GetIndexCount(), 0, 0);
+
+	context->RSSetState(0);
+	context->OMSetDepthStencilState(0, 0);
+	// End Skybox
 	
 	// -- Particles (deferred rendering) --
 	particleRenderer->Render(camera);
@@ -726,34 +755,6 @@ void Renderer::Render(const Camera * const camera)
 	context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
 	context->Draw(3, 0);
-
-
-	// Skybox
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-
-	ID3D11Buffer* skyVB = skyMesh->GetVertexBuffer();
-	ID3D11Buffer* skyIB = skyMesh->GetIndexBuffer();
-
-	context->IASetVertexBuffers(0, 1, &skyVB, &stride, &offset);
-	context->IASetIndexBuffer(skyIB, DXGI_FORMAT_R32_UINT, 0);
-
-	skyVS->SetMatrix4x4("view", view);
-	skyVS->SetMatrix4x4("projection", projection);
-	skyVS->CopyAllBufferData();
-	skyVS->SetShader();
-
-	skyPS->SetShaderResourceView("Skybox", skyboxSRV);
-	skyPS->SetSamplerState("Sampler", sampler);
-	skyPS->CopyAllBufferData();
-	skyPS->SetShader();
-
-	context->RSSetState(rsSky);
-	context->OMSetDepthStencilState(dsSky, 0);
-	context->DrawIndexed(skyMesh->GetIndexCount(), 0, 0);
-
-	context->RSSetState(0);
-	context->OMSetDepthStencilState(0, 0);
 
 	/**/
 	//Clear target views to reuse

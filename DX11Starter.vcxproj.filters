@@ -295,5 +295,12 @@
     <None Include="Vertex.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Assets\Shaders\ParticleSortCS.asm">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Textures\starscape.dds" />
+    <Image Include="Assets\Textures\SunnyCubeMap.dds" />
   </ItemGroup>
 </Project>
