@@ -627,7 +627,6 @@ void Renderer::Render(const Camera * const camera)
 		it = bucket.second;
 	}
 
-	
 	// -- Particles (deferred rendering) --
 	particleRenderer->Render(camera);
 
@@ -653,6 +652,10 @@ void Renderer::Render(const Camera * const camera)
 	deferredLightingPS->SetShaderResourceView("normalsTexture", targetSRVs[2]);
 	deferredLightingPS->SetShaderResourceView("emissionTexture", targetSRVs[3]);
 	deferredLightingPS->SetSamplerState("deferredSampler", targetSampler);
+	
+	// -- Light all directional lights --
+	// -- Light all point lights --
+	// -- Light all spot lights --
 
 	// -- Lighting --
 	deferredLightingPS->SetDataAligned(

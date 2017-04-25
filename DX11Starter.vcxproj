@@ -259,6 +259,7 @@
     <ClInclude Include="UIGamePanel.h" />
     <ClInclude Include="UIPanel.h" />
     <ClInclude Include="Vertex.h" />
+    <ClInclude Include="Wwise_IDs.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="particleDefferedPS.hlsl">

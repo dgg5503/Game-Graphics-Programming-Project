@@ -12,15 +12,14 @@ Entity::Entity(EntityFactory* entityFactory, std::string name, Mesh* mesh, Mater
 	entityFactory(entityFactory),
 	name(name),
 	mesh(mesh),
-	material(material)
+	material(material),
+	id(reinterpret_cast<AkGameObjectID>(this))
 {
 	// True when the entity can be rendered
 	SetIsRendering(mesh != nullptr && material != nullptr);
 	SetIsUpdating(true);
 	SetIsColliding(false);
-
-	// Register as GO
-	AK::SoundEngine::RegisterGameObj(reinterpret_cast<AkGameObjectID>(this));
+	AK::SoundEngine::RegisterGameObj(id);
 }
 
 // --------------------------------------------------------
@@ -31,7 +30,7 @@ Entity::~Entity()
 	if (collider != nullptr) delete collider;
 
 	// Unregsiter GO
-	AK::SoundEngine::UnregisterGameObj(reinterpret_cast<AkGameObjectID>(this));
+	if (id) { AK::SoundEngine::UnregisterGameObj(id); }
 }
 
 /*

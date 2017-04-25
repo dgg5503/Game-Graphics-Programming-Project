@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <vector>
 #include <memory>
+#include "Wwise_IDs.h"
 
 // -- TEMPORARY, REMOVE THIS LATER --
 #include <stdio.h>

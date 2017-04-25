@@ -287,6 +287,9 @@
     <ClInclude Include="AudioIO\stdafx.h">
       <Filter>Audio</Filter>
     </ClInclude>
+    <ClInclude Include="Wwise_IDs.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">

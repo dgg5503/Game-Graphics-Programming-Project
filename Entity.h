@@ -64,6 +64,7 @@ public:
 	void AddTag(std::string tag);
 	void RemoveTag(std::string tag);
 
+	const AkGameObjectID id;
 private:
 	EntityFactory* entityFactory;
 

@@ -122,5 +122,5 @@ void EntityPlayer::FireProjectile(XMFLOAT3 direction)
 	projectile->Fire(*position, direction, 5.0f);
 
 	// Fire audio
-	//AK::SoundEngine::PostEvent(L"")
+	AK::SoundEngine::PostEvent(AK::EVENTS::FIRE_LASER_PLAYER, id);
 }
