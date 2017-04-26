@@ -59,9 +59,10 @@ Renderer::Renderer(DXWindow* const window)
 	//Set data using window size etc.
 	texelWidth = 1.0f / window->GetWidth();
 	texelHeight = 1.0f / window->GetHeight();
-	blurDist = BLUR_DISTANCE;
+	blurDist = 4;
+	glowDist = 12;
 	colorThreshold = .5;
-	glowPercentage = .5;
+	glowPercentage = 0;
 	/*
 	float normalization = 0;
 	//fill weights array
@@ -782,41 +783,112 @@ void Renderer::Render(const Camera * const camera)
 	for (size_t i = 0; i < BUFFER_COUNT; i++)
 		context->ClearRenderTargetView(targetViews[i], color);
 
+
 	// Post-processing
+	//Create smaller textures - glow
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &halfRTVs[0], nullptr);
+	downsamplePS->SetShaderResourceView("tex", postProcessSRVs[2]);//from deferredPS 0=lighting 1=bloom 2=glow
+	downsamplePS->SetSamplerState("texSampler", targetSampler);
+	downsamplePS->SetFloat("texelWidth", texelWidth);
+	downsamplePS->SetFloat("texelHeight", texelHeight);
+	downsamplePS->SetFloat("sizeMod", 2);
+	// -- Copy pixel data --
+	downsamplePS->CopyAllBufferData();
+	// Set pixel data
+	downsamplePS->SetShader();
+	context->Draw(3, 0);
+
 	// Horizontal blur - bloom
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &targetViews[0], nullptr);//go elsewhere --> 0 in targetViews (recycling)
-
 	horizontalBlurPS->SetShaderResourceView("blurTexture", postProcessSRVs[1]);//from deferredPS 0=lighting 1=pixels to blur
 	horizontalBlurPS->SetSamplerState("blurSampler", targetSampler);
 	horizontalBlurPS->SetFloat("blurDistance", blurDist);
 	horizontalBlurPS->SetFloat("texelSize", texelWidth);
-
 	// -- Copy pixel data --
 	horizontalBlurPS->CopyAllBufferData();
-
 	// Set pixel data
-	deferredVS->SetShader();
+	//deferredVS->SetShader();
 	horizontalBlurPS->SetShader();
+	context->Draw(3, 0);
 
+	// Horizontal blur - glow (half)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &halfRTVs[1], nullptr);
+	horizontalBlurPS->SetShaderResourceView("blurTexture", halfSRVs[0]);
+	horizontalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	horizontalBlurPS->SetFloat("blurDistance", glowDist);
+	horizontalBlurPS->SetFloat("texelSize", texelWidth*2);
+	// -- Copy pixel data --
+	horizontalBlurPS->CopyAllBufferData();
+	// Set pixel data
+	horizontalBlurPS->SetShader();
+	context->Draw(3, 0);
+
+	// Horizontal blur - glow (full)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &targetViews[2], nullptr);
+	horizontalBlurPS->SetShaderResourceView("blurTexture", postProcessSRVs[2]);
+	horizontalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	horizontalBlurPS->SetFloat("blurDistance", glowDist);
+	horizontalBlurPS->SetFloat("texelSize", texelWidth);
+	// -- Copy pixel data --
+	horizontalBlurPS->CopyAllBufferData();
+	// Set pixel data
+	horizontalBlurPS->SetShader();
 	context->Draw(3, 0);
 
 
 	// Vertical blur - bloom
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &targetViews[1], nullptr);//go elsewhere --> 1 in targetViews (recycling)
-
 	verticalBlurPS->SetShaderResourceView("horizBlurTexture", targetSRVs[0]);
 	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
 	verticalBlurPS->SetFloat("blurDistance", blurDist);
 	verticalBlurPS->SetFloat("texelSize", texelHeight);
-
 	// -- Copy pixel data --
 	verticalBlurPS->CopyAllBufferData();
-
 	// Set pixel data
 	verticalBlurPS->SetShader();
+	context->Draw(3, 0);
 
+	// Vertical blur - glow (full)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &targetViews[3], nullptr);
+	verticalBlurPS->SetShaderResourceView("horizBlurTexture", targetSRVs[2]);
+	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	verticalBlurPS->SetFloat("blurDistance", glowDist);
+	verticalBlurPS->SetFloat("texelSize", texelHeight);
+	// -- Copy pixel data --
+	verticalBlurPS->CopyAllBufferData();
+	// Set pixel data
+	verticalBlurPS->SetShader();
+	context->Draw(3, 0);
+
+	// Vertical blur - glow (half)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &halfRTVs[1], nullptr);
+	verticalBlurPS->SetShaderResourceView("horizBlurTexture", halfSRVs[0]);
+	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	verticalBlurPS->SetFloat("blurDistance", glowDist);
+	verticalBlurPS->SetFloat("texelSize", texelHeight*2);
+	// -- Copy pixel data --
+	verticalBlurPS->CopyAllBufferData();
+	// Set pixel data
+	verticalBlurPS->SetShader();
+	context->Draw(3, 0);
+
+	//Recombine smaller textures
+	context->ClearRenderTargetView(targetViews[2], color);//might not be necessary
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &targetViews[2], nullptr);
+	upsamplePS->SetShaderResourceView("tex0", targetSRVs[3]);//full glow
+	upsamplePS->SetShaderResourceView("tex1", halfSRVs[1]);//half glow
+	// -- Copy pixel data --
+	upsamplePS->CopyAllBufferData();
+	// Set pixel data
+	upsamplePS->SetShader();
 	context->Draw(3, 0);
 
 
@@ -826,6 +898,7 @@ void Renderer::Render(const Camera * const camera)
 
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
 	postPS->SetShaderResourceView("bloomTexture", targetSRVs[1]);
+	postPS->SetShaderResourceView("glowTexture", targetSRVs[2]);
 	postPS->SetSamplerState("finalSampler", targetSampler);
 
 	postPS->CopyAllBufferData();

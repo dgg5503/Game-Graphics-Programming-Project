@@ -121,6 +121,7 @@ private:
 	//float weights[MAX_BLUR_DISTANCE];
 	float colorThreshold;
 	float glowPercentage;
+	float glowDist; //max 12
 
 	SimplePixelShader* downsamplePS;
 	SimplePixelShader* upsamplePS;
