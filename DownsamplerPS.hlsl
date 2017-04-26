@@ -5,6 +5,7 @@ cbuffer Data : register(b0)
 {
 	float texelHeight;
 	float texelWidth;
+	float sizeMod;
 };
 
 
@@ -15,32 +16,18 @@ struct TargetCoords
 };
 
 
-struct SizedOutput {
-	float4 halfSize	: SV_Target0;
-	float4 quarterSize	: SV_Target1;
-};
-
-SizedOutput main(TargetCoords input)
+float4 main(TargetCoords input) : SV_TARGET
 {
 	SizedOutput output;
 
 	float4 col = float4(0, 0, 0, 0);
-	col += tex.Sample(texSampler, (input.uv * 2) + float2(0.0f, -texelHeight));
-	col += tex.Sample(texSampler, (input.uv * 2) + float2(-texelWidth, -texelHeight));
-	col += tex.Sample(texSampler, (input.uv * 2) + float2(-texelWidth, 0.0f);
-	col += tex.Sample(texSampler, (input.uv * 2));
-	col = output.quarterSize / 4;
+	for (int i = 0; i < sizeMod; i++) {
+		for (int j = 0; j < sizeMod; j++) {
+			col += tex.Sample(texSampler, (input.uv * sizeMod) + float2(texelWidth*-i, texelHeight*-j));
+		}
+	}
+	col = col / pow(sizeMod, 2);
 	col.a = 1.0f;
-	output.halfSize = col;
 
-	float4 qCol = float4(0, 0, 0, 0);
-	qCol += tex.Sample(texSampler, (input.uv * 4) + float2(0.0f, -texelHeight));
-	qCol += tex.Sample(texSampler, (input.uv * 4) + float2(-texelWidth, -texelHeight));
-	qCol += tex.Sample(texSampler, (input.uv * 4) + float2(-texelWidth, 0.0f);
-	qCol += tex.Sample(texSampler, (input.uv * 4));
-	qCol = output.quarterSize / 4;
-	qCol.a = 1.0f;
-	output.quarterSize = qCol;
-	//output.quarterSize = tex.Sample(texSampler, input.uv);
-	return output;
+	return col;
 }

@@ -61,6 +61,7 @@ Renderer::Renderer(DXWindow* const window)
 	texelHeight = 1.0f / window->GetHeight();
 	blurDist = BLUR_DISTANCE;
 	colorThreshold = .5;
+	glowPercentage = .5;
 	/*
 	float normalization = 0;
 	//fill weights array
@@ -115,7 +116,7 @@ Renderer::~Renderer()
 			targetSRVs[i]->Release();
 	}
 
-	for (size_t i = 0; i < 2; i++)
+	for (size_t i = 0; i < 3; i++)
 	{
 		if (postProcessTexts[i])
 			postProcessTexts[i]->Release();
@@ -123,6 +124,16 @@ Renderer::~Renderer()
 			postProcessRTVs[i]->Release();
 		if (postProcessSRVs[i])
 			postProcessSRVs[i]->Release();
+	}
+
+	for (size_t i = 0; i < 2; i++)
+	{
+		if (halfTexts[i])
+			halfTexts[i]->Release();
+		if (halfRTVs[i])
+			halfRTVs[i]->Release();
+		if (halfSRVs[i])
+			halfSRVs[i]->Release();
 	}
 
 	if (targetSampler) { targetSampler->Release(); }
@@ -135,6 +146,8 @@ Renderer::~Renderer()
 
 	if (deferredVS) { delete deferredVS; }
 	if (deferredLightingPS) { delete deferredLightingPS; }
+	if (downsamplePS) { delete downsamplePS; }
+	if (upsamplePS) { delete upsamplePS; }
 	if (horizontalBlurPS) { delete horizontalBlurPS; }
 	if (verticalBlurPS) { delete verticalBlurPS; }
 	if (postPS) { delete postPS; }
@@ -264,6 +277,19 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	renderTargetTextDesc.SampleDesc.Count = 1;
 	renderTargetTextDesc.SampleDesc.Quality = 0;
 
+	D3D11_TEXTURE2D_DESC halfTargetTextDesc = {};
+	halfTargetTextDesc.Width = window->GetWidth()/2;
+	halfTargetTextDesc.Height = window->GetHeight()/2;
+	halfTargetTextDesc.MipLevels = 1;
+	halfTargetTextDesc.ArraySize = 1;
+	halfTargetTextDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	halfTargetTextDesc.Usage = D3D11_USAGE_DEFAULT;
+	halfTargetTextDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	halfTargetTextDesc.CPUAccessFlags = 0;
+	halfTargetTextDesc.MiscFlags = 0;
+	halfTargetTextDesc.SampleDesc.Count = 1;
+	halfTargetTextDesc.SampleDesc.Quality = 0;
+
 	// Create render target textures
 	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
 	{
@@ -272,9 +298,16 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 			return hr;
 	}
 
-	for (unsigned int i = 0; i < 2; i++)
+	for (unsigned int i = 0; i < 3; i++)
 	{
 		hr = device->CreateTexture2D(&renderTargetTextDesc, nullptr, &postProcessTexts[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		hr = device->CreateTexture2D(&halfTargetTextDesc, nullptr, &halfTexts[i]);
 		if (FAILED(hr))
 			return hr;
 	}
@@ -285,6 +318,11 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
 
+	D3D11_RENDER_TARGET_VIEW_DESC halfTargetViewDesc = {};
+	halfTargetViewDesc.Format = halfTargetTextDesc.Format;
+	halfTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	halfTargetViewDesc.Texture2D.MipSlice = 0;
+
 	// Create render target views
 	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
 	{
@@ -293,9 +331,16 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 			return hr;
 	}
 
-	for (unsigned int i = 0; i < 2; i++)
+	for (unsigned int i = 0; i < 3; i++)
 	{
 		hr = device->CreateRenderTargetView(postProcessTexts[i], &renderTargetViewDesc, &postProcessRTVs[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		hr = device->CreateRenderTargetView(halfTexts[i], &halfTargetViewDesc, &halfRTVs[i]);
 		if (FAILED(hr))
 			return hr;
 	}
@@ -307,6 +352,12 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	renderTargetSRVDesc.Texture2D.MipLevels = 1;
 	renderTargetSRVDesc.Texture2D.MostDetailedMip = 0;
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC halfTargetSRVDesc = {};
+	halfTargetSRVDesc.Format = halfTargetTextDesc.Format;
+	halfTargetSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	halfTargetSRVDesc.Texture2D.MipLevels = 1;
+	halfTargetSRVDesc.Texture2D.MostDetailedMip = 0;
+
 	// Create SRVs for targets
 	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
 	{
@@ -315,9 +366,16 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 			return hr;
 	}
 
-	for (unsigned int i = 0; i < 2; i++)
+	for (unsigned int i = 0; i < 3; i++)
 	{
 		hr = device->CreateShaderResourceView(postProcessTexts[i], &renderTargetSRVDesc, &postProcessSRVs[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		hr = device->CreateShaderResourceView(halfTexts[i], &halfTargetSRVDesc, &halfSRVs[i]);
 		if (FAILED(hr))
 			return hr;
 	}
@@ -377,6 +435,16 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 		return hr;
 	*/
 
+	// load sownsample shader
+	downsamplePS = CreateSimplePixelShader();
+	if (!downsamplePS->LoadShaderFile(L"./Assets/Shaders/DownsamplePS.cso"))
+		return S_FALSE;
+
+	// load upsample shader
+	upsamplePS = CreateSimplePixelShader();
+	if (!upsamplePS->LoadShaderFile(L"./Assets/Shaders/UpsamplePS.cso"))
+		return S_FALSE;
+
 	// load horizontal shader
 	horizontalBlurPS = CreateSimplePixelShader();
 	if (!horizontalBlurPS->LoadShaderFile(L"./Assets/Shaders/HorizontalBlurPixelShader.cso"))
@@ -413,8 +481,11 @@ inline void Renderer::ClearRenderTargets()
 	for (size_t i = 0; i < BUFFER_COUNT; i++)
 		context->ClearRenderTargetView(targetViews[i], color);
 
-	for (size_t i = 0; i < 2; i++)
+	for (size_t i = 0; i < 3; i++)
 		context->ClearRenderTargetView(postProcessRTVs[i], color);
+
+	for (size_t i = 0; i < 2; i++)
+		context->ClearRenderTargetView(halfRTVs[i], color);
 
 	// Clear depth buffer
 	// Clear the render target and depth buffer (erases what's on the screen)
@@ -643,7 +714,7 @@ void Renderer::Render(const Camera * const camera)
 	//context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 	//TODO : Set 2 render targets - 1) Final with lighting		2) Selected pixels beyond a certain color range (select as they are being created in 1)
 	//unable to reuse the targetSRVs or RTVs (I think they are related) so we need two more (final and blur select?)
-	context->OMSetRenderTargets(2, postProcessRTVs, nullptr);
+	context->OMSetRenderTargets(3, postProcessRTVs, nullptr);
 	//===================== Render problems start on the above line =============================================
 	//nothing is passed into the two targets
 
@@ -674,6 +745,7 @@ void Renderer::Render(const Camera * const camera)
 	);
 	deferredLightingPS->SetFloat4("AmbientColor", ambientColor);
 	deferredLightingPS->SetFloat("ColorThreshold", colorThreshold);
+	deferredLightingPS->SetFloat("GlowPercentage", glowPercentage);
 
 	// -- Copy pixel data --
 	deferredVS->CopyAllBufferData();
