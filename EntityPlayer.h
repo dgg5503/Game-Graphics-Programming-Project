@@ -30,6 +30,9 @@ protected:
 	float fireRate;		// The maximum rate of firing
 	EntityManagerProjectile* projectileManager;	// Pointer to manager
 
+	// Particle Systems
+	ParticleEmitter* peEngineExhaust;
+
 	void FireProjectile(XMFLOAT3 direction);	// Fire a projectile
 
 	void OnCollision(Collision collision) override;	

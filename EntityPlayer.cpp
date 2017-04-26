@@ -8,6 +8,15 @@ EntityPlayer::EntityPlayer(EntityFactory* entityFactory, std::string name, Mesh*
 	fireRate = 0.15f;
 	fireTimer = 0;
 	maxHealth = health = 100;
+
+	peEngineExhaust = Renderer::Instance()->CreateContinuousParticleEmitter("PE_Player_Movement", 1, 0.01f);
+	peEngineExhaust->SetAgeRange(.25f, 0.01f);
+	peEngineExhaust->SetAlpha(1.0f);
+	peEngineExhaust->SetInitialSpeedRange(1.0f, 2.0f);
+	peEngineExhaust->SetInitialTintRange(XMFLOAT3(.5f, .5f, .5f), XMFLOAT3(1.0f, 1.0f, 1.0f));
+	peEngineExhaust->SetInitialSizeRange(XMFLOAT2(.075f, .075f), XMFLOAT2(.2f, .2f));
+	peEngineExhaust->SetLoop(-1);
+	peEngineExhaust->Emit();
 }
 
 EntityPlayer::~EntityPlayer()
@@ -41,6 +50,21 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 
 	transform.Move(movement.x, movement.y, movement.z);
 	transform.SetRotation(0, 0, 1, atan2f(movement.y, movement.x));
+
+	if (isSteering) {
+		auto emitPosition = transform.GetPosition();
+		XMFLOAT3 backwards = XMFLOAT3();
+		XMStoreFloat3(&backwards, XMVector3Normalize(-XMLoadFloat3(&movement)));
+		XMFLOAT3 backwardsLeft = backwards;
+		XMFLOAT3 backwardsRight = backwards;
+		backwardsLeft.x -= 1;
+		backwardsLeft.y -= 1;
+		backwardsRight.x += 1;
+		backwardsRight.y += 1;
+
+		peEngineExhaust->SetDirectionRange(backwardsLeft, backwardsRight);
+		peEngineExhaust->SetPosition(*emitPosition);
+	}
 
 	// Handle firing
 	fireTimer += deltaTime;
