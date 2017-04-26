@@ -277,18 +277,14 @@
     <FxCompile Include="PostProcessPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="DownsamplerPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="UpsamplePS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="DeferredPointLightPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="DeferredLightVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="DownsamplerPS.hlsl" />
+    <FxCompile Include="UpsamplePS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

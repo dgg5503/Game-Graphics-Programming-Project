@@ -18,7 +18,7 @@ struct TargetCoords
 
 float4 main(TargetCoords input) : SV_TARGET
 {
-	SizedOutput output;
+	//SizedOutput output;
 
 	float4 col = float4(0, 0, 0, 0);
 	for (int i = 0; i < sizeMod; i++) {

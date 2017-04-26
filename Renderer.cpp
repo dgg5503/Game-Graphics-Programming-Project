@@ -440,7 +440,7 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 
 	// load sownsample shader
 	downsamplePS = CreateSimplePixelShader();
-	if (!downsamplePS->LoadShaderFile(L"./Assets/Shaders/DownsamplePS.cso"))
+	if (!downsamplePS->LoadShaderFile(L"./Assets/Shaders/DownsamplerPS.cso"))
 		return S_FALSE;
 
 	// load upsample shader
