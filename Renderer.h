@@ -141,6 +141,9 @@ private:
 	DirectionalLight directionalLights[MAX_DIR_LIGHTS] = {};
 	PointLight pointLights[MAX_POINT_LIGHTS] = {};
 	SpotLight spotLights[MAX_SPOT_LIGHTS] = {};
+	SimpleVertexShader* deferredPointLightVS;
+	SimplePixelShader* deferredPointLightPS;
+	Mesh* cubeMesh;
 
 	// Global lighting information
 	DirectX::XMFLOAT4 ambientColor;

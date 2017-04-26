@@ -65,7 +65,7 @@ ParticleVertexToPixel main(uint v_id : SV_VertexID, uint i_id : SV_InstanceID)
     float3 halfRight = normalize(view._11_21_31) * size.x * 0.5f;
     float3 halfUp = normalize(view._12_22_32) * size.y * 0.5f;
 	//float3 n = normalize(view._13_23_33);
-	float3 verts[4] =
+	const float3 verts[4] =
 	{
         halfRight - halfUp,
 		-halfRight - halfUp,
@@ -75,13 +75,12 @@ ParticleVertexToPixel main(uint v_id : SV_VertexID, uint i_id : SV_InstanceID)
 	};
 
     // Get world matrix for a single particle (particle center being at world pos)
-    matrix world =
+    const matrix world =
     {
         { 1, 0, 0, 0},
         { 0, 1, 0, 0},
         { 0, 0, 1, 0},
         float4(particle.worldPos, 1.0f)
-        //{ particle.worldPos.x, particle.worldPos.y, particle.worldPos.z, 1 },
     };
 
     // Calc WVP

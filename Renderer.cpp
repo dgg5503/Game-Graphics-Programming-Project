@@ -138,7 +138,10 @@ Renderer::~Renderer()
 	if (horizontalBlurPS) { delete horizontalBlurPS; }
 	if (verticalBlurPS) { delete verticalBlurPS; }
 	if (postPS) { delete postPS; }
+	if (deferredPointLightVS) { delete deferredPointLightVS; }
+	if (deferredPointLightPS) { delete deferredPointLightPS; }
 	if (particleRenderer) { particleRenderer->Shutdown();  delete particleRenderer; }
+	if (cubeMesh) { delete cubeMesh; }
 }
 
 // --------------------------------------------------------
@@ -392,6 +395,20 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	if (!postPS->LoadShaderFile(L"./Assets/Shaders/PostProcessPixelShader.cso"))
 		return S_FALSE;
 
+	// load def point light vs
+	deferredPointLightVS = CreateSimpleVertexShader();
+	if (!deferredPointLightVS->LoadShaderFile(L"./Assets/Shaders/DeferredLightVS.cso"))
+		return S_FALSE;
+
+	// load def point light ps
+	deferredPointLightPS = CreateSimplePixelShader();
+	if (!deferredPointLightPS->LoadShaderFile(L"./Assets/Shaders/DeferredPointLightPS.cso"))
+		return S_FALSE;
+
+	// -- TEMPORARY --
+	// Load a cube mesh
+	cubeMesh = CreateMesh("./Assets/Models/cube.obj");
+
 	particleRenderer = new ParticleRenderer(*this);
 	hr = particleRenderer->Initialize();
 	if (FAILED(hr))
@@ -544,6 +561,8 @@ void Renderer::Render(const Camera * const camera)
 	Material* currMaterial;
 	Entity* currEntity;
 	ID3D11Buffer* currVertBuff;
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
 
 	// Camera information that will not change mid-render
  	XMFLOAT4X4 view = camera->GetViewMatrix();
@@ -605,8 +624,6 @@ void Renderer::Render(const Camera * const camera)
 			// Set buffers in the input assembler
 			//  - Do this ONCE PER OBJECT you're drawing, since each object might
 			//    have different geometry.
-			UINT stride = sizeof(Vertex);
-			UINT offset = 0;
 			currMesh = bucketIt->second->GetMesh();
 			currVertBuff = currMesh->GetVertexBuffer();
 			context->IASetVertexBuffers(0, 1, &currVertBuff, &stride, &offset);
@@ -627,7 +644,6 @@ void Renderer::Render(const Camera * const camera)
 		it = bucket.second;
 	}
 
-	
 	// -- Particles (deferred rendering) --
 	particleRenderer->Render(camera);
 
@@ -688,7 +704,6 @@ void Renderer::Render(const Camera * const camera)
 	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
 	context->Draw(3, 0);
 
-
 	/**/
 	//Clear target views to reuse
 	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -709,6 +724,7 @@ void Renderer::Render(const Camera * const camera)
 	horizontalBlurPS->CopyAllBufferData();
 
 	// Set pixel data
+	deferredVS->SetShader();
 	horizontalBlurPS->SetShader();
 
 	context->Draw(3, 0);
@@ -744,6 +760,25 @@ void Renderer::Render(const Camera * const camera)
 	postPS->SetShader();
 
 	context->Draw(3, 0);
+
+	// -- Test Draw Sphere to BBuffer --
+	//static Transform tmpTransform(XMFLOAT3(0, 0, 0), XMFLOAT3(4, 4, 4), XMFLOAT4(0, 0, 0, 0));
+	//currMesh = cubeMesh;
+	//currVertBuff = cubeMesh->GetVertexBuffer();
+	/*
+	deferredPointLightVS->SetMatrix4x4("view", view);
+	deferredPointLightVS->SetMatrix4x4("projection", projection);
+	deferredPointLightVS->SetFloat3("center", XMFLOAT3(0, 0, 0));
+	deferredPointLightVS->SetFloat("radius", 16.0f);
+	//deferredPointLightVS->SetMatrix4x4("world", tmpTransform.GetWorldMatrix());
+	deferredPointLightPS->SetFloat3("center", XMFLOAT3(0, 0, 0));
+	deferredPointLightPS->SetFloat("radius", 4.0f);
+	deferredPointLightVS->CopyAllBufferData();
+	deferredPointLightPS->CopyAllBufferData();
+	deferredPointLightVS->SetShader();
+	deferredPointLightPS->SetShader();
+	context->Draw(6, 0);
+	*/
 
 	//reset SRVs
 	//postPS->SetShaderResourceView("colorTexture", 0);
