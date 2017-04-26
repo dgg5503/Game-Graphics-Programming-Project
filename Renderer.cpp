@@ -86,9 +86,6 @@ Renderer::Renderer(DXWindow* const window)
 		weights[i] = weights[i] / normalization;
 	}
 	*/
-
-	// Skybox
-	skyMesh = this->CreateMesh("./Assets/Models/cube.obj");
 }
 
 // --------------------------------------------------------
@@ -142,6 +139,7 @@ Renderer::~Renderer()
 	if (verticalBlurPS) { delete verticalBlurPS; }
 	if (postPS) { delete postPS; }
 	if (particleRenderer) { particleRenderer->Shutdown();  delete particleRenderer; }
+	if (skyRenderer) { delete skyRenderer; }
 }
 
 // --------------------------------------------------------
@@ -365,44 +363,6 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	device->CreateSamplerState(&sampDesc, &objectTextureSampler);
 
-	//================================== Skybox Stuff ====================================
-	// Load the skybox and store it as a texture cube under the hood
-	auto skyBoxTexturePath = L"./Assets/Textures/starscape.dds";
-	if(CreateDDSTextureFromFile(device, skyBoxTexturePath, 0, &skyboxSRV) != S_OK)
-		fprintf(stderr, "[Skybox] Failed to load skybox texture %ls\n", skyBoxTexturePath);
-
-	// Create a sampler state for texture sampling
-	D3D11_SAMPLER_DESC samplerDesc = {};
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	samplerDesc.MaxAnisotropy = 16;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	// Ask the device to create a state
-	device->CreateSamplerState(&samplerDesc, &sampler);
-
-	// Set up the rasterizer state for the sky
-	D3D11_RASTERIZER_DESC rsDesc = {};
-	rsDesc.FillMode = D3D11_FILL_SOLID;
-	rsDesc.CullMode = D3D11_CULL_NONE;
-	rsDesc.DepthClipEnable = true;
-	device->CreateRasterizerState(&rsDesc, &rsSky);
-
-	// Set up the depth state for the sky, which accepts pixels <= existing depths
-	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
-	dsDesc.DepthEnable = true;
-	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-	device->CreateDepthStencilState(&dsDesc, &dsSky);
-
-	skyVS = new SimpleVertexShader(device, context);
-	skyVS->LoadShaderFile(L"./Assets/Shaders/SkyVS.cso");
-
-	skyPS = new SimplePixelShader(device, context);
-	skyPS->LoadShaderFile(L"./Assets/Shaders/SkyPS.cso");
-
 	//================================== Post-processing Stuff ====================================
 	/*
 	hr = device->CreateTexture2D(&renderTargetTextDesc, nullptr, &blurText);
@@ -437,6 +397,13 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	hr = particleRenderer->Initialize();
 	if (FAILED(hr))
 		return hr;
+
+	skyRenderer = new SkyRenderer(*this);
+	hr = skyRenderer->init();
+	if (FAILED(hr))
+		return hr;
+
+
 
 	// Return the "everything is ok" HRESULT value
 	return S_OK;
@@ -668,33 +635,8 @@ void Renderer::Render(const Camera * const camera)
 		it = bucket.second;
 	}
 
-	// Skybox
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-
-	ID3D11Buffer* skyVB = skyMesh->GetVertexBuffer();
-	ID3D11Buffer* skyIB = skyMesh->GetIndexBuffer();
-
-	context->IASetVertexBuffers(0, 1, &skyVB, &stride, &offset);
-	context->IASetIndexBuffer(skyIB, DXGI_FORMAT_R32_UINT, 0);
-
-	skyVS->SetMatrix4x4("view", view);
-	skyVS->SetMatrix4x4("projection", projection);
-	skyVS->CopyAllBufferData();
-	skyVS->SetShader();
-
-	skyPS->SetShaderResourceView("Skybox", skyboxSRV);
-	skyPS->SetSamplerState("Sampler", sampler);
-	skyPS->CopyAllBufferData();
-	skyPS->SetShader();
-
-	context->RSSetState(rsSky);
-	context->OMSetDepthStencilState(dsSky, 0);
-	context->DrawIndexed(skyMesh->GetIndexCount(), 0, 0);
-
-	context->RSSetState(0);
-	context->OMSetDepthStencilState(0, 0);
-	// End Skybox
+	// Sky
+	skyRenderer->Render(camera);
 	
 	// -- Particles (deferred rendering) --
 	particleRenderer->Render(camera);

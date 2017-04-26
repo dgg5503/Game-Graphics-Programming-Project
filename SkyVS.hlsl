@@ -30,7 +30,7 @@ VertexToPixel main(VertexShaderInput input)
 	// Set up output
 	VertexToPixel output;
 
-	// Create a translate-less view matrix
+	// Zeros position of view matrixs
 	matrix viewNoMovement = view;
 	viewNoMovement._41 = 0;
 	viewNoMovement._42 = 0;
@@ -38,7 +38,8 @@ VertexToPixel main(VertexShaderInput input)
 
 	// Calculate output position
 	matrix viewProj = mul(viewNoMovement, projection);
-	output.position = mul(float4(input.position * 10.0f, 1.0f), viewProj);
+	float scale = 10.0f;	// Makes sure the model is big enough.
+	output.position = mul(float4(input.position * scale, 1.0f), viewProj);
 
 	// To ensure we're at MAX DEPTH, set the Z to the W
 	output.position.z = output.position.w;

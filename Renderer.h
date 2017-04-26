@@ -14,7 +14,10 @@
 #include "ShaderConstants.h"
 #include "Entity.h"
 #include "DXWindow.h"
+
+// Renderers
 #include "ParticleRenderer.h"
+#include "SkyRenderer.h"
 
 #include "GameState.h"
 
@@ -32,6 +35,7 @@ class Entity; // forward declaration to fix cyclic dep
 class Renderer
 {
 	friend class ParticleRenderer;
+	friend class SkyRenderer;
 
 public:
 	// Instance specific stuff
@@ -110,16 +114,6 @@ private:
 	ID3D11RenderTargetView* postProcessRTVs[2];//with lighting & selected pixels
 	ID3D11ShaderResourceView* postProcessSRVs[2];
 
-	// -- SKYBOX --
-	ID3D11ShaderResourceView* skyboxSRV;
-	ID3D11SamplerState* sampler;
-	ID3D11RasterizerState* rsSky;
-	ID3D11DepthStencilState* dsSky;
-	SimpleVertexShader* skyVS;
-	SimplePixelShader* skyPS;
-	Mesh* skyMesh;
-
-
 	// -- POSTPROCESSING GLOW --
 	float texelWidth;	//change on resize
 	float texelHeight;	//change on resize
@@ -145,6 +139,9 @@ private:
 
 	// -- PARTICLES --
 	ParticleRenderer* particleRenderer;
+
+	// -- SKY --
+	SkyRenderer* skyRenderer;
 
 	// -- LIGHTING --
 	// Lights
