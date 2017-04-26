@@ -40,8 +40,11 @@ cbuffer LightData : register(b0)
 	// Ambient color used for entire scene
 	float4 AmbientColor;
 
-	//Blur pixel threshold -- I see no reason to make it in a buffer of its own
+	//Bloom pixel threshold -- I see no reason to make it in a buffer of its own
 	float ColorThreshold;
+
+	//Glow for emission
+	float GlowPercentage;
 };
 
 // Input info from vertex shader
@@ -54,7 +57,8 @@ struct TargetCoords
 // Output info for color with light and pixels to blur
 struct DefferedOut {
 	float4 color		: SV_Target0;
-	float4 blur			: SV_Target1;
+	float4 bloom		: SV_Target1;
+	float4 glow			: SV_Target2;
 };
 
 
@@ -67,7 +71,8 @@ DefferedOut main(TargetCoords input)
 	//this feels gross for some reason
 	if (length(emission.xyz) != 0) {
 		output.color = emission;
-		output.blur = emission * ColorThreshold;
+		output.bloom = emission * ColorThreshold;
+		output.glow = emission * GlowPercentage;
 		return output;
 	}
 
@@ -150,6 +155,7 @@ DefferedOut main(TargetCoords input)
 	//return float4(pos, 1.0f);
 	output.color = (totalLight + AmbientColor) * col;
 	//return (totalLight + AmbientColor) * col;
-	output.blur = output.color * ColorThreshold;
+	output.bloom = output.color * ColorThreshold;
+	output.glow = float4(0, 0, 0, 0);
 	return output;
 }
