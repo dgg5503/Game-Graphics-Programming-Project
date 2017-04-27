@@ -1,6 +1,6 @@
 #include "CollisionManager.h"
 
-
+using namespace DirectX;
 
 // Initialize instance to null
 CollisionManager* CollisionManager::instance = nullptr;

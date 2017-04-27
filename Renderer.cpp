@@ -61,7 +61,7 @@ Renderer::Renderer(DXWindow* const window)
 	texelHeight = 1.0f / window->GetHeight();
 	blurDist = 4;
 	glowDist = 12;
-	colorThreshold = .5;
+	colorThreshold = 1;
 	glowPercentage = 0;
 	/*
 	float normalization = 0;

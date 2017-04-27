@@ -1,5 +1,6 @@
 #include "EntityEnemy.h"
 
+using namespace DirectX;
 
 EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * mesh, Material * material) : 
 	Entity(entityFactory, name, mesh, material)
@@ -7,13 +8,13 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	this->AddTag("Enemy");
 
 	this->speed = 1.0f;
-	this->health = 0;
+	this->health = 0.000001f;
 	this->healthMax = 1.0f;
 
 
 	// Explosion - occurs when killed
 	Renderer* renderer = Renderer::Instance();
-	peExplosionDebris = renderer->CreateBurstParticleEmitter("PE_" + name + "_Explosion_Debris", 200);
+	peExplosionDebris = renderer->CreateBurstParticleEmitter("PE_" + name + "_Explosion_Debris", 20);
 	peExplosionDebris->SetAgeRange(2.0f, 1.0f);
 	peExplosionDebris->SetAlpha(1.0f);
 	peExplosionDebris->SetInitialSpeedRange(0.05f, 0.15f);
@@ -23,7 +24,7 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	peExplosionDebris->SetEndSize(XMFLOAT2(0, 0));
 	peExplosionDebris->SetDirectionRange(XMFLOAT3(1, 1, 1), XMFLOAT3(-1, -1, -1));
 
-	peExplosionFireball = renderer->CreateBurstParticleEmitter("PE_" + name + "_Explosion_Fireball", 200);
+	peExplosionFireball = renderer->CreateBurstParticleEmitter("PE_" + name + "_Explosion_Fireball", 20);
 	peExplosionFireball->SetAgeRange(2.0f, 1.0f);
 	peExplosionFireball->SetAlpha(0.75f);
 	peExplosionFireball->SetInitialSpeedRange(0.05f, 0.1f);
@@ -101,7 +102,7 @@ void EntityEnemy::ChangeHealth(float healthDelta)
 		health = 0;
 
 		// Explosion Effect
-		const XMFLOAT3* position = transform.GetPosition();
+		const XMFLOAT3* position(transform.GetPosition());
 
 		peExplosionDebris->SetPosition(*position);
 		peExplosionFireball->SetPosition(*position);

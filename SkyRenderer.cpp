@@ -12,13 +12,13 @@ SkyRenderer::SkyRenderer(Renderer & renderer) :
 
 SkyRenderer::~SkyRenderer()
 {
-	if (skySRV) delete skySRV;
-	if (skySampler) delete skySampler;
-	if (skyRasterizer) delete skyRasterizer;
-	if (skyDepthStencil) delete skyDepthStencil;
+	if (skySRV) skySRV->Release();
+	if (skySampler) skySampler->Release();
+	if (skyRasterizer)  skyRasterizer->Release();
+	if (skyDepthStencil) skyDepthStencil->Release();
 	if (skyVS) delete skyVS;
 	if (skyPS) delete skyPS;
-	if (skyMesh) delete (skyMesh);
+	if (skyMesh) delete skyMesh;
 }
 
 HRESULT SkyRenderer::init()

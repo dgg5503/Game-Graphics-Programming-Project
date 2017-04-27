@@ -181,7 +181,6 @@ void EntityPlayer::OnCollision(Collision other)
 {
 	if (other.otherEntity->HasTag("Enemy")) {
 		EntityEnemy* enemy = (EntityEnemy*)other.otherEntity;
-		enemy->MoveToRandomPosition();	
 
 		ChangeHealth(enemy->GetHealth() * -10);
 		enemy->ChangeHealth(-1000);
