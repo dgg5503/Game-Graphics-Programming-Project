@@ -118,6 +118,9 @@ private:
 	ID3D11RenderTargetView* halfRTVs[2];
 	ID3D11ShaderResourceView* halfSRVs[2];
 
+	D3D11_VIEWPORT viewport;
+	D3D11_VIEWPORT halfViewport;
+
 	// -- POSTPROCESSING GLOW --
 	float texelWidth;	//change on resize
 	float texelHeight;	//change on resize
