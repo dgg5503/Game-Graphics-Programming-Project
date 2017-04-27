@@ -60,9 +60,9 @@ Renderer::Renderer(DXWindow* const window)
 	texelWidth = 1.0f / window->GetWidth();
 	texelHeight = 1.0f / window->GetHeight();
 	blurDist = 4;
-	glowDist = 12;
+	glowDist = 50;
 	colorThreshold = .5;
-	glowPercentage = 0;
+	glowPercentage = .1;
 	/*
 	float normalization = 0;
 	//fill weights array
@@ -258,7 +258,7 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 
 	// Lastly, set up a viewport so we render into
 	// to correct portion of the window
-	D3D11_VIEWPORT viewport = {};
+	viewport = {};
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.Width = (float)window->GetWidth();
@@ -266,6 +266,14 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	context->RSSetViewports(1, &viewport);
+
+	halfViewport = {};
+	halfViewport.TopLeftX = 0;
+	halfViewport.TopLeftY = 0;
+	halfViewport.Width = (float)window->GetWidth()/2;
+	halfViewport.Height = (float)window->GetHeight()/2;
+	halfViewport.MinDepth = 0.0f;
+	halfViewport.MaxDepth = 1.0f;
 
 	// Setup render target texture descriptions
 	D3D11_TEXTURE2D_DESC renderTargetTextDesc = {};
@@ -813,19 +821,6 @@ void Renderer::Render(const Camera * const camera)
 	horizontalBlurPS->SetShader();
 	context->Draw(3, 0);
 
-	// Horizontal blur - glow (half)
-	context->PSSetShaderResources(0, 5, null);
-	context->OMSetRenderTargets(1, &halfRTVs[1], nullptr);
-	horizontalBlurPS->SetShaderResourceView("blurTexture", halfSRVs[0]);
-	horizontalBlurPS->SetSamplerState("blurSampler", targetSampler);
-	horizontalBlurPS->SetFloat("blurDistance", glowDist);
-	horizontalBlurPS->SetFloat("texelSize", texelWidth*2);
-	// -- Copy pixel data --
-	horizontalBlurPS->CopyAllBufferData();
-	// Set pixel data
-	horizontalBlurPS->SetShader();
-	context->Draw(3, 0);
-
 	// Horizontal blur - glow (full)
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &targetViews[2], nullptr);
@@ -838,7 +833,6 @@ void Renderer::Render(const Camera * const camera)
 	// Set pixel data
 	horizontalBlurPS->SetShader();
 	context->Draw(3, 0);
-
 
 	// Vertical blur - bloom
 	context->PSSetShaderResources(0, 5, null);
@@ -866,6 +860,20 @@ void Renderer::Render(const Camera * const camera)
 	verticalBlurPS->SetShader();
 	context->Draw(3, 0);
 
+	context->RSSetViewports(1, &halfViewport);
+	// Horizontal blur - glow (half)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &halfRTVs[1], nullptr);
+	horizontalBlurPS->SetShaderResourceView("blurTexture", halfSRVs[0]);
+	horizontalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	horizontalBlurPS->SetFloat("blurDistance", glowDist);
+	horizontalBlurPS->SetFloat("texelSize", texelWidth * 2);
+	// -- Copy pixel data --
+	horizontalBlurPS->CopyAllBufferData();
+	// Set pixel data
+	horizontalBlurPS->SetShader();
+	context->Draw(3, 0);
+
 	// Vertical blur - glow (half)
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &halfRTVs[1], nullptr);
@@ -878,7 +886,8 @@ void Renderer::Render(const Camera * const camera)
 	// Set pixel data
 	verticalBlurPS->SetShader();
 	context->Draw(3, 0);
-
+	
+	context->RSSetViewports(1, &viewport);
 	//Recombine smaller textures
 	context->ClearRenderTargetView(targetViews[2], color);//might not be necessary
 	context->PSSetShaderResources(0, 5, null);
@@ -890,7 +899,7 @@ void Renderer::Render(const Camera * const camera)
 	// Set pixel data
 	upsamplePS->SetShader();
 	context->Draw(3, 0);
-
+	
 
 	//Add all post processing effects together
 	context->PSSetShaderResources(0, 5, null);
@@ -898,7 +907,7 @@ void Renderer::Render(const Camera * const camera)
 
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
 	postPS->SetShaderResourceView("bloomTexture", targetSRVs[1]);
-	postPS->SetShaderResourceView("glowTexture", targetSRVs[2]);
+	//postPS->SetShaderResourceView("glowTexture", targetSRVs[2]);		//===== Why does this break it with particles rendering? =====
 	postPS->SetSamplerState("finalSampler", targetSampler);
 
 	postPS->CopyAllBufferData();

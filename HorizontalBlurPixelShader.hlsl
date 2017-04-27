@@ -52,7 +52,7 @@ float4 main(TargetCoords input) : SV_TARGET
 	//weight function .045x^3 - .269x^2 + .129x + 1
 	for (int i = 0; i <= blurD; i++) {
 		weights[i] = .045*pow(i*(4/ blurD), 3) - .269*pow(i*(4 / blurD), 2) + .129*(i*(4 / blurD)) + 1;
-		weights[i] = clamp(weights[i], 0.1f, 1.0f);
+		weights[i] = clamp(weights[i], 0.0f, 1.0f);
 		normalization += weights[i];
 	}
 
@@ -94,8 +94,8 @@ float4 main(TargetCoords input) : SV_TARGET
 	*/
 	//add the weighted colors together
 	float4 color = float4(0, 0, 0, 0);
-	for (int k = -blurD; k <= blurD; k++) {
-		color += blurTexture.Sample(blurSampler, input.uv + float2(texelSize * k, 0.0f)) * weights[abs(k)];	//how to use diff weights -- need to calc weights depending on blurDistance
+	for (int k = -blurDistance; k <= blurDistance; k++) {
+		color += blurTexture.Sample(blurSampler, input.uv + float2(texelSize * k, 0.0f)) * weights[abs(clamp(k, 0, MAX_BLUR_PIXELS))];	//how to use diff weights -- need to calc weights depending on blurDistance
 	}
 	/*
 	color += blurTexture.Sample(blurSampler, input.texCoord1) * weight4;
