@@ -32,6 +32,9 @@ protected:
 
 	// Particle Systems
 	ParticleEmitter* peEngineExhaust;
+	ParticleEmitter* peFireProjectile;
+	ParticleEmitter* peExplosionDebris;
+	ParticleEmitter* peExplosionFireball;
 
 	void FireProjectile(XMFLOAT3 direction);	// Fire a projectile
 

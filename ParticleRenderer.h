@@ -36,8 +36,8 @@ private:
 	// Release ALL emitters
 	void Release();
 
-	ParticleEmitter* const CreateContinuousParticleEmitter(const char* name, unsigned int particlesPerSeconds, float seconds);
-	ParticleEmitter* const CreateBurstParticleEmitter(const char* name, unsigned int numParticles);
+	ParticleEmitter* const CreateContinuousParticleEmitter(std::string name, unsigned int particlesPerSeconds, float seconds);
+	ParticleEmitter* const CreateBurstParticleEmitter(std::string name, unsigned int numParticles);
 
 	void Update(float dt, float totalTime);
 	void Render(const Camera * const camera);
@@ -51,7 +51,7 @@ private:
 	inline void SortParticles();
 
 	// Particle emitter map
-	std::unordered_map<const char*, ParticleEmitter*> particleEmitters;
+	std::unordered_map<std::string, ParticleEmitter*> particleEmitters;
 
 	// Reference to renderer which will be used to setup buffers
 	Renderer& renderer;

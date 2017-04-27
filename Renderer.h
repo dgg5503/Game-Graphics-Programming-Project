@@ -62,8 +62,8 @@ public:
 	SimpleVertexShader* const CreateSimpleVertexShader() const;
 	SimplePixelShader* const CreateSimplePixelShader() const;
 	SimpleComputeShader * const CreateSimpleComputeShader() const;
-	ParticleEmitter* const CreateContinuousParticleEmitter(const char* name, unsigned int particlesPerSeconds, float seconds) const;
-	ParticleEmitter* const CreateBurstParticleEmitter(const char* name, unsigned int numParticles) const;
+	ParticleEmitter* const CreateContinuousParticleEmitter(std::string name, unsigned int particlesPerSeconds, float seconds) const;
+	ParticleEmitter* const CreateBurstParticleEmitter(std::string name, unsigned int numParticles) const;
 
 	// Mesh factory. CALLER SHOULD FREE CREATED VARIABLES
 	Mesh* const CreateMesh(const char* path) const;

@@ -36,6 +36,10 @@ protected:
 	Entity* target;		// The targert of the enemy
 	XMFLOAT3 direction;	// Direction the enemy is looking at
 
+	// Particle Systems
+	ParticleEmitter* peExplosionDebris;
+	ParticleEmitter* peExplosionFireball;
+
 	void OnCollision(Collision collision) override;
 };
 

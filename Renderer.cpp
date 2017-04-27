@@ -919,7 +919,7 @@ SimpleComputeShader * const Renderer::CreateSimpleComputeShader() const
 // --------------------------------------------------------
 // Create and return a continuous particle emitter
 // --------------------------------------------------------
-ParticleEmitter * const Renderer::CreateContinuousParticleEmitter(const char * name, unsigned int particlesPerSeconds, float seconds) const
+ParticleEmitter * const Renderer::CreateContinuousParticleEmitter(std::string name, unsigned int particlesPerSeconds, float seconds) const
 {
 	return particleRenderer->CreateContinuousParticleEmitter(name, particlesPerSeconds, seconds);
 }
@@ -927,7 +927,7 @@ ParticleEmitter * const Renderer::CreateContinuousParticleEmitter(const char * n
 // --------------------------------------------------------
 // Create and return a burst particle emitter
 // --------------------------------------------------------
-ParticleEmitter * const Renderer::CreateBurstParticleEmitter(const char * name, unsigned int numParticles) const
+ParticleEmitter * const Renderer::CreateBurstParticleEmitter(std::string name, unsigned int numParticles) const
 {
 	return particleRenderer->CreateBurstParticleEmitter(name, numParticles);
 }

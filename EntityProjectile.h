@@ -25,6 +25,8 @@ protected:
 	float speed;
 	XMFLOAT3 direction;
 
+	ParticleEmitter* peTrail;
+
 	void OnCollision(Collision collison) override;
 };
 
