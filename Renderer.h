@@ -110,9 +110,13 @@ private:
 	SimpleVertexShader* deferredVS;
 	SimplePixelShader* deferredLightingPS;
 
-	ID3D11Texture2D* postProcessTexts[2];
-	ID3D11RenderTargetView* postProcessRTVs[2];//with lighting & selected pixels
-	ID3D11ShaderResourceView* postProcessSRVs[2];
+	ID3D11Texture2D* postProcessTexts[3];
+	ID3D11RenderTargetView* postProcessRTVs[3];//with lighting, bloom pixels, glow pixels
+	ID3D11ShaderResourceView* postProcessSRVs[3];
+
+	ID3D11Texture2D* halfTexts[2];//half width and half height textures
+	ID3D11RenderTargetView* halfRTVs[2];
+	ID3D11ShaderResourceView* halfSRVs[2];
 
 	// -- POSTPROCESSING GLOW --
 	float texelWidth;	//change on resize
@@ -120,10 +124,11 @@ private:
 	float blurDist;	//not const or define so it can change later (ie. settings if we ever have them)
 	//float weights[MAX_BLUR_DISTANCE];
 	float colorThreshold;
-	//ID3D11Texture2D* blurText;
-	//ID3D11RenderTargetView* blurRTV;
-	//ID3D11ShaderResourceView* blurSRV;
+	float glowPercentage;
+	float glowDist; //max 12
 
+	SimplePixelShader* downsamplePS;
+	SimplePixelShader* upsamplePS;
 	SimplePixelShader* horizontalBlurPS;
 	SimplePixelShader* verticalBlurPS;
 	SimplePixelShader* postPS;
@@ -148,6 +153,9 @@ private:
 	DirectionalLight directionalLights[MAX_DIR_LIGHTS] = {};
 	PointLight pointLights[MAX_POINT_LIGHTS] = {};
 	SpotLight spotLights[MAX_SPOT_LIGHTS] = {};
+	SimpleVertexShader* deferredPointLightVS;
+	SimplePixelShader* deferredPointLightPS;
+	Mesh* cubeMesh;
 
 	// Global lighting information
 	DirectX::XMFLOAT4 ambientColor;

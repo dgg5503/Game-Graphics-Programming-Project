@@ -259,12 +259,6 @@
     <FxCompile Include="VerticalBlurPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="HorizontalBlurVertexShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="VerticalBlurVertexShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="ParticleUpdateCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -292,10 +286,16 @@
     <FxCompile Include="PostProcessPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="SkyVS.hlsl">
+    <FxCompile Include="DeferredPointLightPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="SkyPS.hlsl">
+    <FxCompile Include="DeferredLightVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="DownsamplerPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="UpsamplePS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
