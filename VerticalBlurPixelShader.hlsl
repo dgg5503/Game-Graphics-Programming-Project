@@ -30,7 +30,7 @@ float4 main(TargetCoords input) : SV_TARGET
 
 	for (int i = 0; i <= blurD; i++) {
 		weights[i] = .045*pow(i*(4 / blurD), 3) - .269*pow(i*(4 / blurD), 2) + .129*(i*(4 / blurD)) + 1;
-		weights[i] = clamp(weights[i], 0.1f, 1.0f);
+		weights[i] = clamp(weights[i], 0.0f, 1.0f);
 		normalization += weights[i];
 	}
 
@@ -45,8 +45,8 @@ float4 main(TargetCoords input) : SV_TARGET
 
 	//add the weighted colors together
 	float4 color = float4(0, 0, 0, 0);
-	for (int k = -blurD; k <= blurD; k++) {
-		color += horizBlurTexture.Sample(blurSampler, input.uv + float2(0.0f, texelSize * k)) * weights[abs(k)];	//how to use diff weights -- need to calc weights depending on blurDistance
+	for (int k = -blurDistance; k <= blurDistance; k++) {
+		color += horizBlurTexture.Sample(blurSampler, input.uv + float2(0.0f, texelSize * k)) * weights[abs(clamp(k, 0, MAX_BLUR_PIXELS - 1))];	//how to use diff weights -- need to calc weights depending on blurDistance
 	}
 
 

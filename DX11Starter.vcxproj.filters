@@ -25,6 +25,9 @@
     <Filter Include="UI Panels">
       <UniqueIdentifier>{f27e4958-e628-4646-b2b6-ce6113c7122b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Renderers">
+      <UniqueIdentifier>{3efebc2f-2683-4e75-9a7e-bf362919ab08}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -46,9 +49,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Texture2D.cpp">
@@ -105,11 +105,17 @@
     <ClCompile Include="UIGamePanel.cpp">
       <Filter>UI Panels</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleEmitter.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleRenderer.cpp">
+      <Filter>Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyRenderer.cpp">
+      <Filter>Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Renderers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -132,9 +138,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Lights.h">
@@ -206,9 +209,6 @@
     <ClInclude Include="UIGamePanel.h">
       <Filter>UI Panels</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleLayout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -220,6 +220,15 @@
     </ClInclude>
     <ClInclude Include="EmitterLayout.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleRenderer.h">
+      <Filter>Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyRenderer.h">
+      <Filter>Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Renderers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -250,12 +259,6 @@
     <FxCompile Include="VerticalBlurPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="HorizontalBlurVertexShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="VerticalBlurVertexShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="ParticleUpdateCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -283,10 +286,23 @@
     <FxCompile Include="PostProcessPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="DeferredPointLightPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="DeferredLightVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
     <FxCompile Include="DownsamplerPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="VolumetricLightingPixelShader.hlsl">
+    <FxCompile Include="UpsamplePS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
@@ -295,5 +311,12 @@
     <None Include="Vertex.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Assets\Shaders\ParticleSortCS.asm">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Textures\starscape.dds" />
+    <Image Include="Assets\Textures\SunnyCubeMap.dds" />
   </ItemGroup>
 </Project>

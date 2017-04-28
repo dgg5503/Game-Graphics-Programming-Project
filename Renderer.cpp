@@ -59,8 +59,10 @@ Renderer::Renderer(DXWindow* const window)
 	//Set data using window size etc.
 	texelWidth = 1.0f / window->GetWidth();
 	texelHeight = 1.0f / window->GetHeight();
-	blurDist = BLUR_DISTANCE;
+	blurDist = 4;
+	glowDist = 50;
 	colorThreshold = .5;
+	glowPercentage = .1;
 	/*
 	float normalization = 0;
 	//fill weights array
@@ -115,7 +117,7 @@ Renderer::~Renderer()
 			targetSRVs[i]->Release();
 	}
 
-	for (size_t i = 0; i < 2; i++)
+	for (size_t i = 0; i < 3; i++)
 	{
 		if (postProcessTexts[i])
 			postProcessTexts[i]->Release();
@@ -123,6 +125,16 @@ Renderer::~Renderer()
 			postProcessRTVs[i]->Release();
 		if (postProcessSRVs[i])
 			postProcessSRVs[i]->Release();
+	}
+
+	for (size_t i = 0; i < 2; i++)
+	{
+		if (halfTexts[i])
+			halfTexts[i]->Release();
+		if (halfRTVs[i])
+			halfRTVs[i]->Release();
+		if (halfSRVs[i])
+			halfSRVs[i]->Release();
 	}
 
 	if (targetSampler) { targetSampler->Release(); }
@@ -242,7 +254,7 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 
 	// Lastly, set up a viewport so we render into
 	// to correct portion of the window
-	D3D11_VIEWPORT viewport = {};
+	viewport = {};
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.Width = (float)window->GetWidth();
@@ -250,6 +262,14 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	context->RSSetViewports(1, &viewport);
+
+	halfViewport = {};
+	halfViewport.TopLeftX = 0;
+	halfViewport.TopLeftY = 0;
+	halfViewport.Width = (float)window->GetWidth()/2;
+	halfViewport.Height = (float)window->GetHeight()/2;
+	halfViewport.MinDepth = 0.0f;
+	halfViewport.MaxDepth = 1.0f;
 
 	// Setup render target texture descriptions
 	D3D11_TEXTURE2D_DESC renderTargetTextDesc = {};
@@ -265,6 +285,19 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	renderTargetTextDesc.SampleDesc.Count = 1;
 	renderTargetTextDesc.SampleDesc.Quality = 0;
 
+	D3D11_TEXTURE2D_DESC halfTargetTextDesc = {};
+	halfTargetTextDesc.Width = window->GetWidth()/2;
+	halfTargetTextDesc.Height = window->GetHeight()/2;
+	halfTargetTextDesc.MipLevels = 1;
+	halfTargetTextDesc.ArraySize = 1;
+	halfTargetTextDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	halfTargetTextDesc.Usage = D3D11_USAGE_DEFAULT;
+	halfTargetTextDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	halfTargetTextDesc.CPUAccessFlags = 0;
+	halfTargetTextDesc.MiscFlags = 0;
+	halfTargetTextDesc.SampleDesc.Count = 1;
+	halfTargetTextDesc.SampleDesc.Quality = 0;
+
 	// Create render target textures
 	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
 	{
@@ -273,9 +306,16 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 			return hr;
 	}
 
-	for (unsigned int i = 0; i < 2; i++)
+	for (unsigned int i = 0; i < 3; i++)
 	{
 		hr = device->CreateTexture2D(&renderTargetTextDesc, nullptr, &postProcessTexts[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		hr = device->CreateTexture2D(&halfTargetTextDesc, nullptr, &halfTexts[i]);
 		if (FAILED(hr))
 			return hr;
 	}
@@ -286,6 +326,11 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
 
+	D3D11_RENDER_TARGET_VIEW_DESC halfTargetViewDesc = {};
+	halfTargetViewDesc.Format = halfTargetTextDesc.Format;
+	halfTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	halfTargetViewDesc.Texture2D.MipSlice = 0;
+
 	// Create render target views
 	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
 	{
@@ -294,9 +339,16 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 			return hr;
 	}
 
-	for (unsigned int i = 0; i < 2; i++)
+	for (unsigned int i = 0; i < 3; i++)
 	{
 		hr = device->CreateRenderTargetView(postProcessTexts[i], &renderTargetViewDesc, &postProcessRTVs[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		hr = device->CreateRenderTargetView(halfTexts[i], &halfTargetViewDesc, &halfRTVs[i]);
 		if (FAILED(hr))
 			return hr;
 	}
@@ -308,6 +360,12 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	renderTargetSRVDesc.Texture2D.MipLevels = 1;
 	renderTargetSRVDesc.Texture2D.MostDetailedMip = 0;
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC halfTargetSRVDesc = {};
+	halfTargetSRVDesc.Format = halfTargetTextDesc.Format;
+	halfTargetSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	halfTargetSRVDesc.Texture2D.MipLevels = 1;
+	halfTargetSRVDesc.Texture2D.MostDetailedMip = 0;
+
 	// Create SRVs for targets
 	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
 	{
@@ -316,9 +374,16 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 			return hr;
 	}
 
-	for (unsigned int i = 0; i < 2; i++)
+	for (unsigned int i = 0; i < 3; i++)
 	{
 		hr = device->CreateShaderResourceView(postProcessTexts[i], &renderTargetSRVDesc, &postProcessSRVs[i]);
+		if (FAILED(hr))
+			return hr;
+	}
+
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		hr = device->CreateShaderResourceView(halfTexts[i], &halfTargetSRVDesc, &halfSRVs[i]);
 		if (FAILED(hr))
 			return hr;
 	}
@@ -380,6 +445,14 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 
 	volumetricLightingPS = CreateSimplePixelShader();
 	if (!volumetricLightingPS->LoadShaderFile(L"./Assets/Shaders/VolumetricLightingPixelShader.cso"))
+	// load sownsample shader
+	downsamplePS = CreateSimplePixelShader();
+	if (!downsamplePS->LoadShaderFile(L"./Assets/Shaders/DownsamplerPS.cso"))
+		return S_FALSE;
+
+	// load upsample shader
+	upsamplePS = CreateSimplePixelShader();
+	if (!upsamplePS->LoadShaderFile(L"./Assets/Shaders/UpsamplePS.cso"))
 		return S_FALSE;
 
 	// load horizontal shader
@@ -397,10 +470,31 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	if (!postPS->LoadShaderFile(L"./Assets/Shaders/PostProcessPixelShader.cso"))
 		return S_FALSE;
 
+	// load def point light vs
+	deferredPointLightVS = CreateSimpleVertexShader();
+	if (!deferredPointLightVS->LoadShaderFile(L"./Assets/Shaders/DeferredLightVS.cso"))
+		return S_FALSE;
+
+	// load def point light ps
+	deferredPointLightPS = CreateSimplePixelShader();
+	if (!deferredPointLightPS->LoadShaderFile(L"./Assets/Shaders/DeferredPointLightPS.cso"))
+		return S_FALSE;
+
+	// -- TEMPORARY --
+	// Load a cube mesh
+	cubeMesh = CreateMesh("./Assets/Models/cube.obj");
+
 	particleRenderer = new ParticleRenderer(*this);
 	hr = particleRenderer->Initialize();
 	if (FAILED(hr))
 		return hr;
+
+	skyRenderer = new SkyRenderer(*this);
+	hr = skyRenderer->init();
+	if (FAILED(hr))
+		return hr;
+
+
 
 	// Return the "everything is ok" HRESULT value
 	return S_OK;
@@ -418,8 +512,11 @@ inline void Renderer::ClearRenderTargets()
 	for (size_t i = 0; i < BUFFER_COUNT; i++)
 		context->ClearRenderTargetView(targetViews[i], color);
 
-	for (size_t i = 0; i < 2; i++)
+	for (size_t i = 0; i < 3; i++)
 		context->ClearRenderTargetView(postProcessRTVs[i], color);
+
+	for (size_t i = 0; i < 2; i++)
+		context->ClearRenderTargetView(halfRTVs[i], color);
 
 	// Clear depth buffer
 	// Clear the render target and depth buffer (erases what's on the screen)
@@ -549,6 +646,8 @@ void Renderer::Render(const Camera * const camera)
 	Material* currMaterial;
 	Entity* currEntity;
 	ID3D11Buffer* currVertBuff;
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
 
 	// Camera information that will not change mid-render
 	XMFLOAT4X4 view = camera->GetViewMatrix();
@@ -610,8 +709,6 @@ void Renderer::Render(const Camera * const camera)
 			// Set buffers in the input assembler
 			//  - Do this ONCE PER OBJECT you're drawing, since each object might
 			//    have different geometry.
-			UINT stride = sizeof(Vertex);
-			UINT offset = 0;
 			currMesh = bucketIt->second->GetMesh();
 			currVertBuff = currMesh->GetVertexBuffer();
 			context->IASetVertexBuffers(0, 1, &currVertBuff, &stride, &offset);
@@ -633,6 +730,9 @@ void Renderer::Render(const Camera * const camera)
 	}
 
 
+	// Sky
+	skyRenderer->Render(camera);
+	
 	// -- Particles (deferred rendering) --
 	particleRenderer->Render(camera);
 
@@ -648,7 +748,7 @@ void Renderer::Render(const Camera * const camera)
 	//context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 	//TODO : Set 2 render targets - 1) Final with lighting		2) Selected pixels beyond a certain color range (select as they are being created in 1)
 	//unable to reuse the targetSRVs or RTVs (I think they are related) so we need two more (final and blur select?)
-	context->OMSetRenderTargets(2, postProcessRTVs, nullptr);
+	context->OMSetRenderTargets(3, postProcessRTVs, nullptr);
 	//===================== Render problems start on the above line =============================================
 	//nothing is passed into the two targets
 
@@ -679,6 +779,7 @@ void Renderer::Render(const Camera * const camera)
 		);
 	deferredLightingPS->SetFloat4("AmbientColor", ambientColor);
 	deferredLightingPS->SetFloat("ColorThreshold", colorThreshold);
+	deferredLightingPS->SetFloat("GlowPercentage", glowPercentage);
 
 	// -- Copy pixel data --
 	deferredVS->CopyAllBufferData();
@@ -693,48 +794,94 @@ void Renderer::Render(const Camera * const camera)
 	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
 	context->Draw(3, 0);
 
-
 	/**/
 	//Clear target views to reuse
 	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	for (size_t i = 0; i < BUFFER_COUNT; i++)
 		context->ClearRenderTargetView(targetViews[i], color);
 
+	
+	
 	// Post-processing
+	//Create smaller textures - glow
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &halfRTVs[0], nullptr);
+	downsamplePS->SetShaderResourceView("tex", postProcessSRVs[2]);//from deferredPS 0=lighting 1=bloom 2=glow
+	downsamplePS->SetSamplerState("texSampler", targetSampler);
+	downsamplePS->SetFloat("texelWidth", texelWidth);
+	downsamplePS->SetFloat("texelHeight", texelHeight);
+	downsamplePS->SetFloat("sizeMod", 2);
+	// -- Copy pixel data --
+	downsamplePS->CopyAllBufferData();
+	// Set pixel data
+	downsamplePS->SetShader();
+	context->Draw(3, 0);
 
 	// Horizontal blur - bloom
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &targetViews[0], nullptr);//go elsewhere --> 0 in targetViews (recycling)
-
 	horizontalBlurPS->SetShaderResourceView("blurTexture", postProcessSRVs[1]);//from deferredPS 0=lighting 1=pixels to blur
 	horizontalBlurPS->SetSamplerState("blurSampler", targetSampler);
 	horizontalBlurPS->SetFloat("blurDistance", blurDist);
 	horizontalBlurPS->SetFloat("texelSize", texelWidth);
-
 	// -- Copy pixel data --
 	horizontalBlurPS->CopyAllBufferData();
-
 	// Set pixel data
+	//deferredVS->SetShader();
 	horizontalBlurPS->SetShader();
-
 	context->Draw(3, 0);
 
+	// Horizontal blur - glow (full)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &targetViews[2], nullptr);
+	horizontalBlurPS->SetShaderResourceView("blurTexture", postProcessSRVs[2]);
+	horizontalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	horizontalBlurPS->SetFloat("blurDistance", glowDist);
+	horizontalBlurPS->SetFloat("texelSize", texelWidth);
+	// -- Copy pixel data --
+	horizontalBlurPS->CopyAllBufferData();
+	// Set pixel data
+	horizontalBlurPS->SetShader();
+	context->Draw(3, 0);
 
 	// Vertical blur - bloom
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &targetViews[1], nullptr);//go elsewhere --> 1 in targetViews (recycling)
-
 	verticalBlurPS->SetShaderResourceView("horizBlurTexture", targetSRVs[0]);
 	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
 	verticalBlurPS->SetFloat("blurDistance", blurDist);
 	verticalBlurPS->SetFloat("texelSize", texelHeight);
-
 	// -- Copy pixel data --
 	verticalBlurPS->CopyAllBufferData();
-
 	// Set pixel data
 	verticalBlurPS->SetShader();
+	context->Draw(3, 0);
 
+	// Vertical blur - glow (full)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &targetViews[3], nullptr);
+	verticalBlurPS->SetShaderResourceView("horizBlurTexture", targetSRVs[2]);
+	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	verticalBlurPS->SetFloat("blurDistance", glowDist);
+	verticalBlurPS->SetFloat("texelSize", texelHeight);
+	// -- Copy pixel data --
+	verticalBlurPS->CopyAllBufferData();
+	// Set pixel data
+	verticalBlurPS->SetShader();
+	context->Draw(3, 0);
+
+	context->RSSetViewports(1, &halfViewport);
+	// Horizontal blur - glow (half)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &halfRTVs[1], nullptr);
+	horizontalBlurPS->SetShaderResourceView("blurTexture", halfSRVs[0]);
+	horizontalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	horizontalBlurPS->SetFloat("blurDistance", glowDist);
+	horizontalBlurPS->SetFloat("texelSize", texelWidth * 2);
+	// -- Copy pixel data --
+	horizontalBlurPS->CopyAllBufferData();
+	// Set pixel data
+	horizontalBlurPS->SetShader();
 	context->Draw(3, 0);
 
 	// volumetric lighting
@@ -768,20 +915,66 @@ void Renderer::Render(const Camera * const camera)
 	volumetricLightingPS->SetShader();
 
 	context->Draw(3, 0);
+	// Vertical blur - glow (half)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &halfRTVs[1], nullptr);
+	verticalBlurPS->SetShaderResourceView("horizBlurTexture", halfSRVs[0]);
+	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	verticalBlurPS->SetFloat("blurDistance", glowDist);
+	verticalBlurPS->SetFloat("texelSize", texelHeight*2);
+	// -- Copy pixel data --
+	verticalBlurPS->CopyAllBufferData();
+	// Set pixel data
+	verticalBlurPS->SetShader();
+	context->Draw(3, 0);
+	
+	context->RSSetViewports(1, &viewport);
+	//Recombine smaller textures
+	context->ClearRenderTargetView(targetViews[2], color);//might not be necessary
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &targetViews[2], nullptr);
+	upsamplePS->SetShaderResourceView("tex0", targetSRVs[3]);//full glow
+	upsamplePS->SetShaderResourceView("tex1", halfSRVs[1]);//half glow
+	// -- Copy pixel data --
+	upsamplePS->CopyAllBufferData();
+	// Set pixel data
+	upsamplePS->SetShader();
+	context->Draw(3, 0);
+	
 
 	//Add all post processing effects together
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &backBufferRTV, nullptr);
-
+	
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
 	postPS->SetShaderResourceView("bloomTexture", targetSRVs[1]);
 	postPS->SetShaderResourceView("volumetricTexture", targetSRVs[2]);
+	postPS->SetShaderResourceView("glowTexture", targetSRVs[2]);		//===== Why does this break it with particles rendering? =====
 	postPS->SetSamplerState("finalSampler", targetSampler);
 
 	postPS->CopyAllBufferData();
 	postPS->SetShader();
 
 	context->Draw(3, 0);
+
+	// -- Test Draw Sphere to BBuffer --
+	//static Transform tmpTransform(XMFLOAT3(0, 0, 0), XMFLOAT3(4, 4, 4), XMFLOAT4(0, 0, 0, 0));
+	//currMesh = cubeMesh;
+	//currVertBuff = cubeMesh->GetVertexBuffer();
+	/*
+	deferredPointLightVS->SetMatrix4x4("view", view);
+	deferredPointLightVS->SetMatrix4x4("projection", projection);
+	deferredPointLightVS->SetFloat3("center", XMFLOAT3(0, 0, 0));
+	deferredPointLightVS->SetFloat("radius", 16.0f);
+	//deferredPointLightVS->SetMatrix4x4("world", tmpTransform.GetWorldMatrix());
+	deferredPointLightPS->SetFloat3("center", XMFLOAT3(0, 0, 0));
+	deferredPointLightPS->SetFloat("radius", 4.0f);
+	deferredPointLightVS->CopyAllBufferData();
+	deferredPointLightPS->CopyAllBufferData();
+	deferredPointLightVS->SetShader();
+	deferredPointLightPS->SetShader();
+	context->Draw(6, 0);
+	*/
 
 	//reset SRVs
 	//postPS->SetShaderResourceView("colorTexture", 0);
@@ -946,7 +1139,7 @@ SimpleComputeShader * const Renderer::CreateSimpleComputeShader() const
 // --------------------------------------------------------
 // Create and return a continuous particle emitter
 // --------------------------------------------------------
-ParticleEmitter * const Renderer::CreateContinuousParticleEmitter(const char * name, unsigned int particlesPerSeconds, float seconds) const
+ParticleEmitter * const Renderer::CreateContinuousParticleEmitter(std::string name, unsigned int particlesPerSeconds, float seconds) const
 {
 	return particleRenderer->CreateContinuousParticleEmitter(name, particlesPerSeconds, seconds);
 }
@@ -954,7 +1147,7 @@ ParticleEmitter * const Renderer::CreateContinuousParticleEmitter(const char * n
 // --------------------------------------------------------
 // Create and return a burst particle emitter
 // --------------------------------------------------------
-ParticleEmitter * const Renderer::CreateBurstParticleEmitter(const char * name, unsigned int numParticles) const
+ParticleEmitter * const Renderer::CreateBurstParticleEmitter(std::string name, unsigned int numParticles) const
 {
 	return particleRenderer->CreateBurstParticleEmitter(name, numParticles);
 }

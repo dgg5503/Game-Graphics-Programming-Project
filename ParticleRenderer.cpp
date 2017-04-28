@@ -322,21 +322,21 @@ void ParticleRenderer::Release()
 	// Free all emitters and reset map
 	for (auto it = particleEmitters.begin(); it != particleEmitters.end(); it++)
 		delete it->second;
-	particleEmitters.empty();
+	particleEmitters.clear();
 }
 
-ParticleEmitter * const ParticleRenderer::CreateContinuousParticleEmitter(const char* name, unsigned int particlesPerSeconds, float seconds)
+ParticleEmitter * const ParticleRenderer::CreateContinuousParticleEmitter(std::string name, unsigned int particlesPerSeconds, float seconds)
 {
-	// Ensure name doesnt already exist
+	// Ensure name doesn't already exist
 	assert(particleEmitters.count(name) == 0);
 	ParticleEmitter* particleEmitter = new ParticleEmitter(particlesPerSeconds, seconds);
 	particleEmitters[name] = particleEmitter;
 	return particleEmitter;
 }
 
-ParticleEmitter * const ParticleRenderer::CreateBurstParticleEmitter(const char* name, unsigned int numParticles)
+ParticleEmitter * const ParticleRenderer::CreateBurstParticleEmitter(std::string name, unsigned int numParticles)
 {
-	// Ensure name doesnt already exist
+	// Ensure name doesn't already exist
 	assert(particleEmitters.count(name) == 0);
 	ParticleEmitter* particleEmitter = new ParticleEmitter(numParticles);
 	particleEmitters[name] = particleEmitter;
