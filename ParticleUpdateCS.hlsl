@@ -26,23 +26,26 @@ AppendStructuredBuffer<ParticleDead> deadList	: register(u2); // Dead particles
 [numthreads(NUM_PARTICLE_THREADS, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
+    Particle particle = particlePool[DTid.x];
+
 	// Check if dead from last draw
-    if (particlePool[DTid.x].currAge < 0.0f)
+    if ((particle.currAge -= dt) < 0.0f)
 	{
 		// If dead, add to deadList, will be re-emitted by the emitter shader
 		ParticleDead particleDead;
 		particleDead.index = DTid.x;
 		particleDead.padding = float3(0, 0, 0);
+        particle.currAge += dt; // im sad about this
 		deadList.Append(particleDead);
 	}
 	else
 	{
         // Get current particle
-        Particle particle = particlePool[DTid.x];
+        //Particle particle = particlePool[DTid.x];
 
         // Update particle according to its flags
         particle.worldPos += (particle.direction * lerp(particle.sSpeed, particle.eSpeed, (1.0f - (particle.currAge / particle.maxAge)) * isFlagContained(INTERP_SPEED, particle.flags)) * dt);
-        particle.currAge -= dt;
+        //particle.currAge -= dt;
         //particle.currAge = clamp(particle.currAge -= dt, 0.0f, 9999999);
 
 		// Grab vector from camera to particle

@@ -33,7 +33,7 @@ Renderer::Renderer(DXWindow* const window)
 	*/
 
 	directionalLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	directionalLights[0].Direction = DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f);
+	directionalLights[0].Direction = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	directionalLights[0].Intensity = 1.0f;
 
 
@@ -61,7 +61,7 @@ Renderer::Renderer(DXWindow* const window)
 	texelHeight = 1.0f / window->GetHeight();
 	blurDist = 4;
 	glowDist = 50;
-	colorThreshold = .5;
+	colorThreshold = .2;
 	glowPercentage = .1;
 	/*
 	float normalization = 0;
@@ -921,7 +921,7 @@ void Renderer::Render(const Camera * const camera)
 	float2 ScreenLightPos = float2(.5, .5);
 	/**/
 	float2 ScreenLightPos = float2(.1, .1);
-	float Exposure = .2;//.05 is less in your face
+	float Exposure = .03;//.05 is less in your face
 	float Decay = .99;//0-1//apparently don't change this, really messes with it, makes it look a lot worse
 	float Density = 1;//higher looks worse, lower makes rays too short
 	float Weight = .2;//.2 is suggested, can vary
@@ -1008,7 +1008,7 @@ void Renderer::Render(const Camera * const camera)
 // --------------------------------------------------------
 void Renderer::UpdateCS(float dt, float totalTime)
 {
-	//particleRenderer->Update(dt, totalTime);
+	particleRenderer->Update(dt, totalTime);
 }
 
 // --------------------------------------------------------
