@@ -33,9 +33,9 @@ Renderer::Renderer(DXWindow* const window)
 	*/
 
 	directionalLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	directionalLights[0].Direction = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	directionalLights[0].Direction = DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f);
 	directionalLights[0].Intensity = 1.0f;
-	
+
 
 	pointLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	pointLights[0].Position = DirectX::XMFLOAT3(0, 0, 0);
@@ -80,7 +80,7 @@ Renderer::Renderer(DXWindow* const window)
 		normalization *= 2.0f;
 		normalization += weights[0];
 	}
-	
+
 	//normalize weights
 	for (int i = 0; i <= blurDist; i++) {
 		weights[i] = weights[i] / normalization;
@@ -135,6 +135,7 @@ Renderer::~Renderer()
 
 	if (deferredVS) { delete deferredVS; }
 	if (deferredLightingPS) { delete deferredLightingPS; }
+	if (volumetricLightingPS) { delete volumetricLightingPS; }
 	if (horizontalBlurPS) { delete horizontalBlurPS; }
 	if (verticalBlurPS) { delete verticalBlurPS; }
 	if (postPS) { delete postPS; }
@@ -377,6 +378,10 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 		return hr;
 	*/
 
+	volumetricLightingPS = CreateSimplePixelShader();
+	if (!volumetricLightingPS->LoadShaderFile(L"./Assets/Shaders/VolumetricLightingPixelShader.cso"))
+		return S_FALSE;
+
 	// load horizontal shader
 	horizontalBlurPS = CreateSimplePixelShader();
 	if (!horizontalBlurPS->LoadShaderFile(L"./Assets/Shaders/HorizontalBlurPixelShader.cso"))
@@ -546,7 +551,7 @@ void Renderer::Render(const Camera * const camera)
 	ID3D11Buffer* currVertBuff;
 
 	// Camera information that will not change mid-render
- 	XMFLOAT4X4 view = camera->GetViewMatrix();
+	XMFLOAT4X4 view = camera->GetViewMatrix();
 	XMFLOAT4X4 projection = camera->GetProjectionMatrix();
 
 	// Clear
@@ -627,7 +632,7 @@ void Renderer::Render(const Camera * const camera)
 		it = bucket.second;
 	}
 
-	
+
 	// -- Particles (deferred rendering) --
 	particleRenderer->Render(camera);
 
@@ -659,19 +664,19 @@ void Renderer::Render(const Camera * const camera)
 		"directionalLights",						// name of variable in ps
 		&directionalLights,							// direction of light
 		sizeof(DirectionalLight) * MAX_DIR_LIGHTS	// size of struct * maxdirlights
-	);
+		);
 
 	deferredLightingPS->SetDataAligned(
 		"pointLights",								// name of variable in ps
 		&pointLights,								// direction of light
 		sizeof(PointLight) * MAX_POINT_LIGHTS		// size of struct * maxdirlights
-	);
+		);
 
 	deferredLightingPS->SetDataAligned(
 		"spotLights",								// name of variable in ps
 		&spotLights,							 	// direction of light
 		sizeof(SpotLight) * MAX_SPOT_LIGHTS		    // size of struct * maxdirlights
-	);
+		);
 	deferredLightingPS->SetFloat4("AmbientColor", ambientColor);
 	deferredLightingPS->SetFloat("ColorThreshold", colorThreshold);
 
@@ -696,6 +701,7 @@ void Renderer::Render(const Camera * const camera)
 		context->ClearRenderTargetView(targetViews[i], color);
 
 	// Post-processing
+
 	// Horizontal blur - bloom
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &targetViews[0], nullptr);//go elsewhere --> 0 in targetViews (recycling)
@@ -731,6 +737,37 @@ void Renderer::Render(const Camera * const camera)
 
 	context->Draw(3, 0);
 
+	// volumetric lighting
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &targetViews[2], nullptr);
+	//-2,1,130
+	//.1,.1 is approximately position of sun, if light will move later can pass in directionalLights[0].direction mapped to value between 0 and 1(for screen space)
+	/*
+	float2 ScreenLightPos = float2(.5, .5);
+	/**/
+	float2 ScreenLightPos = float2(.1, .1);
+	float Exposure = .2;//.05 is less in your face
+	float Decay = .99;//0-1//apparently don't change this, really messes with it, makes it look a lot worse
+	float Density = 1;//higher looks worse, lower makes rays too short
+	float Weight = .2;//.2 is suggested, can vary
+	int NumSamples = 100;//200 //slightly better looking ~30 fps drop
+	volumetricLightingPS->SetShaderResourceView("volumetricTexture", postProcessSRVs[0]);
+	volumetricLightingPS->SetSamplerState("volumetricSampler", targetSampler);
+	volumetricLightingPS->SetFloat2("ScreenLightPos", ScreenLightPos);
+	volumetricLightingPS->SetFloat("Exposure", Exposure);
+	volumetricLightingPS->SetFloat("Decay", Decay);
+	volumetricLightingPS->SetFloat("Density", Density);
+	volumetricLightingPS->SetFloat("Weight", Weight);
+	volumetricLightingPS->SetInt("NumSamples", NumSamples);
+
+
+	// -- Copy pixel data --
+	volumetricLightingPS->CopyAllBufferData();
+
+	// Set pixel data
+	volumetricLightingPS->SetShader();
+
+	context->Draw(3, 0);
 
 	//Add all post processing effects together
 	context->PSSetShaderResources(0, 5, null);
@@ -738,6 +775,7 @@ void Renderer::Render(const Camera * const camera)
 
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
 	postPS->SetShaderResourceView("bloomTexture", targetSRVs[1]);
+	postPS->SetShaderResourceView("volumetricTexture", targetSRVs[2]);
 	postPS->SetSamplerState("finalSampler", targetSampler);
 
 	postPS->CopyAllBufferData();
@@ -775,7 +813,7 @@ void Renderer::Render(const Camera * const camera)
 // --------------------------------------------------------
 void Renderer::UpdateCS(float dt, float totalTime)
 {
-	particleRenderer->Update(dt, totalTime);
+	//particleRenderer->Update(dt, totalTime);
 }
 
 // --------------------------------------------------------
@@ -828,14 +866,14 @@ void Renderer::OnResize(unsigned int width, unsigned int height)
 	depthStencilDesc.SampleDesc.Count = 1;
 	depthStencilDesc.SampleDesc.Quality = 0;
 
-	// Create the depth buffer and its view, then 
+	// Create the depth buffer and its view, then
 	// release our reference to the texture
 	ID3D11Texture2D* depthBufferTexture;
 	device->CreateTexture2D(&depthStencilDesc, 0, &depthBufferTexture);
 	device->CreateDepthStencilView(depthBufferTexture, 0, &depthStencilView);
 	depthBufferTexture->Release();
 
-	// Bind the views to the pipeline, so rendering properly 
+	// Bind the views to the pipeline, so rendering properly
 	// uses their underlying textures
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 

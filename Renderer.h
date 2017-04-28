@@ -120,6 +120,8 @@ private:
 	//ID3D11RenderTargetView* blurRTV;
 	//ID3D11ShaderResourceView* blurSRV;
 
+	SimplePixelShader* volumetricLightingPS;
+
 	SimplePixelShader* horizontalBlurPS;
 	SimplePixelShader* verticalBlurPS;
 	SimplePixelShader* postPS;

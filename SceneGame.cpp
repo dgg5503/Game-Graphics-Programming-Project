@@ -60,6 +60,7 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 	sun->transform.SetPosition(0, 0, 28.0f);
 	sun->transform.SetScale(s, s, s);
 
+
 	//meteors
 	meteors = entityFactory
 		.CreateEntity(EntityType::STATIC, "meteors", meshes["meteors"], materials["stone"]);
