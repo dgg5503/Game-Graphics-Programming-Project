@@ -915,10 +915,10 @@ void Renderer::Render(const Camera * const camera)
 	//Add all post processing effects together
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &backBufferRTV, nullptr);
-
+	
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
 	postPS->SetShaderResourceView("bloomTexture", targetSRVs[1]);
-	//postPS->SetShaderResourceView("glowTexture", targetSRVs[2]);		//===== Why does this break it with particles rendering? =====
+	postPS->SetShaderResourceView("glowTexture", targetSRVs[2]);		//===== Why does this break it with particles rendering? =====
 	postPS->SetSamplerState("finalSampler", targetSampler);
 
 	postPS->CopyAllBufferData();

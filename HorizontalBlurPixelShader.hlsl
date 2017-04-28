@@ -28,6 +28,7 @@ struct BlurOutput
 
 float4 main(TargetCoords input) : SV_TARGET
 {
+
 	float blurD = clamp(blurDistance, 0, MAX_BLUR_PIXELS - 1);
 	float weights[MAX_BLUR_PIXELS];
 	/*
@@ -95,7 +96,7 @@ float4 main(TargetCoords input) : SV_TARGET
 	//add the weighted colors together
 	float4 color = float4(0, 0, 0, 0);
 	for (int k = -blurDistance; k <= blurDistance; k++) {
-		color += blurTexture.Sample(blurSampler, input.uv + float2(texelSize * k, 0.0f)) * weights[abs(clamp(k, 0, MAX_BLUR_PIXELS))];	//how to use diff weights -- need to calc weights depending on blurDistance
+		color += blurTexture.Sample(blurSampler, input.uv + float2(texelSize * k, 0.0f)) * weights[abs(clamp(k, 0, MAX_BLUR_PIXELS - 1))];	//how to use diff weights -- need to calc weights depending on blurDistance
 	}
 	/*
 	color += blurTexture.Sample(blurSampler, input.texCoord1) * weight4;
