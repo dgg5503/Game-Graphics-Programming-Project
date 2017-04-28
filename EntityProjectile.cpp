@@ -11,7 +11,7 @@ EntityProjectile::EntityProjectile(EntityFactory* entityFactory, std::string nam
 
 	// Particle Effect
 	peTrail = Renderer::Instance()->CreateContinuousParticleEmitter("pe_" + name + "_trail", 5, 0.01f);
-	peTrail->SetAgeRange(.25f, 0.01f);
+	peTrail->SetAgeRange(0.01, 0.25f);
 	peTrail->SetAlpha(1.0f);
 	peTrail->SetInitialSpeedRange(1.0f, 2.0f);
 	peTrail->SetInterpTint(true);
@@ -59,6 +59,7 @@ void EntityProjectile::Fire(XMFLOAT3 position, XMFLOAT3 direction, float speed)
 	SetIsUpdating(true);
 	SetIsColliding(true);
 
+	peTrail->SetPosition(position);
 	peTrail->SetLoop(-1);
 	peTrail->Emit();
 }

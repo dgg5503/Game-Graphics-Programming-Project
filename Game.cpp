@@ -268,12 +268,12 @@ void Game::Update(float deltaTime, float totalTime)
 	//check for collisions
 	collisionManager->CollisionUpdate();
 
-	// Dispatch compute shaders
-	renderer->UpdateCS(deltaTime, totalTime);
-
 	// Update Scene
 	if(stateManager.GetCurrentScene() != nullptr)
 		stateManager.GetCurrentScene()->UpdateScene(deltaTime, totalTime);
+
+	// Dispatch compute shaders
+	renderer->UpdateCS(deltaTime, totalTime);
 }
 
 // --------------------------------------------------------
