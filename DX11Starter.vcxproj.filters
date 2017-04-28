@@ -295,6 +295,7 @@
     <FxCompile Include="DownsamplerPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="VolumetricLightingPixelShader.hlsl">
     <FxCompile Include="UpsamplePS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>

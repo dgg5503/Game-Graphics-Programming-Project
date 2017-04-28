@@ -130,6 +130,8 @@ private:
 	float glowPercentage;
 	float glowDist; //max 12
 
+	SimplePixelShader* volumetricLightingPS;
+
 	SimplePixelShader* downsamplePS;
 	SimplePixelShader* upsamplePS;
 	SimplePixelShader* horizontalBlurPS;
