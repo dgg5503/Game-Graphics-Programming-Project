@@ -445,6 +445,8 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 
 	volumetricLightingPS = CreateSimplePixelShader();
 	if (!volumetricLightingPS->LoadShaderFile(L"./Assets/Shaders/VolumetricLightingPixelShader.cso"))
+		return S_FALSE;
+
 	// load sownsample shader
 	downsamplePS = CreateSimplePixelShader();
 	if (!downsamplePS->LoadShaderFile(L"./Assets/Shaders/DownsamplerPS.cso"))
@@ -884,9 +886,35 @@ void Renderer::Render(const Camera * const camera)
 	horizontalBlurPS->SetShader();
 	context->Draw(3, 0);
 
-	// volumetric lighting
+	// Vertical blur - glow (half)
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &halfRTVs[1], nullptr);
+	verticalBlurPS->SetShaderResourceView("horizBlurTexture", halfSRVs[0]);
+	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
+	verticalBlurPS->SetFloat("blurDistance", glowDist);
+	verticalBlurPS->SetFloat("texelSize", texelHeight*2);
+	// -- Copy pixel data --
+	verticalBlurPS->CopyAllBufferData();
+	// Set pixel data
+	verticalBlurPS->SetShader();
+	context->Draw(3, 0);
+	
+	context->RSSetViewports(1, &viewport);
+	//Recombine smaller textures
+	context->ClearRenderTargetView(targetViews[2], color);//might not be necessary
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &targetViews[2], nullptr);
+	upsamplePS->SetShaderResourceView("tex0", targetSRVs[3]);//full glow
+	upsamplePS->SetShaderResourceView("tex1", halfSRVs[1]);//half glow
+	// -- Copy pixel data --
+	upsamplePS->CopyAllBufferData();
+	// Set pixel data
+	upsamplePS->SetShader();
+	context->Draw(3, 0);
+	
+	// volumetric lighting
+	context->PSSetShaderResources(0, 5, null);
+	context->OMSetRenderTargets(1, &targetViews[3], nullptr);
 	//-2,1,130
 	//.1,.1 is approximately position of sun, if light will move later can pass in directionalLights[0].direction mapped to value between 0 and 1(for screen space)
 	/*
@@ -915,32 +943,6 @@ void Renderer::Render(const Camera * const camera)
 	volumetricLightingPS->SetShader();
 
 	context->Draw(3, 0);
-	// Vertical blur - glow (half)
-	context->PSSetShaderResources(0, 5, null);
-	context->OMSetRenderTargets(1, &halfRTVs[1], nullptr);
-	verticalBlurPS->SetShaderResourceView("horizBlurTexture", halfSRVs[0]);
-	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
-	verticalBlurPS->SetFloat("blurDistance", glowDist);
-	verticalBlurPS->SetFloat("texelSize", texelHeight*2);
-	// -- Copy pixel data --
-	verticalBlurPS->CopyAllBufferData();
-	// Set pixel data
-	verticalBlurPS->SetShader();
-	context->Draw(3, 0);
-	
-	context->RSSetViewports(1, &viewport);
-	//Recombine smaller textures
-	context->ClearRenderTargetView(targetViews[2], color);//might not be necessary
-	context->PSSetShaderResources(0, 5, null);
-	context->OMSetRenderTargets(1, &targetViews[2], nullptr);
-	upsamplePS->SetShaderResourceView("tex0", targetSRVs[3]);//full glow
-	upsamplePS->SetShaderResourceView("tex1", halfSRVs[1]);//half glow
-	// -- Copy pixel data --
-	upsamplePS->CopyAllBufferData();
-	// Set pixel data
-	upsamplePS->SetShader();
-	context->Draw(3, 0);
-	
 
 	//Add all post processing effects together
 	context->PSSetShaderResources(0, 5, null);
@@ -948,8 +950,8 @@ void Renderer::Render(const Camera * const camera)
 	
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
 	postPS->SetShaderResourceView("bloomTexture", targetSRVs[1]);
-	postPS->SetShaderResourceView("volumetricTexture", targetSRVs[2]);
 	postPS->SetShaderResourceView("glowTexture", targetSRVs[2]);		//===== Why does this break it with particles rendering? =====
+	postPS->SetShaderResourceView("volumetricTexture", targetSRVs[3]);
 	postPS->SetSamplerState("finalSampler", targetSampler);
 
 	postPS->CopyAllBufferData();
