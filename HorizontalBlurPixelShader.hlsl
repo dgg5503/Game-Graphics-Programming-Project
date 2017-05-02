@@ -1,5 +1,5 @@
 
-#define MAX_BLUR_PIXELS 13
+#define MAX_BLUR_PIXELS 26
 
 // Adapted from http://www.rastertek.com/dx11tut36.html
 // Lighting information to sample from
@@ -12,6 +12,7 @@ cbuffer data : register(b0) {
 	float texelSize; //dist to next pixel -->calculated in code b/c only need to calculate once or when resized, not every pixel/draw/etc.
 }
 
+static const float weights[MAX_BLUR_PIXELS] = { 0.040312,0.040111,0.039514,0.038539,0.037215,0.035579,0.033676,0.031559,0.02928,0.026896,0.024461,0.022024,0.019634,0.017328,0.015142,0.0131,0.01122,0.009515,0.007988,0.00664,0.005465,0.004453,0.003592,0.002869,0.002268,0.001776};
 
 //Input from vertex shader
 struct TargetCoords
@@ -29,8 +30,8 @@ struct BlurOutput
 float4 main(TargetCoords input) : SV_TARGET
 {
 
-	float blurD = clamp(blurDistance, 0, MAX_BLUR_PIXELS - 1);
-	float weights[MAX_BLUR_PIXELS];
+	//float blurD = clamp(blurDistance, 0, MAX_BLUR_PIXELS - 1);
+	//float weights[MAX_BLUR_PIXELS];
 	/*
 	weights[0] = weight0;
 	weights[1] = weight1;
@@ -45,8 +46,8 @@ float4 main(TargetCoords input) : SV_TARGET
 	weights[10] = weight10;
 	weights[11] = weight11;
 	weights[12] = weight12;
-	*/
-	float normalization = 0;
+	
+	//float normalization = 0;
 	//float weight0, weight1, weight2, weight3, weight4;
 
 	//all of these are only calculated once or when blurDistance changes...better in here or in the cbuffer?
@@ -65,7 +66,7 @@ float4 main(TargetCoords input) : SV_TARGET
 	for (int j = 0; j <= blurD; j++) {
 		weights[j] = weights[j] / normalization;
 	}
-
+	*/
 
 	/*
 	weight0 = 1.0f;	//always this
