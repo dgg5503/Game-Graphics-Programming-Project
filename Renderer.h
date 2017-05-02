@@ -125,10 +125,9 @@ private:
 	float texelWidth;	//change on resize
 	float texelHeight;	//change on resize
 	float blurDist;	//not const or define so it can change later (ie. settings if we ever have them)
-	//float weights[MAX_BLUR_DISTANCE];
 	float colorThreshold;
 	float glowPercentage;
-	float glowDist; //max 12
+	float glowDist;
 
 	SimplePixelShader* volumetricLightingPS;
 

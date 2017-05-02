@@ -147,6 +147,8 @@ Renderer::~Renderer()
 
 	if (deferredVS) { delete deferredVS; }
 	if (deferredLightingPS) { delete deferredLightingPS; }
+	if (upsamplePS) { delete upsamplePS; }
+	if (downsamplePS) { delete downsamplePS; }
 	if (volumetricLightingPS) { delete volumetricLightingPS; }
 	if (horizontalBlurPS) { delete horizontalBlurPS; }
 	if (verticalBlurPS) { delete verticalBlurPS; }
