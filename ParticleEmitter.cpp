@@ -1,5 +1,5 @@
 #include "ParticleEmitter.h"
-
+#include "MemoryDebug.h"
 
 // SingleBurst()
 // ContinousBurst(bool val)

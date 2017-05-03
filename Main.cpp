@@ -1,6 +1,6 @@
-
 #include <Windows.h>
 #include "Game.h"
+#include "MemoryDebug.h"
 
 // Force NVIDIA GPU over Intel
 extern "C" {

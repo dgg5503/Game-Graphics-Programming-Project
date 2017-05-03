@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "MemoryDebug.h"
 
 // Initialize instance to null
 Renderer* Renderer::instance = nullptr;
@@ -61,8 +62,8 @@ Renderer::Renderer(DXWindow* const window)
 	texelHeight = 1.0f / window->GetHeight();
 	blurDist = 4;
 	glowDist = 50;
-	colorThreshold = .2;
-	glowPercentage = .1;
+	colorThreshold = .2f;
+	glowPercentage = .1f;
 	/*
 	float normalization = 0;
 	//fill weights array
@@ -95,9 +96,6 @@ Renderer::Renderer(DXWindow* const window)
 // --------------------------------------------------------
 Renderer::~Renderer()
 {
-	// Free sampler state which is being used for all textures
-	objectTextureSampler->Release();
-
 	// Free fonts
 	for (auto it = fontMap.begin(); it != fontMap.end(); it++)
 		delete it->second;
@@ -137,7 +135,11 @@ Renderer::~Renderer()
 			halfSRVs[i]->Release();
 	}
 
+	// DX11 release only
+	// Free sampler state which is being used for all textures
+	if (objectTextureSampler) { objectTextureSampler->Release(); };
 	if (targetSampler) { targetSampler->Release(); }
+	if (lightingRS) { lightingRS->Release(); }
 	if (depthStencilView) { depthStencilView->Release(); }
 	if (depthBufferTexture) { depthBufferTexture->Release(); }
 	if (backBufferRTV) { backBufferRTV->Release(); }
@@ -145,13 +147,26 @@ Renderer::~Renderer()
 	if (context) { context->Release(); }
 	if (device) { device->Release(); }
 
+	// Shaders
 	if (deferredVS) { delete deferredVS; }
 	if (deferredLightingPS) { delete deferredLightingPS; }
 	if (volumetricLightingPS) { delete volumetricLightingPS; }
+	if (downsamplePS) { delete downsamplePS; }
+	if (upsamplePS) { delete upsamplePS; }
 	if (horizontalBlurPS) { delete horizontalBlurPS; }
 	if (verticalBlurPS) { delete verticalBlurPS; }
 	if (postPS) { delete postPS; }
+	if (deferredLightVS) { delete deferredLightVS; }
+	if (deferredPointLightPS) { delete deferredPointLightPS; }
+	
+	// A single mesh
+	if (cubeMesh) { delete cubeMesh; }
+
+	// Particle renderer
 	if (particleRenderer) { particleRenderer->Shutdown();  delete particleRenderer; }
+
+	// Sky renderer
+	if (skyRenderer) { delete skyRenderer; }
 }
 
 // --------------------------------------------------------
@@ -472,9 +487,9 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	if (!postPS->LoadShaderFile(L"./Assets/Shaders/PostProcessPixelShader.cso"))
 		return S_FALSE;
 
-	// load def point light vs
-	deferredPointLightVS = CreateSimpleVertexShader();
-	if (!deferredPointLightVS->LoadShaderFile(L"./Assets/Shaders/DeferredLightVS.cso"))
+	// load def light vs
+	deferredLightVS = CreateSimpleVertexShader();
+	if (!deferredLightVS->LoadShaderFile(L"./Assets/Shaders/DeferredLightVS.cso"))
 		return S_FALSE;
 
 	// load def point light ps
@@ -486,6 +501,20 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	// Load a cube mesh
 	cubeMesh = CreateMesh("./Assets/Models/cube.obj");
 
+	D3D11_RASTERIZER_DESC lightingRSDesc = {};
+	lightingRSDesc.FillMode = D3D11_FILL_SOLID;
+	lightingRSDesc.CullMode = D3D11_CULL_NONE;
+	lightingRSDesc.FrontCounterClockwise = false;
+	lightingRSDesc.DepthBias = 0;
+	lightingRSDesc.SlopeScaledDepthBias = 0.0f;
+	lightingRSDesc.DepthBiasClamp = 0.0f;
+	lightingRSDesc.DepthClipEnable = false;
+	lightingRSDesc.ScissorEnable = false;
+	lightingRSDesc.MultisampleEnable = false;
+	lightingRSDesc.AntialiasedLineEnable = false;
+	device->CreateRasterizerState(&lightingRSDesc, &lightingRS);
+
+	// Other renderers
 	particleRenderer = new ParticleRenderer(*this);
 	hr = particleRenderer->Initialize();
 	if (FAILED(hr))
@@ -751,10 +780,12 @@ void Renderer::Render(const Camera * const camera)
 	//TODO : Set 2 render targets - 1) Final with lighting		2) Selected pixels beyond a certain color range (select as they are being created in 1)
 	//unable to reuse the targetSRVs or RTVs (I think they are related) so we need two more (final and blur select?)
 	context->OMSetRenderTargets(3, postProcessRTVs, nullptr);
+	
 	//===================== Render problems start on the above line =============================================
 	//nothing is passed into the two targets
 
 	// Use SRVs of textures we just wrote all our data into
+	
 	deferredLightingPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
 	deferredLightingPS->SetShaderResourceView("worldPosTexture", targetSRVs[1]);
 	deferredLightingPS->SetShaderResourceView("normalsTexture", targetSRVs[2]);
@@ -795,7 +826,47 @@ void Renderer::Render(const Camera * const camera)
 	context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
 	context->Draw(3, 0);
+	
 
+	// -- Test Draw Sphere to BBuffer --
+	/*
+	context->OMSetRenderTargets(1, postProcessRTVs, depthStencilView);
+	context->RSSetState(lightingRS);
+	static Transform tmpTransform(XMFLOAT3(0, 0, 5.0f), XMFLOAT3(4, 4, 4), XMFLOAT4(0, 0, 0, 0));
+	currMesh = cubeMesh;
+	currVertBuff = cubeMesh->GetVertexBuffer();
+	deferredLightVS->SetMatrix4x4("world", tmpTransform.GetWorldMatrix());
+	deferredLightVS->SetMatrix4x4("view", view);
+	deferredLightVS->SetMatrix4x4("projection", projection);
+	deferredPointLightPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
+	deferredPointLightPS->SetShaderResourceView("worldPosTexture", targetSRVs[1]);
+	deferredPointLightPS->SetShaderResourceView("normalsTexture", targetSRVs[2]);
+	deferredPointLightPS->SetShaderResourceView("emissionTexture", targetSRVs[3]);
+	deferredPointLightPS->SetSamplerState("deferredSampler", targetSampler);
+	deferredPointLightPS->SetFloat4("DiffuseColor", XMFLOAT4(0, 0, 1, 1));
+	deferredPointLightPS->SetFloat3("Position", *tmpTransform.GetPosition());
+
+	// https://www.desmos.com/calculator/nmnaud1hrw
+	deferredPointLightPS->SetFloat("radius", tmpTransform.GetScale()->x / 2.0f);
+	deferredPointLightPS->SetFloat3("Attenuation", XMFLOAT3(1.0f, 0.0f, 0));
+	deferredPointLightPS->SetFloat2("screenSize", XMFLOAT2(viewport.Width, viewport.Height));
+	deferredLightVS->CopyAllBufferData();
+	deferredPointLightPS->CopyAllBufferData();
+	deferredLightVS->SetShader();
+	deferredPointLightPS->SetShader();
+	context->IASetVertexBuffers(0, 1, &currVertBuff, &stride, &offset);
+	context->IASetIndexBuffer(currMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+	context->DrawIndexed(
+		currMesh->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+		0,     // Offset to the first index we want to use
+		0);    // Offset to add to each index when looking up vertices
+	context->RSSetState(nullptr);
+	*/
+	//reset SRVs
+	//postPS->SetShaderResourceView("colorTexture", 0);
+	//postPS->SetShaderResourceView("blurTexture", 0);
+	/**/
+	
 	/**/
 	//Clear target views to reuse
 	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -816,6 +887,7 @@ void Renderer::Render(const Camera * const camera)
 	// -- Copy pixel data --
 	downsamplePS->CopyAllBufferData();
 	// Set pixel data
+	deferredVS->SetShader();
 	downsamplePS->SetShader();
 	context->Draw(3, 0);
 
@@ -920,11 +992,11 @@ void Renderer::Render(const Camera * const camera)
 	/*
 	float2 ScreenLightPos = float2(.5, .5);
 	/**/
-	float2 ScreenLightPos = float2(.1, .1);
-	float Exposure = .03;//.05 is less in your face
-	float Decay = .99;//0-1//apparently don't change this, really messes with it, makes it look a lot worse
-	float Density = 1;//higher looks worse, lower makes rays too short
-	float Weight = .2;//.2 is suggested, can vary
+	XMFLOAT2 ScreenLightPos = XMFLOAT2(.1f, .1f);
+	float Exposure = .03f;//.05 is less in your face
+	float Decay = .99f;//0-1//apparently don't change this, really messes with it, makes it look a lot worse
+	float Density = 1.0f;//higher looks worse, lower makes rays too short
+	float Weight = .2f;//.2 is suggested, can vary
 	int NumSamples = 100;//200 //slightly better looking ~30 fps drop
 	volumetricLightingPS->SetShaderResourceView("volumetricTexture", postProcessSRVs[0]);
 	volumetricLightingPS->SetSamplerState("volumetricSampler", targetSampler);
@@ -958,30 +1030,6 @@ void Renderer::Render(const Camera * const camera)
 	postPS->SetShader();
 
 	context->Draw(3, 0);
-
-	// -- Test Draw Sphere to BBuffer --
-	//static Transform tmpTransform(XMFLOAT3(0, 0, 0), XMFLOAT3(4, 4, 4), XMFLOAT4(0, 0, 0, 0));
-	//currMesh = cubeMesh;
-	//currVertBuff = cubeMesh->GetVertexBuffer();
-	/*
-	deferredPointLightVS->SetMatrix4x4("view", view);
-	deferredPointLightVS->SetMatrix4x4("projection", projection);
-	deferredPointLightVS->SetFloat3("center", XMFLOAT3(0, 0, 0));
-	deferredPointLightVS->SetFloat("radius", 16.0f);
-	//deferredPointLightVS->SetMatrix4x4("world", tmpTransform.GetWorldMatrix());
-	deferredPointLightPS->SetFloat3("center", XMFLOAT3(0, 0, 0));
-	deferredPointLightPS->SetFloat("radius", 4.0f);
-	deferredPointLightVS->CopyAllBufferData();
-	deferredPointLightPS->CopyAllBufferData();
-	deferredPointLightVS->SetShader();
-	deferredPointLightPS->SetShader();
-	context->Draw(6, 0);
-	*/
-
-	//reset SRVs
-	//postPS->SetShaderResourceView("colorTexture", 0);
-	//postPS->SetShaderResourceView("blurTexture", 0);
-	/**/
 
 	// Render UI
 	if (panel)

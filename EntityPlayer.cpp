@@ -1,6 +1,5 @@
 #include "EntityPlayer.h"
-
-
+#include "MemoryDebug.h"
 
 EntityPlayer::EntityPlayer(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
 	Entity(entityFactory, name, mesh, material)
@@ -182,7 +181,7 @@ void EntityPlayer::OnCollision(Collision other)
 	if (other.otherEntity->HasTag("Enemy")) {
 		EntityEnemy* enemy = (EntityEnemy*)other.otherEntity;
 
-		ChangeHealth(enemy->GetHealth() * -10);
+		ChangeHealth(static_cast<int>(enemy->GetHealth()) * -10);
 		enemy->ChangeHealth(-1000);
 	}
 }

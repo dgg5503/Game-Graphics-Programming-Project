@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "MemoryDebug.h"
 
 Scene::~Scene()
 {

@@ -23,7 +23,7 @@ float4 main(TargetCoords input) : SV_TARGET
 
 	deltaTexCoord *= 1.0f / NumSamples * Density;
 
-	half3 color = volumetricTexture.Sample(volumetricSampler, input.uv);// = tex2D(volumetricSampler, input.uv);
+	half3 color = volumetricTexture.Sample(volumetricSampler, input.uv).xyz;// = tex2D(volumetricSampler, input.uv);
 
 	half illuminationDecay = 1.0f;
 
@@ -31,7 +31,7 @@ float4 main(TargetCoords input) : SV_TARGET
 	{
 		input.uv -= deltaTexCoord;
 
-		half3 sample = volumetricTexture.Sample(volumetricSampler, input.uv);
+		half3 sample = volumetricTexture.Sample(volumetricSampler, input.uv).xyz;
 
 		sample *= illuminationDecay * Weight;
 

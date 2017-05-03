@@ -106,6 +106,7 @@ private:
 	ID3D11RenderTargetView* targetViews[BUFFER_COUNT];
 	ID3D11ShaderResourceView* targetSRVs[BUFFER_COUNT];
 	ID3D11SamplerState* targetSampler;
+	ID3D11RasterizerState* lightingRS;
 
 	SimpleVertexShader* deferredVS;
 	SimplePixelShader* deferredLightingPS;
@@ -158,7 +159,7 @@ private:
 	DirectionalLight directionalLights[MAX_DIR_LIGHTS] = {};
 	PointLight pointLights[MAX_POINT_LIGHTS] = {};
 	SpotLight spotLights[MAX_SPOT_LIGHTS] = {};
-	SimpleVertexShader* deferredPointLightVS;
+	SimpleVertexShader* deferredLightVS;
 	SimplePixelShader* deferredPointLightPS;
 	Mesh* cubeMesh;
 

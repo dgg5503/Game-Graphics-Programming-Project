@@ -1,4 +1,5 @@
 #include "Material.h"
+#include "MemoryDebug.h"
 
 // Set material ID start to 0
 unsigned int Material::staticMaterialID = 0;

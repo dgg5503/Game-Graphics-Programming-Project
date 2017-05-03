@@ -1,6 +1,5 @@
 #include "StateManager.h"
-
-
+#include "MemoryDebug.h"
 
 StateManager::StateManager()
 {

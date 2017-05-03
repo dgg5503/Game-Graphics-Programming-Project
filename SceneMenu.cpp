@@ -1,4 +1,5 @@
 #include "SceneMenu.h"
+#include "MemoryDebug.h"
 
 SceneMenu::SceneMenu()
 {

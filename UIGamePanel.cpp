@@ -1,4 +1,5 @@
 #include "UIGamePanel.h"
+#include "MemoryDebug.h"
 
 UIGamePanel::UIGamePanel(float _x, float _y)
 {

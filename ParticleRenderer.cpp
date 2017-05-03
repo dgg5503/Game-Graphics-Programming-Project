@@ -1,4 +1,5 @@
 #include "ParticleRenderer.h"
+#include "MemoryDebug.h"
 
 static ID3D11UnorderedAccessView* nullUAVs[3] = { nullptr, nullptr, nullptr };
 static ID3D11ShaderResourceView* nullSRVs[3] = { nullptr, nullptr, nullptr };
@@ -293,18 +294,21 @@ HRESULT ParticleRenderer::Shutdown()
 	if (numDeadParticlesCBuffer) { numDeadParticlesCBuffer->Release(); }
 	if (numAliveParticlesCBuffer) { numAliveParticlesCBuffer->Release(); }
 	if (particleIndexBuffer) { particleIndexBuffer->Release(); }
+	if (particlePoolSRV) { particlePoolSRV->Release(); }
+	if (aliveListSRV) { aliveListSRV->Release(); }
+	if (deadListSRV) { deadListSRV->Release(); }
 	if (particlePoolUAV) { particlePoolUAV->Release(); }
 	if (aliveListUAV) { aliveListUAV->Release(); }
 	if (deadListUAV) { deadListUAV->Release(); }
 	if (drawArgsUAV) { drawArgsUAV->Release(); }
-	if (particlePoolSRV) { particlePoolSRV->Release(); }
-	if (aliveListSRV) { aliveListSRV->Release(); }
+
 
 	// Release shaders
 	if (particleEmitCS) { delete particleEmitCS; }
 	if (particleUpdateCS) { delete particleUpdateCS; }
 	if (particleDrawArgsCS) { delete particleDrawArgsCS; }
 	if (particleInitCS) { delete particleInitCS; }
+	if (particleSortCS) { delete particleSortCS; }
 	if (particleDeferredPS) { delete particleDeferredPS; }
 	if (particleForwardPS) { delete particleForwardPS; }
 	if (particleVS) { delete particleVS; }

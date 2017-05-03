@@ -1,4 +1,5 @@
 #include "EntityEnemy.h"
+#include "MemoryDebug.h"
 
 using namespace DirectX;
 

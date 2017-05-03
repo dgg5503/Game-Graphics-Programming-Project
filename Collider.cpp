@@ -1,6 +1,6 @@
 #include "Collider.h"
 #include "Entity.h"
-
+#include "MemoryDebug.h"
 
 Collider::Collider() : 
 	colType(OBB),

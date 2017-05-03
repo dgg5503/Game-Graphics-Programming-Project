@@ -1,5 +1,6 @@
 #include "EntityProjectile.h"
 #include "EntityFactory.h"
+#include "MemoryDebug.h"
 
 EntityProjectile::EntityProjectile(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
 	Entity(entityFactory, name, mesh, material)
@@ -11,7 +12,7 @@ EntityProjectile::EntityProjectile(EntityFactory* entityFactory, std::string nam
 
 	// Particle Effect
 	peTrail = Renderer::Instance()->CreateContinuousParticleEmitter("pe_" + name + "_trail", 5, 0.01f);
-	peTrail->SetAgeRange(0.01, 0.25f);
+	peTrail->SetAgeRange(0.01f, 0.25f);
 	peTrail->SetAlpha(1.0f);
 	peTrail->SetInitialSpeedRange(1.0f, 2.0f);
 	peTrail->SetInterpTint(true);

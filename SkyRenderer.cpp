@@ -1,6 +1,5 @@
 #include "SkyRenderer.h"
-
-
+#include "MemoryDebug.h"
 
 SkyRenderer::SkyRenderer(Renderer & renderer) :
 	renderer(renderer)
