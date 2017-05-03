@@ -198,7 +198,6 @@
     <ClInclude Include="EntityStatic.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameState.h" />
-    <ClInclude Include="Header.h" />
     <ClInclude Include="Lights.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MemoryDebug.h" />
@@ -471,7 +470,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Shaders\ParticleSortCS.asm" />
     <None Include="packages.config" />
     <None Include="Vertex.hlsli" />
   </ItemGroup>
