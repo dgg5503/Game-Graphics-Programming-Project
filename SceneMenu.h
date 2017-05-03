@@ -5,6 +5,7 @@ class SceneMenu :
 {
 public:
 	SceneMenu();
+	virtual ~SceneMenu();
 	void CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials) override;
 };
 

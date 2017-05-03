@@ -8,6 +8,10 @@ SceneMenu::SceneMenu()
 	uiPanel->UpdateText(L"\n\n1: Game Camera\n2: Debug Camera\n3: Test Scene\n4: Game Scene(reset game)");
 }
 
+SceneMenu::~SceneMenu()
+{
+}
+
 void SceneMenu::CreateSceneEntities(EntityFactory & entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)
 {
 	// Background entity
