@@ -150,6 +150,8 @@ Renderer::~Renderer()
 	// Shaders
 	if (deferredVS) { delete deferredVS; }
 	if (deferredLightingPS) { delete deferredLightingPS; }
+	if (upsamplePS) { delete upsamplePS; }
+	if (downsamplePS) { delete downsamplePS; }
 	if (volumetricLightingPS) { delete volumetricLightingPS; }
 	if (downsamplePS) { delete downsamplePS; }
 	if (upsamplePS) { delete upsamplePS; }
