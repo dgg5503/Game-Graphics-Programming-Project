@@ -87,7 +87,7 @@ HRESULT SkyRenderer::loadAssets()
 	char skyMeshPath[] = "./Assets/Models/cube.obj";
 	skyMesh = renderer.CreateMesh(skyMeshPath);
 	if (!skyMesh) {
-		fprintf(stderr, "[Skybox] Failed to load sky mesh %ls\n", skyMeshPath);
+		fprintf(stderr, "[Skybox] Failed to load sky mesh %s\n", skyMeshPath);
 		return S_FALSE;
 	}
 
