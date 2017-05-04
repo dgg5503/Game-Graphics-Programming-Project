@@ -444,20 +444,6 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	device->CreateSamplerState(&sampDesc, &objectTextureSampler);
 
 	//================================== Post-processing Stuff ====================================
-	/*
-	hr = device->CreateTexture2D(&renderTargetTextDesc, nullptr, &blurText);
-	if (FAILED(hr))
-		return hr;
-
-	hr = device->CreateRenderTargetView(blurText, &renderTargetViewDesc, &blurRTV);
-	if (FAILED(hr))
-		return hr;
-
-	hr = device->CreateShaderResourceView(blurText, &renderTargetSRVDesc, &blurSRV);
-	if (FAILED(hr))
-		return hr;
-	*/
-
 	volumetricLightingPS = CreateSimplePixelShader();
 	if (!volumetricLightingPS->LoadShaderFile(L"./Assets/Shaders/VolumetricLightingPixelShader.cso"))
 		return S_FALSE;
@@ -775,14 +761,8 @@ void Renderer::Render(const Camera * const camera)
 	context->OMSetDepthStencilState(nullptr, 0);
 
 	// Set render target to back buffer
-	//context->OMSetRenderTargets(1, &backBufferRTV, nullptr);
-	//context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
-	//TODO : Set 2 render targets - 1) Final with lighting		2) Selected pixels beyond a certain color range (select as they are being created in 1)
-	//unable to reuse the targetSRVs or RTVs (I think they are related) so we need two more (final and blur select?)
 	context->OMSetRenderTargets(3, postProcessRTVs, nullptr);
 	
-	//===================== Render problems start on the above line =============================================
-	//nothing is passed into the two targets
 
 	// Use SRVs of textures we just wrote all our data into
 	
@@ -862,9 +842,6 @@ void Renderer::Render(const Camera * const camera)
 		0);    // Offset to add to each index when looking up vertices
 	context->RSSetState(nullptr);
 	*/
-	//reset SRVs
-	//postPS->SetShaderResourceView("colorTexture", 0);
-	//postPS->SetShaderResourceView("blurTexture", 0);
 	/**/
 	
 	/**/
@@ -901,7 +878,6 @@ void Renderer::Render(const Camera * const camera)
 	// -- Copy pixel data --
 	horizontalBlurPS->CopyAllBufferData();
 	// Set pixel data
-	//deferredVS->SetShader();
 	horizontalBlurPS->SetShader();
 	context->Draw(3, 0);
 
@@ -964,7 +940,7 @@ void Renderer::Render(const Camera * const camera)
 	verticalBlurPS->SetShaderResourceView("horizBlurTexture", halfSRVs[0]);
 	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
 	verticalBlurPS->SetFloat("blurDistance", glowDist);
-	verticalBlurPS->SetFloat("texelSize", texelHeight*2);
+	verticalBlurPS->SetFloat("texelSize", texelHeight * 2);
 	// -- Copy pixel data --
 	verticalBlurPS->CopyAllBufferData();
 	// Set pixel data
@@ -1022,7 +998,7 @@ void Renderer::Render(const Camera * const camera)
 	
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
 	postPS->SetShaderResourceView("bloomTexture", targetSRVs[1]);
-	postPS->SetShaderResourceView("glowTexture", targetSRVs[2]);		//===== Why does this break it with particles rendering? =====
+	postPS->SetShaderResourceView("glowTexture", targetSRVs[2]);
 	postPS->SetShaderResourceView("volumetricTexture", targetSRVs[3]);
 	postPS->SetSamplerState("finalSampler", targetSampler);
 
