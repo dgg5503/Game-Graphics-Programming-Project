@@ -489,20 +489,6 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	device->CreateSamplerState(&sampDesc, &objectTextureSampler);
 
 	//================================== Post-processing Stuff ====================================
-	/*
-	hr = device->CreateTexture2D(&renderTargetTextDesc, nullptr, &blurText);
-	if (FAILED(hr))
-		return hr;
-
-	hr = device->CreateRenderTargetView(blurText, &renderTargetViewDesc, &blurRTV);
-	if (FAILED(hr))
-		return hr;
-
-	hr = device->CreateShaderResourceView(blurText, &renderTargetSRVDesc, &blurSRV);
-	if (FAILED(hr))
-		return hr;
-	*/
-
 	volumetricLightingPS = CreateSimplePixelShader();
 	if (!volumetricLightingPS->LoadShaderFile(L"./Assets/Shaders/VolumetricLightingPixelShader.cso"))
 		return E_FAIL;
@@ -950,7 +936,6 @@ void Renderer::Render(const Camera * const camera)
 	// -- Copy pixel data --
 	horizontalBlurPS->CopyAllBufferData();
 	// Set pixel data
-	//deferredVS->SetShader();
 	horizontalBlurPS->SetShader();
 	context->Draw(3, 0);
 
@@ -1013,7 +998,7 @@ void Renderer::Render(const Camera * const camera)
 	verticalBlurPS->SetShaderResourceView("horizBlurTexture", halfSRVs[0]);
 	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
 	verticalBlurPS->SetFloat("blurDistance", glowDist);
-	verticalBlurPS->SetFloat("texelSize", texelHeight*2);
+	verticalBlurPS->SetFloat("texelSize", texelHeight * 2);
 	// -- Copy pixel data --
 	verticalBlurPS->CopyAllBufferData();
 	// Set pixel data
@@ -1070,7 +1055,7 @@ void Renderer::Render(const Camera * const camera)
 	
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);
 	postPS->SetShaderResourceView("bloomTexture", targetSRVs[1]);
-	postPS->SetShaderResourceView("glowTexture", targetSRVs[2]);		//===== Why does this break it with particles rendering? =====
+	postPS->SetShaderResourceView("glowTexture", targetSRVs[2]);
 	postPS->SetShaderResourceView("volumetricTexture", targetSRVs[3]);
 	postPS->SetSamplerState("finalSampler", targetSampler);
 
