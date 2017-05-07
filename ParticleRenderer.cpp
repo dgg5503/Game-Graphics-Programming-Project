@@ -88,28 +88,28 @@ HRESULT ParticleRenderer::Initialize()
 	// Load in shaders
 	particleEmitCS = renderer.CreateSimpleComputeShader();
 	if (!particleEmitCS->LoadShaderFile(L"./Assets/Shaders/ParticleEmitCS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleUpdateCS = renderer.CreateSimpleComputeShader();
 	if (!particleUpdateCS->LoadShaderFile(L"./Assets/Shaders/ParticleUpdateCS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleDrawArgsCS = renderer.CreateSimpleComputeShader();
 	if (!particleDrawArgsCS->LoadShaderFile(L"./Assets/Shaders/ParticleDrawArgsCS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleInitCS = renderer.CreateSimpleComputeShader();
 	if (!particleInitCS->LoadShaderFile(L"./Assets/Shaders/ParticleInitCS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleSortCS = renderer.CreateSimpleComputeShader();
 	if (!particleSortCS->LoadShaderFile(L"./Assets/Shaders/ParticleSortCS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleDeferredPS = renderer.CreateSimplePixelShader();
 	if (!particleDeferredPS->LoadShaderFile(L"./Assets/Shaders/ParticleDefferedPS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleForwardPS = renderer.CreateSimplePixelShader();
 	if (!particleForwardPS->LoadShaderFile(L"./Assets/Shaders/particleForwardPS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleVS = renderer.CreateSimpleVertexShader();
 	if (!particleVS->LoadShaderFile(L"./Assets/Shaders/ParticleVS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
 	// Error reporting
 	HRESULT hr = S_OK;

@@ -3,6 +3,7 @@
 
 // Light limits
 #include "ShaderConstants.h"
+#include "Lights.h"
 
 // Lighting information to sample from
 Texture2D colorTexture			: register(t0);
@@ -16,25 +17,9 @@ SamplerState deferredSampler	: register(s0);
 cbuffer LightData : register(b0)
 {
 	// Matching struct definition from C++ for dirlight
-	struct DirectionalLight {
-		float4 DiffuseColor; // 16
-		float3 Direction; //12 (16)
-		float Intensity; // 4
-	} directionalLights[MAX_DIR_LIGHTS];
-
-	struct PointLight {
-		float4 DiffuseColor; // 16
-		float3 Position; // 12 (16)
-		float Intensity;
-	} pointLights[MAX_POINT_LIGHTS];
-
-	struct SpotLight {
-		float4 DiffuseColor; // 16
-		float3 Direction; // 16
-		float Intensity;
-		float3 Position; // 12
-		float Angle; // cos(Angle) precalculated
-	} spotLights[MAX_SPOT_LIGHTS];
+	DirectionalLight_old directionalLights[MAX_DIR_LIGHTS];
+	PointLight_old pointLights[MAX_POINT_LIGHTS];
+	SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 	// global light information
 	// Ambient color used for entire scene

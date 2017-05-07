@@ -25,12 +25,12 @@ HRESULT SkyRenderer::init()
 	// Load Shaders
 	HRESULT result = loadShaders();
 	if (result != S_OK)
-		return S_FALSE;
+		return E_FAIL;
 
 	// Load Assets
 	result = loadAssets();
 	if (result != S_OK)
-		return S_FALSE;
+		return E_FAIL;
 
 
 	// Create a sampler for sampling the skytexture
@@ -66,13 +66,13 @@ HRESULT SkyRenderer::loadShaders()
 	// Load Vertex Shader -	Used to define the mesh the sky is drawn onto
 	skyVS = renderer.CreateSimpleVertexShader();
 	if (!skyVS->LoadShaderFile(L"./Assets/Shaders/SkyVS.cso")) {
-		return S_FALSE;
+		return E_FAIL;
 	}
 
 	// Load Pixel Shader -	Used to draw the sky onto the mesh
 	skyPS = renderer.CreateSimplePixelShader();
 	if (!skyPS->LoadShaderFile(L"./Assets/Shaders/SkyPS.cso")) {
-		return S_FALSE;
+		return E_FAIL;
 	}
 
 	return S_OK;
@@ -88,14 +88,14 @@ HRESULT SkyRenderer::loadAssets()
 	skyMesh = renderer.CreateMesh(skyMeshPath);
 	if (!skyMesh) {
 		fprintf(stderr, "[Skybox] Failed to load sky mesh %s\n", skyMeshPath);
-		return S_FALSE;
+		return E_FAIL;
 	}
 
 	// Load the skybox and store it as a texture cube under the hood
 	wchar_t skyTexturePath[] = L"./Assets/Textures/starscape.dds";
 	if (CreateDDSTextureFromFile(device, skyTexturePath, 0, &skySRV) != S_OK) {
 		fprintf(stderr, "[Skybox] Failed to load sky texture %ls\n", skyTexturePath);
-		return S_FALSE;
+		return E_FAIL;
 	}
 
 	return S_OK;

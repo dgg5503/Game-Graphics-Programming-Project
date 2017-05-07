@@ -8,22 +8,20 @@ Renderer::Renderer(DXWindow* const window)
 {
 	HRESULT ret;
 
+	// Set initial number of buckets and stuff
+	renderBatches.rehash(16);
+	renderBatches.reserve(16);
+
 	// Init DXCore
 	ret = InitDirectX(window);
 	if (ret != S_OK)
 		fprintf(stderr, "[Renderer] Failed to initialize DXCore\n");
 
-	// Load assets
-
-	// Set initial number of buckets and stuff
-	renderBatches.rehash(16);
-	renderBatches.reserve(16);
-
 	// Init lights
 	// Make sure to change the MAX_LIGHT defines in ShaderConstants.h if you
 	// want more lights!
 	ambientColor = DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-
+	//addBlendState = nullptr;
 	/*
 	for (unsigned int i = MAX_DIR_LIGHTS; i--;)
 	{
@@ -40,7 +38,7 @@ Renderer::Renderer(DXWindow* const window)
 
 	pointLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	pointLights[0].Position = DirectX::XMFLOAT3(0, 0, 0);
-	pointLights[0].Intensity = 1.0f;
+	pointLights[0].Intensity = 0.0f;
 
 	spotLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	spotLights[0].Position = DirectX::XMFLOAT3(-2.0f, 2.0f, 0.0f);
@@ -98,10 +96,11 @@ Renderer::~Renderer()
 {
 	// Free fonts
 	for (auto it = fontMap.begin(); it != fontMap.end(); it++)
-		delete it->second;
+		if(it->second)
+			delete it->second;
 
 	// Free spritebatch
-	delete spriteBatch;
+	if (spriteBatch) { delete spriteBatch; }
 
 	// Release all DirectX resources
 	// Release targets
@@ -139,11 +138,13 @@ Renderer::~Renderer()
 	// Free sampler state which is being used for all textures
 	if (objectTextureSampler) { objectTextureSampler->Release(); };
 	if (targetSampler) { targetSampler->Release(); }
-	if (lightingRS) { lightingRS->Release(); }
 	if (depthStencilView) { depthStencilView->Release(); }
 	if (depthBufferTexture) { depthBufferTexture->Release(); }
+	if (depthStencilState) { depthStencilState->Release(); }
 	if (backBufferRTV) { backBufferRTV->Release(); }
+	if (depthSRV) { depthSRV->Release(); }
 	if (swapChain) { swapChain->Release(); }
+	if (addBlendState) { addBlendState->Release(); }
 	if (context) { context->Release(); }
 	if (device) { device->Release(); }
 
@@ -158,15 +159,16 @@ Renderer::~Renderer()
 	if (postPS) { delete postPS; }
 	if (deferredLightVS) { delete deferredLightVS; }
 	if (deferredPointLightPS) { delete deferredPointLightPS; }
-	
-	// A single mesh
-	if (cubeMesh) { delete cubeMesh; }
+	if (prePostProcessPS) { delete prePostProcessPS; }
 
 	// Particle renderer
 	if (particleRenderer) { particleRenderer->Shutdown();  delete particleRenderer; }
 
 	// Sky renderer
 	if (skyRenderer) { delete skyRenderer; }
+
+	// Light renderer
+	if (lightRenderer) { lightRenderer->Shutdown(); delete lightRenderer; }
 }
 
 // --------------------------------------------------------
@@ -251,9 +253,9 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	depthStencilDesc.Height = window->GetHeight();
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
-	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 	depthStencilDesc.CPUAccessFlags = 0;
 	depthStencilDesc.MiscFlags = 0;
 	depthStencilDesc.SampleDesc.Count = 1;
@@ -402,6 +404,27 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 		if (FAILED(hr))
 			return hr;
 	}
+	renderTargetSRVDesc.Format = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
+	hr = device->CreateShaderResourceView(depthBufferTexture, &renderTargetSRVDesc, &depthSRV);
+	if (FAILED(hr))
+		return hr;
+
+	// Setup add blend state
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0].BlendEnable = true;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	hr = device->CreateBlendState(&blendDesc, &addBlendState);
+	if (FAILED(hr))
+		return hr;
 
 	// Setup deferred sampler state
 	D3D11_SAMPLER_DESC targetSamplerDesc = {}; // inits to all zeros :D!
@@ -424,14 +447,36 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	if (FAILED(hr))
 		return hr;
 
+	D3D11_DEPTH_STENCIL_DESC depthState = {};
+	depthState.DepthEnable = true;
+	depthState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthState.DepthFunc = D3D11_COMPARISON_LESS;
+	depthState.StencilEnable = true;
+	depthState.StencilReadMask = 0xFF;
+	depthState.StencilWriteMask = 0xFF;
+	depthState.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthState.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	depthState.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+	depthState.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+
+	depthState.BackFace.StencilFailOp = D3D11_STENCIL_OP_ZERO;
+	depthState.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_ZERO;
+	depthState.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthState.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	hr = device->CreateDepthStencilState(&depthState, &depthStencilState);
+	if (FAILED(hr))
+		return hr;
+
 	// load deferred lighting and vert shader
 	deferredLightingPS = CreateSimplePixelShader();
 	if (!deferredLightingPS->LoadShaderFile(L"./Assets/Shaders/DefferedLighting.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
 	deferredVS = CreateSimpleVertexShader();
 	if (!deferredVS->LoadShaderFile(L"./Assets/Shaders/Texture2BufferVertexShader.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
 	// Setup texture stuff
 	// Create a sampler state
@@ -460,59 +505,47 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 
 	volumetricLightingPS = CreateSimplePixelShader();
 	if (!volumetricLightingPS->LoadShaderFile(L"./Assets/Shaders/VolumetricLightingPixelShader.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
 	// load sownsample shader
 	downsamplePS = CreateSimplePixelShader();
 	if (!downsamplePS->LoadShaderFile(L"./Assets/Shaders/DownsamplerPS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
 	// load upsample shader
 	upsamplePS = CreateSimplePixelShader();
 	if (!upsamplePS->LoadShaderFile(L"./Assets/Shaders/UpsamplePS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
 	// load horizontal shader
 	horizontalBlurPS = CreateSimplePixelShader();
 	if (!horizontalBlurPS->LoadShaderFile(L"./Assets/Shaders/HorizontalBlurPixelShader.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
 	// load vertical blur shader
 	verticalBlurPS = CreateSimplePixelShader();
 	if (!verticalBlurPS->LoadShaderFile(L"./Assets/Shaders/VerticalBlurPixelShader.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
 	// load vertical blur shader
 	postPS = CreateSimplePixelShader();
 	if (!postPS->LoadShaderFile(L"./Assets/Shaders/PostProcessPixelShader.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
 	// load def light vs
 	deferredLightVS = CreateSimpleVertexShader();
 	if (!deferredLightVS->LoadShaderFile(L"./Assets/Shaders/DeferredLightVS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
 	// load def point light ps
 	deferredPointLightPS = CreateSimplePixelShader();
 	if (!deferredPointLightPS->LoadShaderFile(L"./Assets/Shaders/DeferredPointLightPS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
-	// -- TEMPORARY --
-	// Load a cube mesh
-	cubeMesh = CreateMesh("./Assets/Models/cube.obj");
-
-	D3D11_RASTERIZER_DESC lightingRSDesc = {};
-	lightingRSDesc.FillMode = D3D11_FILL_SOLID;
-	lightingRSDesc.CullMode = D3D11_CULL_NONE;
-	lightingRSDesc.FrontCounterClockwise = false;
-	lightingRSDesc.DepthBias = 0;
-	lightingRSDesc.SlopeScaledDepthBias = 0.0f;
-	lightingRSDesc.DepthBiasClamp = 0.0f;
-	lightingRSDesc.DepthClipEnable = false;
-	lightingRSDesc.ScissorEnable = false;
-	lightingRSDesc.MultisampleEnable = false;
-	lightingRSDesc.AntialiasedLineEnable = false;
-	device->CreateRasterizerState(&lightingRSDesc, &lightingRS);
+	// Pre post process ps
+	prePostProcessPS = CreateSimplePixelShader();
+	if (!prePostProcessPS->LoadShaderFile(L"./Assets/Shaders/PrePostProcessPS.cso"))
+		return E_FAIL;
 
 	// Other renderers
 	particleRenderer = new ParticleRenderer(*this);
@@ -525,7 +558,44 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	if (FAILED(hr))
 		return hr;
 
+	lightRenderer = new LightRenderer(*this);
+	hr = lightRenderer->Initialize(deferredVS, window->GetWidth(), window->GetHeight());
+	if (FAILED(hr))
+		return hr;
+	
+	DirectionalLight* test = lightRenderer->CreateDirectionalLight("testD", true);
+	test->diffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	test->ambientColor = DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+	test->direction = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	test->intensity = 1.0f;
 
+	/*
+	test = lightRenderer->CreateDirectionalLight("testD2", true);
+	test->diffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	test->ambientColor = DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+	test->direction = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	test->intensity = 1.0f;
+	*/
+
+
+	PointLight* pltest = lightRenderer->CreatePointLight(PointLightAttenuation::ATTEN_FROM_RADIUS, "plTest", true);
+	pltest->diffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 0.0f);
+	pltest->position = DirectX::XMFLOAT3(0, 0, -1);
+	pltest->atenConstant = 1.0f;
+	pltest->atenLinear = 1.0f;
+	pltest->atenQuadratic = 16.0f;
+	pltest->radius = 16.0f;
+
+	/*
+	directionalLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	directionalLights[0].Direction = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	directionalLights[0].Intensity = 1.0f;
+
+
+	pointLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	pointLights[0].Position = DirectX::XMFLOAT3(0, 0, 0);
+	pointLights[0].Intensity = 1.0f;
+	*/
 
 	// Return the "everything is ok" HRESULT value
 	return S_OK;
@@ -548,6 +618,8 @@ inline void Renderer::ClearRenderTargets()
 
 	for (size_t i = 0; i < 2; i++)
 		context->ClearRenderTargetView(halfRTVs[i], color);
+
+	lightRenderer->ClearRTV();
 
 	// Clear depth buffer
 	// Clear the render target and depth buffer (erases what's on the screen)
@@ -690,6 +762,7 @@ void Renderer::Render(const Camera * const camera)
 	// Set render targets to textures
 	// Our deferred renderer will now output to our render target textures
 	context->OMSetRenderTargets(BUFFER_COUNT, targetViews, depthStencilView);
+	context->OMSetDepthStencilState(depthStencilState, 1);
 
 	// Iterate through each bucket
 	for (auto it = renderBatches.begin(); it != renderBatches.end();)
@@ -760,30 +833,48 @@ void Renderer::Render(const Camera * const camera)
 		it = bucket.second;
 	}
 
-
-	// Sky
-	skyRenderer->Render(camera);
-	
 	// -- Particles (deferred rendering) --
 	particleRenderer->Render(camera);
-
-	// Unbind shader srv and sampler state from last ps
-	static ID3D11ShaderResourceView* const null[] = { nullptr, nullptr, nullptr, nullptr, nullptr };
-	context->PSSetShaderResources(0, 5, null);
 
 	// Turn off ZBUFFER
 	context->OMSetDepthStencilState(nullptr, 0);
 
+	// -- Sky --
+	skyRenderer->Render(camera);
+	
+	// Unbind shader srv and sampler state from last ps
+	static ID3D11ShaderResourceView* const null[] = { nullptr, nullptr, nullptr, nullptr, nullptr };
+	context->PSSetShaderResources(0, 5, null);
+
+	// Sky
+	//skyRenderer->Render(camera);
+	
+	// -- Lighting --
+	context->OMSetBlendState(addBlendState, nullptr, 0xffffffff);
+	lightRenderer->Render(camera);
+	context->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+
+	// -- Combine --
+	context->OMSetRenderTargets(3, postProcessRTVs, nullptr);
+	prePostProcessPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
+	prePostProcessPS->SetShaderResourceView("lightTexture", lightRenderer->lightSRV);
+	prePostProcessPS->SetShaderResourceView("emissionTexture", targetSRVs[3]);
+	prePostProcessPS->SetSamplerState("deferredSampler", targetSampler);
+	prePostProcessPS->SetFloat("ColorThreshold", colorThreshold);
+	prePostProcessPS->SetFloat("GlowPercentage", glowPercentage);
+	prePostProcessPS->CopyAllBufferData();
+	prePostProcessPS->SetShader();
+	deferredVS->SetShader();
+	context->Draw(3, 0);
+	
+	
+	/*
 	// Set render target to back buffer
-	//context->OMSetRenderTargets(1, &backBufferRTV, nullptr);
-	//context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 	//TODO : Set 2 render targets - 1) Final with lighting		2) Selected pixels beyond a certain color range (select as they are being created in 1)
 	//unable to reuse the targetSRVs or RTVs (I think they are related) so we need two more (final and blur select?)
 	context->OMSetRenderTargets(3, postProcessRTVs, nullptr);
-	
 	//===================== Render problems start on the above line =============================================
 	//nothing is passed into the two targets
-
 	// Use SRVs of textures we just wrote all our data into
 	
 	deferredLightingPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
@@ -796,13 +887,13 @@ void Renderer::Render(const Camera * const camera)
 	deferredLightingPS->SetDataAligned(
 		"directionalLights",						// name of variable in ps
 		&directionalLights,							// direction of light
-		sizeof(DirectionalLight) * MAX_DIR_LIGHTS	// size of struct * maxdirlights
+		sizeof(DirectionalLight_old) * MAX_DIR_LIGHTS	// size of struct * maxdirlights
 		);
 
 	deferredLightingPS->SetDataAligned(
 		"pointLights",								// name of variable in ps
 		&pointLights,								// direction of light
-		sizeof(PointLight) * MAX_POINT_LIGHTS		// size of struct * maxdirlights
+		sizeof(PointLight_old) * MAX_POINT_LIGHTS		// size of struct * maxdirlights
 		);
 
 	deferredLightingPS->SetDataAligned(
@@ -826,54 +917,12 @@ void Renderer::Render(const Camera * const camera)
 	context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
 	context->Draw(3, 0);
-	
-
-	// -- Test Draw Sphere to BBuffer --
-	/*
-	context->OMSetRenderTargets(1, postProcessRTVs, depthStencilView);
-	context->RSSetState(lightingRS);
-	static Transform tmpTransform(XMFLOAT3(0, 0, 5.0f), XMFLOAT3(4, 4, 4), XMFLOAT4(0, 0, 0, 0));
-	currMesh = cubeMesh;
-	currVertBuff = cubeMesh->GetVertexBuffer();
-	deferredLightVS->SetMatrix4x4("world", tmpTransform.GetWorldMatrix());
-	deferredLightVS->SetMatrix4x4("view", view);
-	deferredLightVS->SetMatrix4x4("projection", projection);
-	deferredPointLightPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
-	deferredPointLightPS->SetShaderResourceView("worldPosTexture", targetSRVs[1]);
-	deferredPointLightPS->SetShaderResourceView("normalsTexture", targetSRVs[2]);
-	deferredPointLightPS->SetShaderResourceView("emissionTexture", targetSRVs[3]);
-	deferredPointLightPS->SetSamplerState("deferredSampler", targetSampler);
-	deferredPointLightPS->SetFloat4("DiffuseColor", XMFLOAT4(0, 0, 1, 1));
-	deferredPointLightPS->SetFloat3("Position", *tmpTransform.GetPosition());
-
-	// https://www.desmos.com/calculator/nmnaud1hrw
-	deferredPointLightPS->SetFloat("radius", tmpTransform.GetScale()->x / 2.0f);
-	deferredPointLightPS->SetFloat3("Attenuation", XMFLOAT3(1.0f, 0.0f, 0));
-	deferredPointLightPS->SetFloat2("screenSize", XMFLOAT2(viewport.Width, viewport.Height));
-	deferredLightVS->CopyAllBufferData();
-	deferredPointLightPS->CopyAllBufferData();
-	deferredLightVS->SetShader();
-	deferredPointLightPS->SetShader();
-	context->IASetVertexBuffers(0, 1, &currVertBuff, &stride, &offset);
-	context->IASetIndexBuffer(currMesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-	context->DrawIndexed(
-		currMesh->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
-		0,     // Offset to the first index we want to use
-		0);    // Offset to add to each index when looking up vertices
-	context->RSSetState(nullptr);
 	*/
-	//reset SRVs
-	//postPS->SetShaderResourceView("colorTexture", 0);
-	//postPS->SetShaderResourceView("blurTexture", 0);
-	/**/
-	
-	/**/
+
 	//Clear target views to reuse
 	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	for (size_t i = 0; i < BUFFER_COUNT; i++)
 		context->ClearRenderTargetView(targetViews[i], color);
-
-	
 	
 	// Post-processing
 	//Create smaller textures - glow
@@ -995,10 +1044,10 @@ void Renderer::Render(const Camera * const camera)
 	XMFLOAT2 ScreenLightPos = XMFLOAT2(.1f, .1f);
 	float Exposure = .03f;//.05 is less in your face
 	float Decay = .99f;//0-1//apparently don't change this, really messes with it, makes it look a lot worse
-	float Density = 1.0f;//higher looks worse, lower makes rays too short
-	float Weight = .2f;//.2 is suggested, can vary
+	float Density = 0.5f;//higher looks worse, lower makes rays too short
+	float Weight = .09f;//.2 is suggested, can vary
 	int NumSamples = 100;//200 //slightly better looking ~30 fps drop
-	volumetricLightingPS->SetShaderResourceView("volumetricTexture", postProcessSRVs[0]);
+	volumetricLightingPS->SetShaderResourceView("volumetricTexture", depthSRV);
 	volumetricLightingPS->SetSamplerState("volumetricSampler", targetSampler);
 	volumetricLightingPS->SetFloat2("ScreenLightPos", ScreenLightPos);
 	volumetricLightingPS->SetFloat("Exposure", Exposure);
@@ -1007,7 +1056,6 @@ void Renderer::Render(const Camera * const camera)
 	volumetricLightingPS->SetFloat("Weight", Weight);
 	volumetricLightingPS->SetInt("NumSamples", NumSamples);
 
-
 	// -- Copy pixel data --
 	volumetricLightingPS->CopyAllBufferData();
 
@@ -1015,9 +1063,9 @@ void Renderer::Render(const Camera * const camera)
 	volumetricLightingPS->SetShader();
 
 	context->Draw(3, 0);
-
-	//Add all post processing effects together
 	context->PSSetShaderResources(0, 5, null);
+	//Add all post processing effects together
+
 	context->OMSetRenderTargets(1, &backBufferRTV, nullptr);
 	
 	postPS->SetShaderResourceView("colorTexture", postProcessSRVs[0]);

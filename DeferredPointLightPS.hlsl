@@ -1,18 +1,9 @@
-// Lighting information to sample from
-Texture2D colorTexture : register(t0);
-Texture2D worldPosTexture : register(t1);
-Texture2D normalsTexture : register(t2);
-Texture2D emissionTexture : register(t3);
-SamplerState deferredSampler : register(s0);
+#include "PointLightLayout.h"
 
-// Point light information
-cbuffer externalData : register(b0)
-{
-    float4 DiffuseColor; // 16
-    float3 Position; // 12 (16)
-    float radius;
-    float3 Attenuation;
-}
+// Lighting information to sample from
+Texture2D worldPosTexture : register(t0);
+Texture2D normalsTexture : register(t1);
+SamplerState deferredSampler : register(s0);
 
 cbuffer screenInfo : register(b1)
 {
@@ -25,19 +16,16 @@ struct DLVStoPS
     float3 worldPos : POSITION;
 };
 
-float4 main(DLVStoPS input) : SV_TARGET0
+float4 main(DLVStoPS input) : SV_TARGET
 {
     // Sample based on vertex xy in screen space
     float2 uv = input.position.xy / screenSize;
     float3 pos = worldPosTexture.Sample(deferredSampler, uv).xyz;
 
     // See if we should discard
-    float3 centerToPos = Position - pos;
+    float3 centerToPos = position - pos;
     float distSq = dot(centerToPos, centerToPos);
-    clip(radius * radius - distSq);
-
-    float4 col = colorTexture.Sample(deferredSampler, uv);
-    
+    clip((radius * radius) - distSq);
 
 	// revert normals to -1 to 1
     float3 n = (normalsTexture.Sample(deferredSampler, uv).xyz * 2.0f) - 1.0f;
@@ -49,8 +37,13 @@ float4 main(DLVStoPS input) : SV_TARGET0
     float lightAmt = saturate(dot(n, dir));
 
     // attenuation
-    float att = 1.0f / (Attenuation.x + Attenuation.y * sqrt(distSq) + Attenuation.z * distSq);
+    float att = 1.0f / (attConstant + attLinear * sqrt(distSq) + attQuadratic * distSq);
+
+    att = (att - cutoff) / (1 - cutoff);
+    //if (att < 0.07f)
+    //    return float4(0.0f, 1.0f, 0.0f, 1.0f);
+    att = max(att, 0);
 
     // add on
-    return DiffuseColor * att * lightAmt;
+    return diffuse * att * lightAmt;
 }

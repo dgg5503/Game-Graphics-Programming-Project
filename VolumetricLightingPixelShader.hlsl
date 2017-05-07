@@ -13,25 +13,27 @@ struct TargetCoords
 	float2 uv		: TEXCOORD;
 };
 
-Texture2D volumetricTexture		: register(t0);
+Texture2D<uint4> volumetricTexture : register(t0);
 SamplerState volumetricSampler	: register(s0);
 
 float4 main(TargetCoords input) : SV_TARGET
 {
+    //return float4(1.0f, 0.0f, 0.0f, 1.0f);
+
 	//half = half precision float, apparently better for optomization, just less precise. but i don't think i need that precision anyway
-	half2 deltaTexCoord = input.uv - ScreenLightPos.xy;
+    half2 deltaTexCoord = input.position.xy - ScreenLightPos.xy;
 
 	deltaTexCoord *= 1.0f / NumSamples * Density;
 
-	half3 color = volumetricTexture.Sample(volumetricSampler, input.uv).xyz;// = tex2D(volumetricSampler, input.uv);
+    half3 color = half3(1.0f, 1.0f, 1.0f) - half3(volumetricTexture.Load(int3(input.position.xy, 0)).ggg); // = tex2D(volumetricSampler, input.uv);
 
 	half illuminationDecay = 1.0f;
 
 	for (int i = 0; i < NumSamples; i++)
 	{
-		input.uv -= deltaTexCoord;
+		input.position.xy -= deltaTexCoord;
 
-		half3 sample = volumetricTexture.Sample(volumetricSampler, input.uv).xyz;
+        half3 sample = half3(1.0f, 1.0f, 1.0f) - half3(volumetricTexture.Load(int3(input.position.xy, 0)).ggg);
 
 		sample *= illuminationDecay * Weight;
 

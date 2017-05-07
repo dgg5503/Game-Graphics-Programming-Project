@@ -18,6 +18,7 @@
 // Renderers
 #include "ParticleRenderer.h"
 #include "SkyRenderer.h"
+#include "LightRenderer.h"
 
 #include "GameState.h"
 
@@ -35,8 +36,8 @@ class Entity; // forward declaration to fix cyclic dep
 class Renderer
 {
 	friend class ParticleRenderer;
+	friend class LightRenderer;
 	friend class SkyRenderer;
-
 public:
 	// Instance specific stuff
 	static Renderer * const Initialize(DXWindow* const window);
@@ -99,6 +100,7 @@ private:
 	ID3D11DeviceContext*	context;
 	ID3D11RenderTargetView* backBufferRTV;
 	ID3D11DepthStencilView* depthStencilView;
+	ID3D11DepthStencilState* depthStencilState;
 
 	// -- DEFERRED RENDERING --
 	ID3D11Texture2D* depthBufferTexture;
@@ -106,7 +108,7 @@ private:
 	ID3D11RenderTargetView* targetViews[BUFFER_COUNT];
 	ID3D11ShaderResourceView* targetSRVs[BUFFER_COUNT];
 	ID3D11SamplerState* targetSampler;
-	ID3D11RasterizerState* lightingRS;
+	ID3D11BlendState* addBlendState;
 
 	SimpleVertexShader* deferredVS;
 	SimplePixelShader* deferredLightingPS;
@@ -118,6 +120,7 @@ private:
 	ID3D11Texture2D* halfTexts[2];//half width and half height textures
 	ID3D11RenderTargetView* halfRTVs[2];
 	ID3D11ShaderResourceView* halfSRVs[2];
+	ID3D11ShaderResourceView* depthSRV;
 
 	D3D11_VIEWPORT viewport;
 	D3D11_VIEWPORT halfViewport;
@@ -131,7 +134,6 @@ private:
 	float glowDist;
 
 	SimplePixelShader* volumetricLightingPS;
-
 	SimplePixelShader* downsamplePS;
 	SimplePixelShader* upsamplePS;
 	SimplePixelShader* horizontalBlurPS;
@@ -154,13 +156,15 @@ private:
 	SkyRenderer* skyRenderer;
 
 	// -- LIGHTING --
+	SimplePixelShader* prePostProcessPS;
+	LightRenderer* lightRenderer;
+
 	// Lights
-	DirectionalLight directionalLights[MAX_DIR_LIGHTS] = {};
-	PointLight pointLights[MAX_POINT_LIGHTS] = {};
+	DirectionalLight_old directionalLights[MAX_DIR_LIGHTS] = {};
+	PointLight_old pointLights[MAX_POINT_LIGHTS] = {};
 	SpotLight spotLights[MAX_SPOT_LIGHTS] = {};
 	SimpleVertexShader* deferredLightVS;
 	SimplePixelShader* deferredPointLightPS;
-	Mesh* cubeMesh;
 
 	// Global lighting information
 	DirectX::XMFLOAT4 ambientColor;
