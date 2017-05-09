@@ -21,11 +21,6 @@ struct TargetCoords
 	float2 uv		: TEXCOORD;
 };
 
-struct BlurOutput 
-{
-	float4 blurred	: SV_Target0;
-};
-
 
 float4 main(TargetCoords input) : SV_TARGET
 {
