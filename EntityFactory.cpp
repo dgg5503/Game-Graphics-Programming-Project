@@ -1,5 +1,6 @@
 #include "EntityFactory.h"
 #include "CollisionManager.h"
+#include "MemoryDebug.h"
 
 using namespace std;
 
@@ -38,7 +39,7 @@ vector<EntityProjectile*> EntityFactory::CreateProjectileEntities(unsigned int n
 		projectiles[i] = projectile = 
 			dynamic_cast<EntityProjectile*>(CreateEntity(EntityType::PROJECTILE, "Projectile_" + std::to_string(i), mesh, material));
 		projectile->transform.SetScale(0.15f, 0.15f, 0.15f);
-		projectile->transform.SetPosition(0, 0, 200.0f);
+		projectile->transform.SetPosition(0, 0, -200.0f);
 		projectile->SetCollider(Collider::SPHERE, XMFLOAT3(0.15f / 2, 0.15f / 2, 0.15f / 2));
 		SetEntityCollision(projectile, false);
 	}

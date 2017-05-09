@@ -1,6 +1,5 @@
 #include "EntityManagerProjectile.h"
-
-
+#include "MemoryDebug.h"
 
 EntityManagerProjectile::EntityManagerProjectile(EntityFactory* entityFactory, std::string name) :
 	Entity(entityFactory, name)

@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "EntityFactory.h"
+#include "MemoryDebug.h"
 
 // --------------------------------------------------------
 // Constructor

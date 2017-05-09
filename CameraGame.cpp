@@ -1,6 +1,5 @@
 #include "CameraGame.h"
-
-
+#include "MemoryDebug.h"
 
 CameraGame::CameraGame()
 {

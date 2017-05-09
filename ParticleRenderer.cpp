@@ -1,4 +1,5 @@
 #include "ParticleRenderer.h"
+#include "MemoryDebug.h"
 
 static ID3D11UnorderedAccessView* nullUAVs[3] = { nullptr, nullptr, nullptr };
 static ID3D11ShaderResourceView* nullSRVs[3] = { nullptr, nullptr, nullptr };
@@ -87,28 +88,28 @@ HRESULT ParticleRenderer::Initialize()
 	// Load in shaders
 	particleEmitCS = renderer.CreateSimpleComputeShader();
 	if (!particleEmitCS->LoadShaderFile(L"./Assets/Shaders/ParticleEmitCS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleUpdateCS = renderer.CreateSimpleComputeShader();
 	if (!particleUpdateCS->LoadShaderFile(L"./Assets/Shaders/ParticleUpdateCS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleDrawArgsCS = renderer.CreateSimpleComputeShader();
 	if (!particleDrawArgsCS->LoadShaderFile(L"./Assets/Shaders/ParticleDrawArgsCS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleInitCS = renderer.CreateSimpleComputeShader();
 	if (!particleInitCS->LoadShaderFile(L"./Assets/Shaders/ParticleInitCS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleSortCS = renderer.CreateSimpleComputeShader();
 	if (!particleSortCS->LoadShaderFile(L"./Assets/Shaders/ParticleSortCS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleDeferredPS = renderer.CreateSimplePixelShader();
 	if (!particleDeferredPS->LoadShaderFile(L"./Assets/Shaders/ParticleDefferedPS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleForwardPS = renderer.CreateSimplePixelShader();
 	if (!particleForwardPS->LoadShaderFile(L"./Assets/Shaders/particleForwardPS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 	particleVS = renderer.CreateSimpleVertexShader();
 	if (!particleVS->LoadShaderFile(L"./Assets/Shaders/ParticleVS.cso"))
-		return S_FALSE;
+		return E_FAIL;
 
 	// Error reporting
 	HRESULT hr = S_OK;
@@ -293,18 +294,21 @@ HRESULT ParticleRenderer::Shutdown()
 	if (numDeadParticlesCBuffer) { numDeadParticlesCBuffer->Release(); }
 	if (numAliveParticlesCBuffer) { numAliveParticlesCBuffer->Release(); }
 	if (particleIndexBuffer) { particleIndexBuffer->Release(); }
+	if (particlePoolSRV) { particlePoolSRV->Release(); }
+	if (aliveListSRV) { aliveListSRV->Release(); }
+	if (deadListSRV) { deadListSRV->Release(); }
 	if (particlePoolUAV) { particlePoolUAV->Release(); }
 	if (aliveListUAV) { aliveListUAV->Release(); }
 	if (deadListUAV) { deadListUAV->Release(); }
 	if (drawArgsUAV) { drawArgsUAV->Release(); }
-	if (particlePoolSRV) { particlePoolSRV->Release(); }
-	if (aliveListSRV) { aliveListSRV->Release(); }
+
 
 	// Release shaders
 	if (particleEmitCS) { delete particleEmitCS; }
 	if (particleUpdateCS) { delete particleUpdateCS; }
 	if (particleDrawArgsCS) { delete particleDrawArgsCS; }
 	if (particleInitCS) { delete particleInitCS; }
+	if (particleSortCS) { delete particleSortCS; }
 	if (particleDeferredPS) { delete particleDeferredPS; }
 	if (particleForwardPS) { delete particleForwardPS; }
 	if (particleVS) { delete particleVS; }
@@ -322,21 +326,21 @@ void ParticleRenderer::Release()
 	// Free all emitters and reset map
 	for (auto it = particleEmitters.begin(); it != particleEmitters.end(); it++)
 		delete it->second;
-	particleEmitters.empty();
+	particleEmitters.clear();
 }
 
-ParticleEmitter * const ParticleRenderer::CreateContinuousParticleEmitter(const char* name, unsigned int particlesPerSeconds, float seconds)
+ParticleEmitter * const ParticleRenderer::CreateContinuousParticleEmitter(std::string name, unsigned int particlesPerSeconds, float seconds)
 {
-	// Ensure name doesnt already exist
+	// Ensure name doesn't already exist
 	assert(particleEmitters.count(name) == 0);
 	ParticleEmitter* particleEmitter = new ParticleEmitter(particlesPerSeconds, seconds);
 	particleEmitters[name] = particleEmitter;
 	return particleEmitter;
 }
 
-ParticleEmitter * const ParticleRenderer::CreateBurstParticleEmitter(const char* name, unsigned int numParticles)
+ParticleEmitter * const ParticleRenderer::CreateBurstParticleEmitter(std::string name, unsigned int numParticles)
 {
-	// Ensure name doesnt already exist
+	// Ensure name doesn't already exist
 	assert(particleEmitters.count(name) == 0);
 	ParticleEmitter* particleEmitter = new ParticleEmitter(numParticles);
 	particleEmitters[name] = particleEmitter;

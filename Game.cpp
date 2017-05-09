@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "MemoryDebug.h"
 
 // For the DirectX Math library
 using namespace DirectX;
@@ -256,8 +257,8 @@ void Game::Update(float deltaTime, float totalTime)
 	//mouse pos
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
-	mouseX = cursorPos.x;
-	mouseY = cursorPos.y;
+	mouseX = static_cast<float>(cursorPos.x);
+	mouseY = static_cast<float>(cursorPos.y);
 
 
 	// Update camera
@@ -277,12 +278,12 @@ void Game::Update(float deltaTime, float totalTime)
 	//check for collisions
 	collisionManager->CollisionUpdate();
 
-	// Dispatch compute shaders
-	renderer->UpdateCS(deltaTime, totalTime);
-
 	// Update Scene
 	if(stateManager.GetCurrentScene() != nullptr)
 		stateManager.GetCurrentScene()->UpdateScene(deltaTime, totalTime);
+
+	// Dispatch compute shaders
+	renderer->UpdateCS(deltaTime, totalTime);
 
 	// Process audio
 	audioEngine->ProcessAudio();

@@ -1,9 +1,13 @@
 #include "SceneGame.h"
-
+#include "MemoryDebug.h"
 
 SceneGame::SceneGame()
 {
 	uiPanel = uiGamePanel = new UIGamePanel(0, 0);
+}
+
+SceneGame::~SceneGame()
+{
 }
 
 void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)
@@ -59,6 +63,7 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 		.CreateEntity(EntityType::STATIC, "Sun", meshes["sun"], materials["sand"]);
 	sun->transform.SetPosition(0, 0, 28.0f);
 	sun->transform.SetScale(s, s, s);
+
 
 	//meteors
 	meteors = entityFactory

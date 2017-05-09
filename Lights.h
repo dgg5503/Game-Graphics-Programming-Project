@@ -1,16 +1,17 @@
-#pragma once
-#include <DirectXMath.h>
+#ifndef LIGHTS_H
+#define LIGHTS_H
+#include "ShaderTypes.h"
 
 // --------------------------------------------------------
 // Directional Light
 //
 // Global light that illuminates all objects
 // --------------------------------------------------------
-struct DirectionalLight
+struct DirectionalLight_old
 {
 	//DirectX::XMFLOAT4 AmbientColor;
-	DirectX::XMFLOAT4 DiffuseColor; // 16
-	DirectX::XMFLOAT3 Direction; // 12
+	float4 DiffuseColor; // 16
+	float3 Direction; // 12
 	float Intensity; // 4
 	//unsigned int : 4; // padding for arrays of lights
 };
@@ -21,10 +22,10 @@ struct DirectionalLight
 //
 // Light that lives at a point in space, will never dissapate
 // --------------------------------------------------------
-struct PointLight
+struct PointLight_old
 {
-	DirectX::XMFLOAT4 DiffuseColor; // 16
-	DirectX::XMFLOAT3 Position; // 12
+	float4 DiffuseColor; // 16
+	float3 Position; // 12
 	float Intensity; // 4
 };
 
@@ -36,9 +37,11 @@ struct PointLight
 // --------------------------------------------------------
 struct SpotLight
 {
-	DirectX::XMFLOAT4 DiffuseColor; // 16
-	DirectX::XMFLOAT3 Direction; // 12
+	float4 DiffuseColor; // 16
+	float3 Direction; // 12
 	float Intensity; // 4
-	DirectX::XMFLOAT3 Position; // 12
+	float3 Position; // 12
 	float Angle; // 4
 };
+
+#endif

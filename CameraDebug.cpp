@@ -1,6 +1,5 @@
 #include "CameraDebug.h"
-
-
+#include "MemoryDebug.h"
 
 CameraDebug::CameraDebug()
 {

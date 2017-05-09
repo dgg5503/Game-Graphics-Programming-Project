@@ -1,5 +1,7 @@
 #include "EntityEnemy.h"
+#include "MemoryDebug.h"
 
+using namespace DirectX;
 
 EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * mesh, Material * material) : 
 	Entity(entityFactory, name, mesh, material)
@@ -7,8 +9,32 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	this->AddTag("Enemy");
 
 	this->speed = 1.0f;
-	this->health = 0;
+	this->health = 0.000001f;
 	this->healthMax = 1.0f;
+
+
+	// Explosion - occurs when killed
+	Renderer* renderer = Renderer::Instance();
+	peExplosionDebris = renderer->CreateBurstParticleEmitter("PE_" + name + "_Explosion_Debris", 20);
+	peExplosionDebris->SetAgeRange(2.0f, 1.0f);
+	peExplosionDebris->SetAlpha(1.0f);
+	peExplosionDebris->SetInitialSpeedRange(0.05f, 0.15f);
+	peExplosionDebris->SetInitialTintRange(XMFLOAT3(0.25, 0.25f, 0.25f), XMFLOAT3(0.0f, 0.0f, 0.0f));
+	peExplosionDebris->SetInterpSize(true);
+	peExplosionDebris->SetInitialSizeRange(XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.75f, 0.75f));
+	peExplosionDebris->SetEndSize(XMFLOAT2(0, 0));
+	peExplosionDebris->SetDirectionRange(XMFLOAT3(1, 1, 1), XMFLOAT3(-1, -1, -1));
+
+	peExplosionFireball = renderer->CreateBurstParticleEmitter("PE_" + name + "_Explosion_Fireball", 20);
+	peExplosionFireball->SetAgeRange(2.0f, 1.0f);
+	peExplosionFireball->SetAlpha(0.75f);
+	peExplosionFireball->SetInitialSpeedRange(0.05f, 0.1f);
+	peExplosionFireball->SetInitialTintRange(XMFLOAT3(0.93f, 0.09f, 0.09f), XMFLOAT3(0.95f, .55f, .05f));
+	peExplosionFireball->SetInterpSize(true);
+	peExplosionFireball->SetInitialSizeRange(XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.75f, 0.75f));
+	peExplosionFireball->SetEndSize(XMFLOAT2(0, 0));
+	peExplosionFireball->SetDirectionRange(XMFLOAT3(1, 1, 1), XMFLOAT3(-1, -1, -1));
+
 }
 
 EntityEnemy::~EntityEnemy()
@@ -75,6 +101,15 @@ void EntityEnemy::ChangeHealth(float healthDelta)
 
 	if (health <= 0) {
 		health = 0;
+
+		// Explosion Effect
+		const XMFLOAT3* position(transform.GetPosition());
+
+		peExplosionDebris->SetPosition(*position);
+		peExplosionFireball->SetPosition(*position);
+		peExplosionDebris->Emit();
+		peExplosionFireball->Emit();
+
 		// Spawn in new location
 		MoveToRandomPosition();
 	}

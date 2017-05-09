@@ -14,7 +14,11 @@
 #include "ShaderConstants.h"
 #include "Entity.h"
 #include "DXWindow.h"
+
+// Renderers
 #include "ParticleRenderer.h"
+#include "SkyRenderer.h"
+#include "LightRenderer.h"
 
 #include "GameState.h"
 
@@ -32,7 +36,8 @@ class Entity; // forward declaration to fix cyclic dep
 class Renderer
 {
 	friend class ParticleRenderer;
-
+	friend class LightRenderer;
+	friend class SkyRenderer;
 public:
 	// Instance specific stuff
 	static Renderer * const Initialize(DXWindow* const window);
@@ -58,8 +63,8 @@ public:
 	SimpleVertexShader* const CreateSimpleVertexShader() const;
 	SimplePixelShader* const CreateSimplePixelShader() const;
 	SimpleComputeShader * const CreateSimpleComputeShader() const;
-	ParticleEmitter* const CreateContinuousParticleEmitter(const char* name, unsigned int particlesPerSeconds, float seconds) const;
-	ParticleEmitter* const CreateBurstParticleEmitter(const char* name, unsigned int numParticles) const;
+	ParticleEmitter* const CreateContinuousParticleEmitter(std::string name, unsigned int particlesPerSeconds, float seconds) const;
+	ParticleEmitter* const CreateBurstParticleEmitter(std::string name, unsigned int numParticles) const;
 
 	// Mesh factory. CALLER SHOULD FREE CREATED VARIABLES
 	Mesh* const CreateMesh(const char* path) const;
@@ -95,6 +100,7 @@ private:
 	ID3D11DeviceContext*	context;
 	ID3D11RenderTargetView* backBufferRTV;
 	ID3D11DepthStencilView* depthStencilView;
+	ID3D11DepthStencilState* depthStencilState;
 
 	// -- DEFERRED RENDERING --
 	ID3D11Texture2D* depthBufferTexture;
@@ -102,24 +108,34 @@ private:
 	ID3D11RenderTargetView* targetViews[BUFFER_COUNT];
 	ID3D11ShaderResourceView* targetSRVs[BUFFER_COUNT];
 	ID3D11SamplerState* targetSampler;
+	ID3D11BlendState* addBlendState;
 
 	SimpleVertexShader* deferredVS;
 	SimplePixelShader* deferredLightingPS;
 
-	ID3D11Texture2D* postProcessTexts[2];
-	ID3D11RenderTargetView* postProcessRTVs[2];//with lighting & selected pixels
-	ID3D11ShaderResourceView* postProcessSRVs[2];
+	ID3D11Texture2D* postProcessTexts[3];
+	ID3D11RenderTargetView* postProcessRTVs[3];//with lighting, bloom pixels, glow pixels
+	ID3D11ShaderResourceView* postProcessSRVs[3];
+
+	ID3D11Texture2D* halfTexts[2];//half width and half height textures
+	ID3D11RenderTargetView* halfRTVs[2];
+	ID3D11ShaderResourceView* halfSRVs[2];
+	ID3D11ShaderResourceView* depthSRV;
+
+	D3D11_VIEWPORT viewport;
+	D3D11_VIEWPORT halfViewport;
 
 	// -- POSTPROCESSING GLOW --
 	float texelWidth;	//change on resize
 	float texelHeight;	//change on resize
 	float blurDist;	//not const or define so it can change later (ie. settings if we ever have them)
-	//float weights[MAX_BLUR_DISTANCE];
 	float colorThreshold;
-	//ID3D11Texture2D* blurText;
-	//ID3D11RenderTargetView* blurRTV;
-	//ID3D11ShaderResourceView* blurSRV;
+	float glowPercentage;
+	float glowDist;
 
+	SimplePixelShader* volumetricLightingPS;
+	SimplePixelShader* downsamplePS;
+	SimplePixelShader* upsamplePS;
 	SimplePixelShader* horizontalBlurPS;
 	SimplePixelShader* verticalBlurPS;
 	SimplePixelShader* postPS;
@@ -136,11 +152,19 @@ private:
 	// -- PARTICLES --
 	ParticleRenderer* particleRenderer;
 
+	// -- SKY --
+	SkyRenderer* skyRenderer;
+
 	// -- LIGHTING --
+	SimplePixelShader* prePostProcessPS;
+	LightRenderer* lightRenderer;
+
 	// Lights
-	DirectionalLight directionalLights[MAX_DIR_LIGHTS] = {};
-	PointLight pointLights[MAX_POINT_LIGHTS] = {};
+	DirectionalLight_old directionalLights[MAX_DIR_LIGHTS] = {};
+	PointLight_old pointLights[MAX_POINT_LIGHTS] = {};
 	SpotLight spotLights[MAX_SPOT_LIGHTS] = {};
+	SimpleVertexShader* deferredLightVS;
+	SimplePixelShader* deferredPointLightPS;
 
 	// Global lighting information
 	DirectX::XMFLOAT4 ambientColor;

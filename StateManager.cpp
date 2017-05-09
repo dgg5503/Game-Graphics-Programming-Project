@@ -1,6 +1,5 @@
 #include "StateManager.h"
-
-
+#include "MemoryDebug.h"
 
 StateManager::StateManager()
 {
@@ -50,4 +49,5 @@ void StateManager::LoadScene(Scene* scene, EntityFactory& entityFactory, std::un
 void StateManager::UnloadScene(Scene* scene, EntityFactory& entityFactory)
 {
 	entityFactory.Release();
+	Renderer::Instance()->ReleaseParticleRenderer();
 }

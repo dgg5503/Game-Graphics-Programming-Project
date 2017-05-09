@@ -1,5 +1,6 @@
 #include "EntityProjectile.h"
 #include "EntityFactory.h"
+#include "MemoryDebug.h"
 
 EntityProjectile::EntityProjectile(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
 	Entity(entityFactory, name, mesh, material)
@@ -8,6 +9,18 @@ EntityProjectile::EntityProjectile(EntityFactory* entityFactory, std::string nam
 	speed = 5.0f;
 	this->AddTag("Projectile");
 	SetIsUpdating(true);
+
+	// Particle Effect
+	peTrail = Renderer::Instance()->CreateContinuousParticleEmitter("pe_" + name + "_trail", 5, 0.01f);
+	peTrail->SetAgeRange(0.01f, 0.25f);
+	peTrail->SetAlpha(1.0f);
+	peTrail->SetInitialSpeedRange(1.0f, 2.0f);
+	peTrail->SetInterpTint(true);
+	peTrail->SetInitialTintRange(XMFLOAT3(0.95f, .55f, .05f), XMFLOAT3(1.0f, .65f, .15f));
+	peTrail->SetEndTintRange(XMFLOAT3(0.5f, .5f, .5f), XMFLOAT3(0.25f, 0.25f, 0.25f));
+	peTrail->SetInterpSize(true);
+	peTrail->SetInitialSizeRange(XMFLOAT2(.075f, .075f), XMFLOAT2(.2f, .2f));
+	peTrail->SetEndSize(XMFLOAT2(0, 0));
 }
 
 EntityProjectile::~EntityProjectile()
@@ -22,6 +35,20 @@ void EntityProjectile::Update(float deltaTime, float totalTime)
 
 
 	transform.Move(movement.x, movement.y, movement.z);
+
+	// Particle Effect
+	const XMFLOAT3* position = transform.GetPosition();
+	XMFLOAT3 backwards = XMFLOAT3();
+	XMStoreFloat3(&backwards, XMVector3Normalize(-XMLoadFloat3(&movement)));
+	XMFLOAT3 backwardsLeft = backwards;
+	XMFLOAT3 backwardsRight = backwards;
+	backwardsLeft.x -= 0.25f;
+	backwardsLeft.y -= 0.25f;
+	backwardsRight.x += 0.25f;
+	backwardsRight.y += 0.25f;
+
+	peTrail->SetDirectionRange(backwardsLeft, backwardsRight);
+	peTrail->SetPosition(*position);
 }
 
 void EntityProjectile::Fire(XMFLOAT3 position, XMFLOAT3 direction, float speed)
@@ -32,6 +59,10 @@ void EntityProjectile::Fire(XMFLOAT3 position, XMFLOAT3 direction, float speed)
 
 	SetIsUpdating(true);
 	SetIsColliding(true);
+
+	peTrail->SetPosition(position);
+	peTrail->SetLoop(-1);
+	peTrail->Emit();
 }
 
 void EntityProjectile::Remove()
@@ -39,6 +70,7 @@ void EntityProjectile::Remove()
 	transform.SetPosition(0, 0, -200);
 	SetIsUpdating(false);
 	SetIsColliding(false);
+	peTrail->SetLoop(0);
 }
 
 void EntityProjectile::SetSpeed(float speed)
