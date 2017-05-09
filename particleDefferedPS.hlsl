@@ -33,7 +33,7 @@ PSOutput main(ParticleVertexToPixel input)
     output.normals = float4(0.5f, 0.5f, 0.0, 1.0f); //float4((normalize(input.normal) + 1.0f) / 2.0f, 1.0f);
 
 	// set emission to black = 0
-    output.emission = float4(0, 0, 0, 1);
+    output.emission = float4((textColor * input.tint * (textColor.a / ALPHA_CUTOFF)).rgb, 1.0f); //float4((textColor * input.tint * (textColor.a / ALPHA_CUTOFF)).rgb, 1.0f);
 
 	// return to render targets
     return output;

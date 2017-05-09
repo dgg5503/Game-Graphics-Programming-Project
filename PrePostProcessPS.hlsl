@@ -44,6 +44,6 @@ DefferedOut main(TargetCoords input)
         output.color = col * light;
 
     output.bloom = output.color * ColorThreshold;
-    output.glow = float4(1, 1, 1, 1) * isEmission * GlowPercentage;
+    output.glow = emission * isEmission * GlowPercentage;
     return output;
 }
