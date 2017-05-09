@@ -28,5 +28,6 @@ float4 main(TargetCoords input) : SV_TARGET
     float lightAmt = saturate(dot(n, -dir));
 
     // add on
-    return ((diffuse * intensity * lightAmt) + ambient); //* col;
+    //return float4(normalsTexture.Sample(deferredSampler, input.uv));
+    return ((diffuse * lightAmt) + ambient); //* col;
 }

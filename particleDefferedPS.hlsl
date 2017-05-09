@@ -1,5 +1,7 @@
 #include "ParticleLayout.h"
 
+#define ALPHA_CUTOFF 0.1f
+
 // Output our pixel data to render targets
 struct PSOutput
 {
@@ -21,8 +23,8 @@ PSOutput main(ParticleVertexToPixel input)
 
 	// sample color information
     float4 textColor = albedo.Sample(albedoSampler, input.uv);
-    clip(textColor.a - .1f); // Alpha cutout!
-    output.color = textColor * input.tint;
+    clip(textColor.a - ALPHA_CUTOFF); // Alpha cutout!
+    output.color = float4((textColor * input.tint * (textColor.a / ALPHA_CUTOFF)).rgb, 1.0f); //float4(textColor.rgb * lerp(input.tint.rgb, float3(1, 1, 1), textColor.a), 1.0f);
 
 	// sample world pos
     output.worldPos = float4(input.worldPos, 1.0f);

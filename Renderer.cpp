@@ -458,8 +458,6 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	depthState.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
 	depthState.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
 	depthState.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-
 	depthState.BackFace.StencilFailOp = D3D11_STENCIL_OP_ZERO;
 	depthState.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_ZERO;
 	depthState.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
@@ -551,7 +549,7 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	
 	DirectionalLight* test = lightRenderer->CreateDirectionalLight("testD", true);
 	test->diffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	test->ambientColor = DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+	test->ambientColor = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	test->direction = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	test->intensity = 1.0f;
 
@@ -994,8 +992,8 @@ void Renderer::Render(const Camera * const camera)
 
 	// Vertical blur - glow (half)
 	context->PSSetShaderResources(0, 5, null);
-	context->OMSetRenderTargets(1, &halfRTVs[1], nullptr);
-	verticalBlurPS->SetShaderResourceView("horizBlurTexture", halfSRVs[0]);
+	context->OMSetRenderTargets(1, &halfRTVs[0], nullptr);
+	verticalBlurPS->SetShaderResourceView("horizBlurTexture", halfSRVs[1]);
 	verticalBlurPS->SetSamplerState("blurSampler", targetSampler);
 	verticalBlurPS->SetFloat("blurDistance", glowDist);
 	verticalBlurPS->SetFloat("texelSize", texelHeight * 2);
@@ -1011,7 +1009,7 @@ void Renderer::Render(const Camera * const camera)
 	context->PSSetShaderResources(0, 5, null);
 	context->OMSetRenderTargets(1, &targetViews[2], nullptr);
 	upsamplePS->SetShaderResourceView("tex0", targetSRVs[3]);//full glow
-	upsamplePS->SetShaderResourceView("tex1", halfSRVs[1]);//half glow
+	upsamplePS->SetShaderResourceView("tex1", halfSRVs[0]);//half glow
 	// -- Copy pixel data --
 	upsamplePS->CopyAllBufferData();
 	// Set pixel data
