@@ -26,8 +26,9 @@ class AudioEngine
 public:
 	static AudioEngine * const InitializeInstance();
 	static AudioEngine * const Instance();
+	static void Shutdown();
 	bool Initialize();
-	void Shutdown();
+	
 	
 	bool LoadSoundBanks(wchar_t* path);
 	void ProcessAudio();
@@ -38,6 +39,8 @@ private:
 	AudioEngine();
 	~AudioEngine();
 	static AudioEngine* instance;
+
+	void Terminate();
 
 	CAkFilePackageLowLevelIOBlocking g_lowLevelIO;
 };

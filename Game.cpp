@@ -68,14 +68,14 @@ Game::~Game()
 	delete pixelShader;
 	delete pixelShader_normal;
 
-	// Shutdown renderer
-	Renderer::Shutdown();
-
-	// Shutdown audio enginer
-	audioEngine->Shutdown();
+	// Shutdown audio engine
+	AudioEngine::Shutdown();
 
 	// Shutdown Managers
 	CollisionManager::Shutdown();
+
+	// Shutdown renderer
+	Renderer::Shutdown();
 }
 
 // --------------------------------------------------------

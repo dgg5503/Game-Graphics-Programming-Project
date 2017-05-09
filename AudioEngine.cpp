@@ -1,4 +1,5 @@
 #include "AudioEngine.h"
+#include "MemoryDebug.h"
 
 // Custom alloc/free functions. These are declared as "extern" in AkMemoryMgr.h
 // and MUST be defined by the game developer.
@@ -153,40 +154,12 @@ bool AudioEngine::Initialize()
 
 void AudioEngine::Shutdown()
 {
-	assert(instance != nullptr);
-#ifndef AK_OPTIMIZED
-	// Caution: It is important to terminate the communication modules before the other modules.
-	//
-	// Terminate Communication Services
-	//
-	AK::Comm::Term();
-#endif // AK_OPTIMIZED
-
-	//
-	// Terminate the music engine
-	//
-	AK::MusicEngine::Term();
-
-	//
-	// Terminate the sound engine
-	//
-
-	AK::SoundEngine::Term();
-
-	// Terminate the streaming device and streaming manager
-
-	// CAkFilePackageLowLevelIOBlocking::Term() destroys its associated streaming device 
-	// that lives in the Stream Manager, and unregisters itself as the File Location Resolver.
-	g_lowLevelIO.Term();
-
-	if (AK::IAkStreamMgr::Get())
-		AK::IAkStreamMgr::Get()->Destroy();
-
-	// Terminate the Memory Manager
-	AK::MemoryMgr::Term();
-
-	// Set instance to null
-	instance = nullptr;
+	if (instance)
+	{
+		instance->Terminate();
+		delete instance;
+		instance = nullptr;
+	}
 }
 
 bool AudioEngine::LoadSoundBanks(wchar_t* path)
@@ -231,7 +204,7 @@ bool AudioEngine::LoadSoundBanks(wchar_t* path)
 		} while (FindNextFileW(hFind, &findData));
 		FindClose(hFind);
 	}
-	fileSearchUPtr.release();
+	fileSearchUPtr.reset();
 	return true;
 }
 
@@ -259,4 +232,41 @@ AudioEngine::AudioEngine()
 
 AudioEngine::~AudioEngine()
 {
+	
+}
+
+void AudioEngine::Terminate()
+{
+#ifndef AK_OPTIMIZED
+	// Caution: It is important to terminate the communication modules before the other modules.
+	//
+	// Terminate Communication Services
+	//
+	AK::Comm::Term();
+#endif // AK_OPTIMIZED
+
+	//
+	// Terminate the music engine
+	//
+	AK::MusicEngine::Term();
+
+	//
+	// Terminate the sound engine
+	//
+
+	AK::SoundEngine::Term();
+
+	g_lowLevelIO.UnloadAllFilePackages();
+
+	// Terminate the streaming device and streaming manager
+
+	// CAkFilePackageLowLevelIOBlocking::Term() destroys its associated streaming device 
+	// that lives in the Stream Manager, and unregisters itself as the File Location Resolver.
+	g_lowLevelIO.Term();
+
+	if (AK::IAkStreamMgr::Get())
+		AK::IAkStreamMgr::Get()->Destroy();
+
+	// Terminate the Memory Manager
+	AK::MemoryMgr::Term();
 }
