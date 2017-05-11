@@ -1,3 +1,17 @@
+#include <AK/SoundEngine/Common/AkSoundEngine.h>
+#include <AK/IBytes.h>
+#include <AK/SoundEngine/Common/AkMemoryMgr.h>                  // Memory Manager
+#include <AK/SoundEngine/Common/AkModule.h>                     // Default memory and stream managers
+#include <AK/SoundEngine/Common/IAkStreamMgr.h>                 // Streaming Manager
+#include <AK/MusicEngine/Common/AkMusicEngine.h>                // Music Engine
+#include <AK/Tools/Common/AkPlatformFuncs.h>                    // Thread defines
+#include <AK/Plugin/AkMatrixReverbFXFactory.h>
+
+// Include for communication between Wwise and the game -- Not needed in the release version
+#ifndef AK_OPTIMIZED
+#include <AK/Comm/AkCommunication.h>
+#endif // AK_OPTIMIZED
+
 #include "AudioEngine.h"
 #include "MemoryDebug.h"
 
@@ -180,17 +194,16 @@ bool AudioEngine::LoadSoundBanks(wchar_t* path)
 	// do we need to have "/" at the end of a valid path from above???
 	size_t str_len = wcsnlen(path, MAX_PATH);
 
-	std::unique_ptr<wchar_t> fileSearchUPtr(new wchar_t[str_len + 7]);
-	wchar_t* fileSearch = fileSearchUPtr.get();
-	wcsncpy(fileSearch, path, str_len);
-	wcsncpy(fileSearch + str_len, L"/*.bnk", 7);
+	std::unique_ptr<wchar_t[]> fileSearchUPtr(new wchar_t[str_len + 7]);
+	wcsncpy(&fileSearchUPtr[0], path, str_len);
+	wcsncpy(&fileSearchUPtr[str_len], L"/*.bnk", 7);
 
 	// Get all .bnk files in folder
 	AkBankID bankID; // Not used. These banks can be unloaded with their file name.
 	AKRESULT eResult;
 	WIN32_FIND_DATAW findData;
 	HANDLE hFind;
-	hFind = FindFirstFileW(fileSearch, &findData);
+	hFind = FindFirstFileW(&fileSearchUPtr[0], &findData);
 
 	// NOTE: IF IT FAILS HERE, INIT PROBABLY WASNT LOADED YET....
 	if (hFind != INVALID_HANDLE_VALUE)
@@ -204,7 +217,7 @@ bool AudioEngine::LoadSoundBanks(wchar_t* path)
 		} while (FindNextFileW(hFind, &findData));
 		FindClose(hFind);
 	}
-	fileSearchUPtr.reset();
+	//fileSearchUPtr.reset();
 	return true;
 }
 

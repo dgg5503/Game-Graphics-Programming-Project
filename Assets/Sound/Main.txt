@@ -1,6 +1,14 @@
 Event	ID	Name			Wwise Object Path	Notes
 	638744943	Fire_Laser_Player			\Default Work Unit\Fire_Laser_Player	
+	3166119473	Laser_Hit_Enemy			\Default Work Unit\Laser_Hit_Enemy	
+
+Game Parameter	ID	Name			Wwise Object Path	Notes
+	1656210572	Enemy_Scale			\Default Work Unit\Enemy_Scale	
+
+Effect plug-ins	ID	Name	Type				Notes
+	702543456	Tunnel1	Wwise Matrix Reverb			
 
 In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	206684750	laser	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\laser_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\laser		4352
+	647814471	hit	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\hit_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\hit		62764
 

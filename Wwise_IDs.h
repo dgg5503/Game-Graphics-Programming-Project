@@ -14,10 +14,12 @@ namespace AK
     namespace EVENTS
     {
         static const AkUniqueID FIRE_LASER_PLAYER = 638744943U;
+        static const AkUniqueID LASER_HIT_ENEMY = 3166119473U;
     } // namespace EVENTS
 
     namespace GAME_PARAMETERS
     {
+        static const AkUniqueID ENEMY_SCALE = 1656210572U;
         static const AkUniqueID SS_AIR_FEAR = 1351367891U;
         static const AkUniqueID SS_AIR_FREEFALL = 3002758120U;
         static const AkUniqueID SS_AIR_FURY = 1029930033U;

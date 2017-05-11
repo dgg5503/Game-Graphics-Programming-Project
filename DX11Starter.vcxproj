@@ -96,7 +96,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;CommunicationCentral.lib;dinput8.lib;dsound.lib;dxguid.lib;ws2_32.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;AkMatrixReverbFX.lib;CommunicationCentral.lib;dinput8.lib;dsound.lib;dxguid.lib;ws2_32.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /s /i /e "$(ProjectDir)Assets" "$(OutDir)Assets"</Command>
@@ -118,7 +118,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;CommunicationCentral.lib;dinput8.lib;dsound.lib;dxguid.lib;ws2_32.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;AkMatrixReverbFX.lib;CommunicationCentral.lib;dinput8.lib;dsound.lib;dxguid.lib;ws2_32.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /s /i /e "$(ProjectDir)Assets" "$(OutDir)Assets"</Command>

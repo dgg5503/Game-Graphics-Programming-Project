@@ -38,10 +38,14 @@ DefferedOut main(TargetCoords input)
     float4 emission = emissionTexture.Sample(deferredSampler, input.uv);
 
     bool isEmission = any(emission.rgb);
+    output.color = (!isEmission) * col * light + emission;
+
+    /*
     if (isEmission)
         output.color = emission;
     else
         output.color = col * light;
+    */
 
     output.bloom = output.color * ColorThreshold;
     output.glow = emission * isEmission * GlowPercentage;

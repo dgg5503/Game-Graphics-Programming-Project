@@ -149,6 +149,12 @@ void EntityEnemy::OnCollision(Collision collision) {
 	{
 		// Take damage
 		ChangeHealth(-.2f);
+
+		printf("%g\n", health / healthMax);
+		AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::ENEMY_SCALE, static_cast<AkRtpcValue>(health / healthMax), id);
+
+		// Fire audio
+		AK::SoundEngine::PostEvent(AK::EVENTS::LASER_HIT_ENEMY, id);
 	}
 
 	// Colliding with enemy

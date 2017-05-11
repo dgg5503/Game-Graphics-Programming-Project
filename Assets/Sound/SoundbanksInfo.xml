@@ -22,11 +22,16 @@
 			<Path>Main.bnk</Path>
 			<IncludedEvents>
 				<Event Id="638744943" Name="Fire_Laser_Player" ObjectPath="\Events\Default Work Unit\Fire_Laser_Player"/>
+				<Event Id="3166119473" Name="Laser_Hit_Enemy" ObjectPath="\Events\Default Work Unit\Laser_Hit_Enemy"/>
 			</IncludedEvents>
 			<IncludedMemoryFiles>
 				<File Id="206684750" Language="SFX">
 					<ShortName>laser.wav</ShortName>
 					<Path>SFX\laser_9E69E797.wem</Path>
+				</File>
+				<File Id="647814471" Language="SFX">
+					<ShortName>hit.wav</ShortName>
+					<Path>SFX\hit_9E69E797.wem</Path>
 				</File>
 			</IncludedMemoryFiles>
 		</SoundBank>
