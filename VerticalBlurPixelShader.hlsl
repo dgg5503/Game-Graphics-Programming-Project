@@ -20,37 +20,13 @@ struct TargetCoords
 	float2 uv		: TEXCOORD;
 };
 
-struct BlurOutput
-{
-	float4 blurred	: SV_Target0;
-};
 
 float4 main(TargetCoords input) : SV_TARGET
 {
-	/*
-	float blurD = clamp(blurDistance, 0, MAX_BLUR_PIXELS - 1);
-	float weights[MAX_BLUR_PIXELS];
-	float normalization = 0;
-
-	for (int i = 0; i <= blurD; i++) {
-		weights[i] = .045*pow(i*(4 / blurD), 3) - .269*pow(i*(4 / blurD), 2) + .129*(i*(4 / blurD)) + 1;
-		weights[i] = clamp(weights[i], 0.0f, 1.0f);
-		normalization += weights[i];
-	}
-
-	normalization -= weights[0];
-	normalization *= 2.0f;
-	normalization += weights[0];
-
-	//normalize weights
-	for (int j = 0; j <= blurD; j++) {
-		weights[j] = weights[j] / normalization;
-	}
-	*/
 	//add the weighted colors together
 	float4 color = float4(0, 0, 0, 0);
 	for (int k = -blurDistance; k <= blurDistance; k++) {
-		color += horizBlurTexture.Sample(blurSampler, input.uv + float2(0.0f, texelSize * k)) * weights[abs(clamp(k, 0, MAX_BLUR_PIXELS - 1))];	//how to use diff weights -- need to calc weights depending on blurDistance
+		color += horizBlurTexture.Sample(blurSampler, input.uv + float2(0.0f, texelSize * k)) * weights[clamp(abs(k), 0, MAX_BLUR_PIXELS - 1)];	//how to use diff weights -- need to calc weights depending on blurDistance
 	}
 
 
