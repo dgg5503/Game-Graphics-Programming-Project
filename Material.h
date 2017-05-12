@@ -42,6 +42,8 @@ public:
 	Texture2D* const GetTexture2D() const;
 	unsigned int GetID() const;
 
+	// Stencil ID for this material
+	unsigned int stencilID;
 private:
 	struct Textures
 	{

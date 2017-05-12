@@ -746,7 +746,6 @@ void Renderer::Render(const Camera * const camera)
 	// Set render targets to textures
 	// Our deferred renderer will now output to our render target textures
 	context->OMSetRenderTargets(BUFFER_COUNT, targetViews, depthStencilView);
-	context->OMSetDepthStencilState(depthStencilState, 1);
 
 	// Iterate through each bucket
 	for (auto it = renderBatches.begin(); it != renderBatches.end();)
@@ -764,6 +763,9 @@ void Renderer::Render(const Camera * const camera)
 
 		// -- Set material specific information --
 		currMaterial->PrepareMaterial();
+
+		// Set stencil stuff
+		context->OMSetDepthStencilState(depthStencilState, currMaterial->stencilID);
 
 		// -- Copy pixel data --
 		pixelShader->CopyAllBufferData();

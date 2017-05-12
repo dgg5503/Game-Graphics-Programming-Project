@@ -63,7 +63,7 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 		.CreateEntity(EntityType::STATIC, "Sun", meshes["sun"], materials["sun"]);
 	sun->transform.SetPosition(0, 0, 28.0f);
 	sun->transform.SetScale(s, s, s);
-
+	sun->GetMaterial()->stencilID = 0;
 
 	//meteors
 	meteors = entityFactory

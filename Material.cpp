@@ -15,7 +15,8 @@ Material::Material(SimpleVertexShader * const vertexShader,
 	SimplePixelShader * const pixelShader,
 	Texture2D* const texture2D) :
 	vertexShader(vertexShader),
-	pixelShader(pixelShader)
+	pixelShader(pixelShader),
+	stencilID(1)
 {
 	// initialize single texture
 	textureList.numTextures = 1;
@@ -31,7 +32,8 @@ Material::Material(SimpleVertexShader * const vertexShader,
 	Texture2D* const albedoTexture,
 	Texture2D* const normalTexture) :
 	vertexShader(vertexShader),
-	pixelShader(pixelShader)
+	pixelShader(pixelShader),
+	stencilID(1)
 {
 	// Save multiple textures
 	textureList.numTextures = 2;
@@ -73,7 +75,8 @@ Material::Material(SimpleVertexShader * const vertexShader,
 	Texture2D * const normalTexture,
 	Texture2D * const emissionTexture) :
 	vertexShader(vertexShader),
-	pixelShader(pixelShader)
+	pixelShader(pixelShader),
+	stencilID(1)
 {
 	// Save multiple textures
 	textureList.numTextures = 3;
