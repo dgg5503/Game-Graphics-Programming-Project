@@ -82,7 +82,7 @@
     <FxCompile Include="PrePostProcessPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-	<Filter Include="Audio">
+    <Filter Include="Audio">
       <UniqueIdentifier>{97960ef5-7424-4e8c-b259-4d143433a5d0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -208,6 +208,9 @@
       <Filter>Audio</Filter>
     </ClCompile>
     <ClCompile Include="AudioIO\stdafx.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalAmbiance.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
   </ItemGroup>
@@ -381,6 +384,9 @@
       <Filter>Audio</Filter>
     </ClInclude>
     <ClInclude Include="Wwise_IDs.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalAmbiance.h">
       <Filter>Audio</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,6 +19,7 @@
 
 // Audio
 #include "AudioEngine.h"
+#include "GlobalAmbiance.h"
 
 //Collisions
 #include "CollisionManager.h"

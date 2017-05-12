@@ -21,8 +21,12 @@
 			<ShortName>Main</ShortName>
 			<Path>Main.bnk</Path>
 			<IncludedEvents>
+				<Event Id="3978230001" Name="Explode_Enemy" ObjectPath="\Events\Default Work Unit\Explode_Enemy"/>
 				<Event Id="638744943" Name="Fire_Laser_Player" ObjectPath="\Events\Default Work Unit\Fire_Laser_Player"/>
+				<Event Id="2278749975" Name="Global_Ambiance" ObjectPath="\Events\Default Work Unit\Global_Ambiance"/>
 				<Event Id="3166119473" Name="Laser_Hit_Enemy" ObjectPath="\Events\Default Work Unit\Laser_Hit_Enemy"/>
+				<Event Id="1439539819" Name="Move_Enemy" ObjectPath="\Events\Default Work Unit\Move_Enemy"/>
+				<Event Id="1955298694" Name="Stop_Move_Enemy" ObjectPath="\Events\Default Work Unit\Stop_Move_Enemy"/>
 			</IncludedEvents>
 			<IncludedMemoryFiles>
 				<File Id="206684750" Language="SFX">
@@ -32,6 +36,18 @@
 				<File Id="647814471" Language="SFX">
 					<ShortName>hit.wav</ShortName>
 					<Path>SFX\hit_9E69E797.wem</Path>
+				</File>
+				<File Id="869583670" Language="SFX">
+					<ShortName>spaceAmbiance.wav</ShortName>
+					<Path>SFX\spaceAmbiance_4B8CC0C5.wem</Path>
+				</File>
+				<File Id="896268406" Language="SFX">
+					<ShortName>MovementEnemy.wav</ShortName>
+					<Path>SFX\MovementEnemy_69C38681.wem</Path>
+				</File>
+				<File Id="971135744" Language="SFX">
+					<ShortName>ExplosionVidya.wav</ShortName>
+					<Path>SFX\ExplosionVidya_9E69E797.wem</Path>
 				</File>
 			</IncludedMemoryFiles>
 		</SoundBank>

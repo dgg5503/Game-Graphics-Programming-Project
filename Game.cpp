@@ -69,7 +69,9 @@ Game::~Game()
 	delete pixelShader_normal;
 
 	// Shutdown audio engine
+	GlobalAmbiance::ShutDown();
 	AudioEngine::Shutdown();
+	
 
 	// Shutdown Managers
 	CollisionManager::Shutdown();
@@ -119,6 +121,10 @@ void Game::Init()
 
 	// Load font 
 	renderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
+
+	// Start global ambiance
+	GlobalAmbiance::Init();
+	GlobalAmbiance::EmitAmbiance();
 }
 
 // --------------------------------------------------------

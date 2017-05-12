@@ -35,10 +35,16 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	peExplosionFireball->SetEndSize(XMFLOAT2(0, 0));
 	peExplosionFireball->SetDirectionRange(XMFLOAT3(1, 1, 1), XMFLOAT3(-1, -1, -1));
 
+	// Fire audio
+	AK::SoundEngine::PostEvent(AK::EVENTS::MOVE_ENEMY, id);
+
 }
 
 EntityEnemy::~EntityEnemy()
 {
+	// Stop looping audio
+	// Fire audio
+	AK::SoundEngine::PostEvent(AK::EVENTS::STOP_MOVE_ENEMY, id);
 }
 
 void EntityEnemy::Update(float deltaTime, float totalTime)
@@ -110,6 +116,9 @@ void EntityEnemy::ChangeHealth(float healthDelta)
 		peExplosionDebris->Emit();
 		peExplosionFireball->Emit();
 
+		// Fire audio
+		AK::SoundEngine::PostEvent(AK::EVENTS::EXPLODE_ENEMY, id);
+
 		// Spawn in new location
 		MoveToRandomPosition();
 	}
@@ -119,6 +128,7 @@ void EntityEnemy::ChangeHealth(float healthDelta)
 
 	// Set new scale
 	float scale = (health) / healthMax * .5f;
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::ENEMY_SCALE, static_cast<AkRtpcValue>(health / healthMax), id);
 	transform.SetScale(DirectX::XMFLOAT3(scale, scale, scale));
 	GetCollider()->SetScale(DirectX::XMFLOAT3(scale/2, scale/2, scale/2));
 }
@@ -149,9 +159,6 @@ void EntityEnemy::OnCollision(Collision collision) {
 	{
 		// Take damage
 		ChangeHealth(-.2f);
-
-		printf("%g\n", health / healthMax);
-		AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::ENEMY_SCALE, static_cast<AkRtpcValue>(health / healthMax), id);
 
 		// Fire audio
 		AK::SoundEngine::PostEvent(AK::EVENTS::LASER_HIT_ENEMY, id);

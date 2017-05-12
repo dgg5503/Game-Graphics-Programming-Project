@@ -13,8 +13,12 @@ namespace AK
 {
     namespace EVENTS
     {
+        static const AkUniqueID EXPLODE_ENEMY = 3978230001U;
         static const AkUniqueID FIRE_LASER_PLAYER = 638744943U;
+        static const AkUniqueID GLOBAL_AMBIANCE = 2278749975U;
         static const AkUniqueID LASER_HIT_ENEMY = 3166119473U;
+        static const AkUniqueID MOVE_ENEMY = 1439539819U;
+        static const AkUniqueID STOP_MOVE_ENEMY = 1955298694U;
     } // namespace EVENTS
 
     namespace GAME_PARAMETERS
