@@ -32,6 +32,7 @@ protected:
 	float speed;		// Speed the enemy moves at
 	float health;		// The enemies current health.
 	float healthMax;	// The max health of the enemy
+	float spawnTimer;	// When respawning, start the timer for pitch
 
 	Entity* target;		// The targert of the enemy
 	XMFLOAT3 direction;	// Direction the enemy is looking at

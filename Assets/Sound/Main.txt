@@ -16,6 +16,6 @@ In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	206684750	laser	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\laser_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\laser		4352
 	647814471	hit	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\hit_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\hit		62764
 	869583670	spaceAmbiance	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\spaceAmbiance_4B8CC0C5.wem		\Actor-Mixer Hierarchy\Default Work Unit\spaceAmbiance		1609028
-	896268406	MovementEnemy	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\MovementEnemy_69C38681.wem		\Actor-Mixer Hierarchy\Default Work Unit\MovementEnemy		139068
+	896268406	MovementEnemy	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\MovementEnemy_ED9F203E.wem		\Actor-Mixer Hierarchy\Default Work Unit\MovementEnemy		139068
 	971135744	ExplosionVidya	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\ExplosionVidya_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\ExplosionVidya		180196
 

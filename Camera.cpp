@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "AudioEngine.h"
 #include "MemoryDebug.h"
 
 // --------------------------------------------------------
@@ -38,6 +39,7 @@ void Camera::Update(float deltaTime, float totalTime)
 		- how can we do this ?
 	*/
 	CalculateViewMatrix();
+	AK::SoundEngine::SetListenerPosition(transform);
 }
 
 // --------------------------------------------------------

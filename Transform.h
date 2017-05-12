@@ -2,6 +2,7 @@
 
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <AK/SoundEngine/Common/AkTypes.h>
 
 using namespace DirectX;
 
@@ -35,6 +36,8 @@ public:
 		float scale[3],
 		float rotation[4]);
 	~Transform();
+
+	operator const AkTransform&();
 
 	// Move in some direction
 	void Move(float dx, float dy, float dz);
@@ -90,6 +93,9 @@ private:
 	void CalculateWorldMatrix();
 	void CalculateRightUpForward();
 	void CalculateInverseTransposeWorldMatrix();
+
+	// Sound transform information
+	AkTransform akTransform;
 
 	// Basic positional information
 	// in order Right, Up, Forward

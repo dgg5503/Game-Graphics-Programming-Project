@@ -12,5 +12,6 @@ public:
 
 	// Updates the camera with an orthogonal projection matrix.
 	void UpdateProjectionMatrix(float aspectRatio);
+	void Update(float deltaTime, float totalTime);
 };
 

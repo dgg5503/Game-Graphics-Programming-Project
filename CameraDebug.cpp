@@ -26,6 +26,6 @@ void CameraDebug::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState('X') & 0x8000)
 		transform.Move(0.0f, -2.0f * deltaTime, 0.0f);
 
-	CalculateViewMatrix();
+	Camera::Update(deltaTime, totalTime);
 }
 

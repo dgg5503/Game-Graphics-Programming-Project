@@ -21,3 +21,8 @@ void CameraGame::UpdateProjectionMatrix(float aspectRatio)
 		);
 	XMStoreFloat4x4(&projectionMatrix, XMMatrixTranspose(P)); // Transpose for HLSL!
 }
+
+void CameraGame::Update(float deltaTime, float totalTime)
+{
+	Camera::Update(deltaTime, totalTime);
+}

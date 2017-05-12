@@ -11,6 +11,7 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	this->speed = 1.0f;
 	this->health = 0.000001f;
 	this->healthMax = 1.0f;
+	this->spawnTimer = 0.0f;
 
 
 	// Explosion - occurs when killed
@@ -35,6 +36,9 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	peExplosionFireball->SetEndSize(XMFLOAT2(0, 0));
 	peExplosionFireball->SetDirectionRange(XMFLOAT3(1, 1, 1), XMFLOAT3(-1, -1, -1));
 
+	// Set spawn timer to 0
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::ENEMY_SPAWN_TIMER, static_cast<AkRtpcValue>(this->spawnTimer));
+
 	// Fire audio
 	AK::SoundEngine::PostEvent(AK::EVENTS::MOVE_ENEMY, id);
 
@@ -49,6 +53,11 @@ EntityEnemy::~EntityEnemy()
 
 void EntityEnemy::Update(float deltaTime, float totalTime)
 {
+	// Increment spawn timer
+	spawnTimer += 0.25f * deltaTime;
+	spawnTimer = AkClamp(spawnTimer / healthMax, 0.0f, 1.0f);
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::ENEMY_SPAWN_TIMER, static_cast<AkRtpcValue>(spawnTimer));
+
 	// If there is a target
 	if (target != NULL) {
 		XMStoreFloat3(
@@ -64,6 +73,9 @@ void EntityEnemy::Update(float deltaTime, float totalTime)
 
 	// Regenerate health overtime
 	ChangeHealth(0.25f * deltaTime);
+
+	// Update position in sound engine
+	AK::SoundEngine::SetPosition(id, transform);
 }
 
 void EntityEnemy::MoveToRandomPosition()
@@ -107,6 +119,7 @@ void EntityEnemy::ChangeHealth(float healthDelta)
 
 	if (health <= 0) {
 		health = 0;
+		spawnTimer = 0;
 
 		// Explosion Effect
 		const XMFLOAT3* position(transform.GetPosition());

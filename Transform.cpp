@@ -92,6 +92,15 @@ Transform::~Transform()
 {
 }
 
+Transform::operator const AkTransform&()
+{
+	const AkVector pos{ position.x, position.y, position.z };
+	const AkVector fwd{ forward.x, forward.y, forward.z };
+	const AkVector top{ up.x, up.y, up.z };
+	akTransform.Set(pos, fwd, top);
+	return akTransform;
+}
+
 // --------------------------------------------------------
 // Move the position vector by some delta
 //
