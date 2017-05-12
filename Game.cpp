@@ -171,11 +171,14 @@ void Game::CreateBasicGeometry()
 	textures["stone"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_StoneSurface_albedo_M.tif", Texture2DType::ALBEDO);
 	textures["brick_norm"] = renderer->CreateTexture2D(L"./Assets/Textures/TexturesCom_BrownBricks_normalmap_M.tif", Texture2DType::NORMAL);
 	textures["no_emission"] = renderer->CreateTexture2D(L"", Texture2DType::EMISSION);
+	textures["sun"] = renderer->CreateTexture2D(L"./Assets/Textures/sun_Emission.tif", Texture2DType::ALBEDO);
+	textures["sun_emission"] = renderer->CreateTexture2D(L"./Assets/Textures/sun_Emission.tif", Texture2DType::EMISSION);
 
 	// Create our materials
 	materials["brick"] = new Material(vertexShader, pixelShader_normal, textures["brick"], textures["brick_norm"], textures["no_emission"]);
 	materials["sand"] = new Material(vertexShader, pixelShader, textures["sand"]);
 	materials["stone"] = new Material(vertexShader, pixelShader, textures["stone"]);
+	materials["sun"] = new Material(vertexShader, pixelShader_normal, textures["sun"], textures["brick_norm"], textures["sun_emission"]);
 
 	// Load up all our meshes to a mesh dict
 	meshes["cube"] = renderer->CreateMesh("./Assets/Models/cube.obj");

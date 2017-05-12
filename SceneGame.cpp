@@ -60,7 +60,7 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 	planet->transform.SetScale(s, s, s);
 
 	Entity* sun = entityFactory
-		.CreateEntity(EntityType::STATIC, "Sun", meshes["sun"], materials["sand"]);
+		.CreateEntity(EntityType::STATIC, "Sun", meshes["sun"], materials["sun"]);
 	sun->transform.SetPosition(0, 0, 28.0f);
 	sun->transform.SetScale(s, s, s);
 
