@@ -44,6 +44,7 @@ namespace AK
 
     namespace BUSSES
     {
+        static const AkUniqueID ENEMY_MOVEMENT_BUS = 124992084U;
         static const AkUniqueID MASTER_AUDIO_BUS = 3803692087U;
         static const AkUniqueID MASTER_SECONDARY_BUS = 805203703U;
     } // namespace BUSSES
