@@ -45,6 +45,27 @@ Material::Material(SimpleVertexShader * const vertexShader,
 	materialID = staticMaterialID++;
 }
 
+Material::Material(SimpleVertexShader * const vertexShader,
+	SimplePixelShader * const pixelShader,
+	Texture2D* const albedoTexture,
+	Texture2D* const normalTexture,
+	Texture2D* const depthTexture) :
+	vertexShader(vertexShader),
+	pixelShader(pixelShader)
+{
+	// Save multiple textures
+	textureList.numTextures = 3;
+	textureList.textures = new Texture2D*[3];
+
+	// copy pointers
+	textureList.textures[0] = albedoTexture;
+	textureList.textures[1] = normalTexture;
+	textureList.textures[2] = depthTexture;
+
+	// assigned next ID
+	materialID = staticMaterialID++;
+}
+
 Material::Material(SimpleVertexShader * const vertexShader, 
 	SimplePixelShader * const pixelShader,
 	Texture2D * const albedoTexture, 
