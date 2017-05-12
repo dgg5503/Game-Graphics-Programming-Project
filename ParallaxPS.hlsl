@@ -27,8 +27,8 @@ struct PSOutput
 float2 ParallaxMapping(float2 texCoords, float3 viewDir)
 {
 	float height_scale = 0.1f;
-	float height = texture(depth, texCoords).r;
-	vec2 p = viewDir.xy / viewDir.z * (height * height_scale);
+	float height = depth.Sample(albedoSampler, texCoords).r;
+	float2 p = viewDir.xy / viewDir.z * (height * height_scale);
 	return texCoords - p;
 }
 
@@ -52,7 +52,7 @@ PSOutput main(PVStoPS input) : SV_TARGET
 	float3 B = cross(T, N);
 	float3x3 TBN = float3x3(T, B, N);
 	// convert normals to color space
-	float4 normalSampled = normalMap.Sample(albedoSampler, texCoords) * 2 - 1;
+	float4 normalSampled = normal.Sample(albedoSampler, texCoords) * 2 - 1;
 	output.normals = float4(normalize(mul(normalSampled.xyz, TBN) + 1.0f) / 2.0f, 1.0f);
 
 	// set emission to black = 0

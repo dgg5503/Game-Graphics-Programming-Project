@@ -44,7 +44,7 @@ Material::Material(SimpleVertexShader * const vertexShader,
 	// assigned next ID
 	materialID = staticMaterialID++;
 }
-
+/*
 Material::Material(SimpleVertexShader * const vertexShader,
 	SimplePixelShader * const pixelShader,
 	Texture2D* const albedoTexture,
@@ -65,6 +65,7 @@ Material::Material(SimpleVertexShader * const vertexShader,
 	// assigned next ID
 	materialID = staticMaterialID++;
 }
+*/
 
 Material::Material(SimpleVertexShader * const vertexShader, 
 	SimplePixelShader * const pixelShader,

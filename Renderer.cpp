@@ -61,7 +61,7 @@ Renderer::Renderer(DXWindow* const window)
 	blurDist = 4;
 	glowDist = 50;
 	colorThreshold = .2f;
-	glowPercentage = .05f;
+	glowPercentage = .5f;
 	/*
 	float normalization = 0;
 	//fill weights array
