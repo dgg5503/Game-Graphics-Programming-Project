@@ -47,7 +47,7 @@ public:
 	// Renderer functions
 	void StageEntity(Entity* const entity);
 	void UnstageEntity(Entity * const entity);
-	void Render(const Camera * const camera);
+	void Render(const Camera * const camera, float deltaTime, float totalTime);
 	void UpdateCS(float dt, float totalTime); // update exclusively for compute shader use
 	void OnResize(unsigned int width, unsigned int height);
 

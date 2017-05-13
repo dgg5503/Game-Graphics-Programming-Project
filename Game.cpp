@@ -66,6 +66,7 @@ Game::~Game()
 	delete vertexShader;
 	delete pixelShader;
 	delete pixelShader_normal;
+	delete vertexShader_enemy;
 
 	// Shutdown renderer
 	Renderer::Shutdown();
@@ -132,6 +133,10 @@ void Game::LoadShaders()
 	if (!pixelShader_normal->LoadShaderFile(L"./Assets/Shaders/DefferedPixelShader_NormalMap.cso"))
 		pixelShader_normal->LoadShaderFile(L"DefferedPixelShader_NormalMap.cso");
 
+	vertexShader_enemy = renderer->CreateSimpleVertexShader();
+	if (!vertexShader_enemy->LoadShaderFile(L"./Assets/Shaders/EnemyVS.cso"))
+		vertexShader_enemy->LoadShaderFile(L"EnemyVS.cso");
+
 	// You'll notice that the code above attempts to load each
 	// compiled shader file (.cso) from two different relative paths.
 
@@ -173,12 +178,14 @@ void Game::CreateBasicGeometry()
 	textures["no_emission"] = renderer->CreateTexture2D(L"", Texture2DType::EMISSION);
 	textures["sun"] = renderer->CreateTexture2D(L"./Assets/Textures/sun_Emission.tif", Texture2DType::ALBEDO);
 	textures["sun_emission"] = renderer->CreateTexture2D(L"./Assets/Textures/sun_Emission.tif", Texture2DType::EMISSION);
+	textures["enemy_emission"] = renderer->CreateTexture2D(L"./Assets/Textures/enemy_Emission.tif", Texture2DType::EMISSION);
 
 	// Create our materials
 	materials["brick"] = new Material(vertexShader, pixelShader_normal, textures["brick"], textures["brick_norm"], textures["no_emission"]);
 	materials["sand"] = new Material(vertexShader, pixelShader, textures["sand"]);
 	materials["stone"] = new Material(vertexShader, pixelShader, textures["stone"]);
 	materials["sun"] = new Material(vertexShader, pixelShader_normal, textures["sun"], textures["brick_norm"], textures["sun_emission"]);
+	materials["enemy"] = new Material(vertexShader_enemy, pixelShader_normal, textures["brick"], textures["brick_norm"], textures["enemy_emission"]);
 
 	// Load up all our meshes to a mesh dict
 	meshes["cube"] = renderer->CreateMesh("./Assets/Models/cube.obj");
@@ -286,7 +293,7 @@ void Game::Update(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	// Render to active camera
-	renderer->Render(activeCamera);
+	renderer->Render(activeCamera, deltaTime, totalTime);
 }
 
 

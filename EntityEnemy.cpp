@@ -11,6 +11,7 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	this->speed = 1.0f;
 	this->health = 0.000001f;
 	this->healthMax = 1.0f;
+	this->maxScale = 0.55;
 
 
 	// Explosion - occurs when killed
@@ -118,7 +119,7 @@ void EntityEnemy::ChangeHealth(float healthDelta)
 	}
 
 	// Set new scale
-	float scale = (health) / healthMax * .5f;
+	float scale = (health) / healthMax * this->maxScale;
 	transform.SetScale(DirectX::XMFLOAT3(scale, scale, scale));
 	GetCollider()->SetScale(DirectX::XMFLOAT3(scale/2, scale/2, scale/2));
 }

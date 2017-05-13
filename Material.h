@@ -58,7 +58,7 @@ private:
 	SimpleVertexShader* vertexShader;
 	SimplePixelShader* pixelShader;
 
-	// Pointers to info neeeded to attach a texture
+	// Pointers to info needed to attach a texture
 	Textures textureList;
 	//Texture2D* texture2D;
 

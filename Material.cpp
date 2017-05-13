@@ -114,7 +114,9 @@ void Material::PrepareMaterial()
 		currTexture = textureList.textures[i];
 		pixelShader->SetShaderResourceView(currTexture->GetSRVName(), currTexture->GetSRV());
 		pixelShader->SetSamplerState(currTexture->GetSampelerName(), currTexture->GetSamplerState());
-
+		
+		vertexShader->SetShaderResourceView("Texture", currTexture->GetSRV());
+		vertexShader->SetSamplerState("Sampler", currTexture->GetSamplerState());
 	}
 	// This should only be called by the renderer...
 	// Set up texture specific information

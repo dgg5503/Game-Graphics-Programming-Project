@@ -722,7 +722,7 @@ void Renderer::UnstageEntity(Entity * const entity)
 //
 // camera - view point to use when rendering objects
 // --------------------------------------------------------
-void Renderer::Render(const Camera * const camera)
+void Renderer::Render(const Camera * const camera, float deltaTime, float totalTime)
 {
 	// Shaders we will work with for each bucket
 	SimpleVertexShader* vertexShader;
@@ -772,7 +772,7 @@ void Renderer::Render(const Camera * const camera)
 
 		for (auto bucketIt = bucket.first; bucketIt != bucket.second; bucketIt++)
 		{
-			// How to pass in cameralocation for a blinn-phone material
+			// How to pass in camera location for a blinn-phone material
 			// when I can only supply the vertexShader and pixelShader?
 			// The camera location is something that sits constant during these calcs
 			// We need to make a function in material that prepares constant information
@@ -787,6 +787,9 @@ void Renderer::Render(const Camera * const camera)
 				currEntity->transform.GetWorldMatrix());
 			vertexShader->SetMatrix4x4("inverseTransposeWorld",
 				currEntity->transform.GetInverseTransposeWorldMatrix());
+
+			// Below exists for the enemy entity.
+			vertexShader->SetFloat("time", totalTime);
 
 			// -- Copy vertex data --
 			vertexShader->CopyAllBufferData();
