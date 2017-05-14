@@ -722,7 +722,7 @@ void Renderer::UnstageEntity(Entity * const entity)
 //
 // camera - view point to use when rendering objects
 // --------------------------------------------------------
-void Renderer::Render(const Camera * const camera, float deltaTime, float totalTime)
+void Renderer::Render(const Camera * const camera)
 {
 	// Shaders we will work with for each bucket
 	SimpleVertexShader* vertexShader;
@@ -787,9 +787,6 @@ void Renderer::Render(const Camera * const camera, float deltaTime, float totalT
 				currEntity->transform.GetWorldMatrix());
 			vertexShader->SetMatrix4x4("inverseTransposeWorld",
 				currEntity->transform.GetInverseTransposeWorldMatrix());
-
-			// Below exists for the enemy entity.
-			vertexShader->SetFloat("time", totalTime);
 
 			// -- Copy vertex data --
 			vertexShader->CopyAllBufferData();

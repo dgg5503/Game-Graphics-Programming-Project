@@ -47,7 +47,7 @@ public:
 	// Renderer functions
 	void StageEntity(Entity* const entity);
 	void UnstageEntity(Entity * const entity);
-	void Render(const Camera * const camera, float deltaTime, float totalTime);
+	void Render(const Camera * const camera);
 	void UpdateCS(float dt, float totalTime); // update exclusively for compute shader use
 	void OnResize(unsigned int width, unsigned int height);
 
@@ -84,7 +84,7 @@ private:
 	~Renderer();
 	static Renderer* instance;
 
-	// Initialzing DXCORE
+	// Initializing DXCORE
 	HRESULT InitDirectX(DXWindow* const window);
 
 	// Deferred rendering

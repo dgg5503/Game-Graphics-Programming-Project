@@ -11,10 +11,15 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	this->speed = 1.0f;
 	this->health = 0.000001f;
 	this->healthMax = 1.0f;
-	this->maxScale = 0.55;
+	this->maxScale = 0.25;
 
+	// Create a unique rotation axis for this enemy
+	this->rotationAxis = XMFLOAT3(rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 50);
 
-	// Explosion - occurs when killed
+	// Cast the current material into an Enemy Material so it can be modified as such.
+	this->enemyMaterial = dynamic_cast<MaterialEnemy*>(this->GetMaterial());
+
+	// Explosion Particle Systems - occurs when killed
 	Renderer* renderer = Renderer::Instance();
 	peExplosionDebris = renderer->CreateBurstParticleEmitter("PE_" + name + "_Explosion_Debris", 20);
 	peExplosionDebris->SetAgeRange(2.0f, 1.0f);
@@ -35,7 +40,6 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	peExplosionFireball->SetInitialSizeRange(XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.75f, 0.75f));
 	peExplosionFireball->SetEndSize(XMFLOAT2(0, 0));
 	peExplosionFireball->SetDirectionRange(XMFLOAT3(1, 1, 1), XMFLOAT3(-1, -1, -1));
-
 }
 
 EntityEnemy::~EntityEnemy()
@@ -55,14 +59,21 @@ void EntityEnemy::Update(float deltaTime, float totalTime)
 		transform.Move(direction.x * deltaTime * speed, direction.y * deltaTime * speed, direction.z * deltaTime * speed);
 	}
 
-	transform.SetRotation(1, 1, 1, totalTime);
+	// Update the rotation of the entity
+	transform.SetRotation(rotationAxis.x, rotationAxis.y, rotationAxis.z, totalTime);
 
 	// Regenerate health overtime
 	ChangeHealth(0.25f * deltaTime);
+
+	// If we have the enemy material, update the total time for it.
+	if (enemyMaterial != nullptr) {
+		enemyMaterial->SetTotalTime(totalTime);
+	}
 }
 
 void EntityEnemy::MoveToRandomPosition()
-{
+{ 
+	// Find a random place to respawn the enemy.
 	transform.SetPosition(rand() % 10 - 5.0f, rand() % 10 - 5.0f, 0.0f);
 }
 
@@ -100,6 +111,7 @@ void EntityEnemy::ChangeHealth(float healthDelta)
 {
 	health += healthDelta;
 
+	// Check if the enemy has died
 	if (health <= 0) {
 		health = 0;
 
@@ -159,7 +171,7 @@ void EntityEnemy::OnCollision(Collision collision) {
 		const XMFLOAT3* otherPosition = collision.otherTransform.GetPosition();
 		XMFLOAT3 bounce = XMFLOAT3();
 		XMVECTOR bounceVector = XMLoadFloat3(transform.GetPosition()) - XMLoadFloat3(otherPosition);
-		bounceVector = XMVector3Normalize(bounceVector) * 0.005f;
+		bounceVector = XMVector3Normalize(bounceVector) * 0.01f;
 		XMStoreFloat3(&bounce, bounceVector);
 
 		// Move away from other enemy

@@ -180,6 +180,7 @@
     <ClCompile Include="LightRenderer.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="MaterialEnemy.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ParticleEmitter.cpp" />
     <ClCompile Include="ParticleRenderer.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="LightRenderer.h" />
     <ClInclude Include="Lights.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="MaterialEnemy.h" />
     <ClInclude Include="MemoryDebug.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="ParticleEmitter.h" />

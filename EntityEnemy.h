@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "MaterialEnemy.h"
 
 class EntityEnemy :
 	public Entity
@@ -36,6 +37,10 @@ protected:
 
 	Entity* target;		// The target of the enemy
 	XMFLOAT3 direction;	// Direction the enemy is looking at
+	XMFLOAT3 rotationAxis;
+
+	// Material
+	MaterialEnemy* enemyMaterial;
 
 	// Particle Systems
 	ParticleEmitter* peExplosionDebris;

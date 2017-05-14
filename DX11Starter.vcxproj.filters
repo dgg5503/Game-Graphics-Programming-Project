@@ -189,6 +189,9 @@
     <ClCompile Include="DirectionalLight.cpp">
       <Filter>Renderers\Lights</Filter>
     </ClCompile>
+    <ClCompile Include="MaterialEnemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UIGamePanel.h">
@@ -319,6 +322,9 @@
     </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Renderers\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialEnemy.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

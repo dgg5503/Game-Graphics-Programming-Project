@@ -178,6 +178,8 @@ void Game::CreateBasicGeometry()
 	textures["no_emission"] = renderer->CreateTexture2D(L"", Texture2DType::EMISSION);
 	textures["sun"] = renderer->CreateTexture2D(L"./Assets/Textures/sun_Emission.tif", Texture2DType::ALBEDO);
 	textures["sun_emission"] = renderer->CreateTexture2D(L"./Assets/Textures/sun_Emission.tif", Texture2DType::EMISSION);
+	textures["enemy_albedo"] = renderer->CreateTexture2D(L"./Assets/Textures/enemy_Albedo.tif", Texture2DType::ALBEDO);
+	textures["enemy_normal"] = renderer->CreateTexture2D(L"./Assets/Textures/enemy_Normal.tif", Texture2DType::NORMAL);
 	textures["enemy_emission"] = renderer->CreateTexture2D(L"./Assets/Textures/enemy_Emission.tif", Texture2DType::EMISSION);
 
 	// Create our materials
@@ -185,7 +187,7 @@ void Game::CreateBasicGeometry()
 	materials["sand"] = new Material(vertexShader, pixelShader, textures["sand"]);
 	materials["stone"] = new Material(vertexShader, pixelShader, textures["stone"]);
 	materials["sun"] = new Material(vertexShader, pixelShader_normal, textures["sun"], textures["brick_norm"], textures["sun_emission"]);
-	materials["enemy"] = new Material(vertexShader_enemy, pixelShader_normal, textures["brick"], textures["brick_norm"], textures["enemy_emission"]);
+	materials["enemy"] = new MaterialEnemy(vertexShader_enemy, pixelShader_normal, textures["enemy_albedo"], textures["enemy_normal"], textures["enemy_emission"]);
 
 	// Load up all our meshes to a mesh dict
 	meshes["cube"] = renderer->CreateMesh("./Assets/Models/cube.obj");
@@ -293,7 +295,7 @@ void Game::Update(float deltaTime, float totalTime)
 void Game::Draw(float deltaTime, float totalTime)
 {
 	// Render to active camera
-	renderer->Render(activeCamera, deltaTime, totalTime);
+	renderer->Render(activeCamera);
 }
 
 

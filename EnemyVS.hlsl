@@ -1,11 +1,5 @@
 #include "Vertex.hlsli"
 
-// Constant Buffer
-// - Allows us to define a buffer of individual variables 
-//    which will (eventually) hold data from our C++ code
-// - All non-pipeline variables that get their values from 
-//    our C++ code must be defined inside a Constant Buffer
-// - The name of the cbuffer itself is unimportant
 cbuffer externalData : register(b0)
 {
 	matrix world;
@@ -14,6 +8,7 @@ cbuffer externalData : register(b0)
 	matrix inverseTransposeWorld;
 	// pass world inverse transpose here for correct normal transformation
 
+	// Holds a time for the material
 	float time;
 };
 
@@ -32,9 +27,9 @@ VertexToPixel main(VertexShaderInput input)
 	// Set up output struct
 	VertexToPixel output;
 
-	float2 samplePos = input.position + time * 0.01f;
-	float3 offSet = normalize(input.position) * (Texture.SampleLevel(Sampler, samplePos, 0).g - 0.5);
-	float3 position = input.position + offSet * 2.5;
+	float2 samplePos = input.position + time * 0.5f;
+	float3 offSet = normalize(input.position) * (Texture.SampleLevel(Sampler, samplePos, 0).a - 0.5f);
+	float3 position = input.position + offSet * 2.5f;
 
 	// The vertex's position (input.position) must be converted to world space,
 	// then camera space (relative to our 3D camera), then to proper homogenous 
