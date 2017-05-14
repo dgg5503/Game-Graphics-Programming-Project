@@ -15,7 +15,6 @@
 
 // Rendering
 #include "Renderer.h"
-#include "UIGamePanel.h"
 
 //Collisions
 #include "CollisionManager.h"
@@ -29,6 +28,8 @@
 #include "SceneGame.h"
 #include "SceneMenu.h"
 
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
 
 class Game 
 	: public DXWindow

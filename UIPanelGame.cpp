@@ -1,17 +1,17 @@
-#include "UIGamePanel.h"
+#include "UIPanelGame.h"
 #include "MemoryDebug.h"
 
-UIGamePanel::UIGamePanel(float _x, float _y)
+UIPanelGame::UIPanelGame(float _x, float _y)
 {
 	x = _x;
 	y = _y;
 }
 
-UIGamePanel::~UIGamePanel()
+UIPanelGame::~UIPanelGame()
 {
 }
 
-void UIGamePanel::Draw(SpriteBatch * const spriteBatch,
+void UIPanelGame::Draw(SpriteBatch * const spriteBatch,
 	const std::unordered_map<const char*, SpriteFont*>& fontMap)
 {
 	// Parse time as string
@@ -24,17 +24,17 @@ void UIGamePanel::Draw(SpriteBatch * const spriteBatch,
 	fontMap.at("arial")->DrawString(spriteBatch, std::to_wstring(health).c_str(), XMFLOAT2(x, y + 32));
 }
 
-void UIGamePanel::Update(float deltaTime, float totalTime)
+void UIPanelGame::Update(float deltaTime, float totalTime)
 {
 
 }
 
-void UIGamePanel::UpdateText(wstring _text)
+void UIPanelGame::UpdateText(wstring _text)
 {
 	text = _text;
 }
 
-void UIGamePanel::UpdateHealth(int health)
+void UIPanelGame::UpdateHealth(int health)
 {
 	this->health = health;
 }

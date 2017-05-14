@@ -15,9 +15,9 @@ using namespace DirectX;
 Game::Game(HINSTANCE hInstance)
 	: DXWindow(
 		hInstance,		   // The application's handle
-		"DirectX Game",	   // Text for the window's title bar
-		1280,			   // Width of the window's client area
-		720,			   // Height of the window's client area
+		"&Poly_Star*",	   // Text for the window's title bar
+		SCREEN_WIDTH,			   // Width of the window's client area
+		SCREEN_HEIGHT,			   // Height of the window's client area
 		true)			   // Show extra stats (fps) in title bar?
 {
 	// Initialize fields
@@ -85,8 +85,13 @@ void Game::Init()
 	renderer = Renderer::Initialize(this);
 	collisionManager = CollisionManager::Initialize(0.25f, XMFLOAT3(3, 3, 0.5));
 
+
+	// Setup Scenes and State Manager
+	stateManager.SetEntityFactory(&entityFactory);
+	stateManager.SetMaterials(&materials);
+	stateManager.SetMeshes(&meshes);
 	stateManager.AddScene(GameState::GAME, new SceneGame());
-	stateManager.AddScene(GameState::MAIN_MENU, new SceneMenu());
+	stateManager.AddScene(GameState::MAIN_MENU, new SceneMenu(stateManager));
 
 	// Initialize starting mouse location to center of screen
 	prevMousePos.x = GetWidth() / 2;
@@ -209,7 +214,7 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 void Game::CreateEntities()
 {
-	stateManager.SetState(GameState::MAIN_MENU, entityFactory, meshes, materials);
+	stateManager.SetState(GameState::MAIN_MENU);
 }
 
 
@@ -250,11 +255,11 @@ void Game::Update(float deltaTime, float totalTime)
 
 	if (GetAsyncKeyState('3') & 0x8000)
 	{
-		stateManager.SetState(GameState::MAIN_MENU, entityFactory, meshes, materials);
+		stateManager.SetState(GameState::MAIN_MENU);
 	}
 	if (GetAsyncKeyState('4') & 0x8000)
 	{
-		stateManager.SetState(GameState::GAME, entityFactory, meshes, materials);
+		stateManager.SetState(GameState::GAME);
 	}
 
 	//mouse pos
@@ -308,7 +313,15 @@ void Game::Draw(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 {
-	// Add any custom code here...
+	// Convert to -1.0 to 1.0 scale
+	float scaledX = (float)(x * 2) / SCREEN_WIDTH - 1;
+	float scaledY = (float)(y * 2) / SCREEN_HEIGHT - 1;
+	scaledX *= 2.0f * SCREEN_WIDTH / SCREEN_HEIGHT;
+	scaledY *= -2.0f;
+
+	printf("%F, %F\n ", scaledX, scaledY);
+
+	stateManager.GetCurrentScene()->OnMousePressed(scaledX, scaledY);
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

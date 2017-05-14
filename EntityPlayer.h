@@ -22,6 +22,8 @@ public:
 	// Change health by amount
 	void ChangeHealth(int healthDelta);
 
+	void OnMousePressed(float x, float y);
+
 	int health, maxHealth;
 
 protected:

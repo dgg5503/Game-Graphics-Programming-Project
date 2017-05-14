@@ -171,6 +171,15 @@ void EntityPlayer::ChangeHealth(int healthDelta)
 	}
 }
 
+void EntityPlayer::OnMousePressed(float x, float y)
+{
+	// Get player position
+	const XMFLOAT3* position = transform.GetPosition();
+
+	// Get direction
+	FireProjectile(XMFLOAT3(x - position->x, y - position->y, 0));
+}
+
 float EntityPlayer::GetSpeed()
 {
 	return speed;
@@ -189,6 +198,9 @@ void EntityPlayer::OnCollision(Collision other)
 
 void EntityPlayer::FireProjectile(XMFLOAT3 direction)
 {
+	// Normalize Direction
+	XMStoreFloat3(&direction, XMVector3Normalize(XMLoadFloat3(&direction)));
+
 	// Get projectile
 	EntityProjectile* projectile = projectileManager->GetProjectile();
 	const XMFLOAT3* position = transform.GetPosition();

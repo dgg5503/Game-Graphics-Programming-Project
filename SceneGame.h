@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene.h"
+#include "UIPanelGame.h"
 
 class SceneGame :
 	public Scene
@@ -10,6 +11,8 @@ public:
 	void CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials) override;
 	void UpdateScene(float deltaTime, float totalTime) override;
 
+	void OnMousePressed(float x, float y) override;
+
 private:
 	// Player
 	EntityPlayer* player;
@@ -19,7 +22,7 @@ private:
 	Entity* meteors;
 
 	// User Interface
-	UIGamePanel* uiGamePanel;
+	UIPanelGame* uiGamePanel;
 
 	//timer for ui
 	wstring timerString;// [MAX_TIMER_BUFFER_LEN];

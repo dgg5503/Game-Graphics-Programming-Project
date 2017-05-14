@@ -3,7 +3,7 @@
 
 SceneGame::SceneGame()
 {
-	uiPanel = uiGamePanel = new UIGamePanel(0, 0);
+	uiPanel = uiGamePanel = new UIPanelGame(0, 0);
 }
 
 SceneGame::~SceneGame()
@@ -100,4 +100,9 @@ void SceneGame::UpdateScene(float deltaTime, float totalTime)
 		}
 		uiGamePanel->UpdateText(timerString);
 	}
+}
+
+void SceneGame::OnMousePressed(float x, float y)
+{
+	player->OnMousePressed(x, y);
 }

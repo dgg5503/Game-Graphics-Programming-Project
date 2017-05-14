@@ -3,11 +3,11 @@
 #include "UIPanel.h"
 #define MAX_TIMER_BUFFER_LEN 9 // 00:00.00\0
 
-class UIGamePanel : public UIPanel
+class UIPanelGame : public UIPanel
 {
 public:
-	UIGamePanel(float _x, float _y);
-	virtual ~UIGamePanel();
+	UIPanelGame(float _x, float _y);
+	virtual ~UIPanelGame();
 
 	// Implement required functions
 	void Draw(SpriteBatch* const spriteBatch,

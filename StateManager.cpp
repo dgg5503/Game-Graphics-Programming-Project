@@ -31,23 +31,38 @@ Scene* StateManager::GetCurrentScene()
 	return currentScene;
 }
 
-
-void StateManager::SetState(GameState newState, EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)
+void StateManager::SetEntityFactory(EntityFactory* entityFactory)
 {
-	UnloadScene(currentScene, entityFactory);
-	currentScene = scenesMap[newState];
-	LoadScene(currentScene, entityFactory, meshes, materials);
+	this->entityFactory = entityFactory;
 }
 
-void StateManager::LoadScene(Scene* scene, EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)
+void StateManager::SetMeshes(std::unordered_map<const char*, Mesh*>* meshes)
 {
-	scene->CreateSceneEntities(entityFactory, meshes, materials);
+	this->meshes = meshes;
+}
+
+void StateManager::SetMaterials(std::unordered_map<const char*, Material*>* materials)
+{
+	this->materials = materials;
+}
+
+
+void StateManager::SetState(GameState newState)
+{
+	UnloadScene(currentScene);
+	currentScene = scenesMap[newState];
+	LoadScene(currentScene);
+}
+
+void StateManager::LoadScene(Scene* scene)
+{
+	scene->CreateSceneEntities(*entityFactory, *meshes, *materials);
 	//set ui renderer junkety stuff 
 	Renderer::Instance()->SetCurrentPanel(currentScene->GetUIPanel());
 }
 
-void StateManager::UnloadScene(Scene* scene, EntityFactory& entityFactory)
+void StateManager::UnloadScene(Scene* scene)
 {
-	entityFactory.Release();
+	entityFactory->Release();
 	Renderer::Instance()->ReleaseParticleRenderer();
 }
