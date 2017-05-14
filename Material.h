@@ -32,7 +32,7 @@ public:
 	// Set vertex/pixel shader information
 	//void PrepareMaterial(SimpleVertexShader* const vShader,
 	//	SimplePixelShader* const pShader);
-	void PrepareMaterial();
+	virtual void PrepareMaterial();
 
 	// Getters for shader types
 	SimpleVertexShader* const GetVertexShader() const;
@@ -44,7 +44,8 @@ public:
 
 	// Stencil ID for this material
 	unsigned int stencilID;
-private:
+
+protected:
 	struct Textures
 	{
 		Texture2D** textures;
@@ -58,7 +59,7 @@ private:
 	SimpleVertexShader* vertexShader;
 	SimplePixelShader* pixelShader;
 
-	// Pointers to info neeeded to attach a texture
+	// Pointers to info needed to attach a texture
 	Textures textureList;
 	//Texture2D* texture2D;
 

@@ -84,7 +84,7 @@ private:
 	~Renderer();
 	static Renderer* instance;
 
-	// Initialzing DXCORE
+	// Initializing DXCORE
 	HRESULT InitDirectX(DXWindow* const window);
 
 	// Deferred rendering

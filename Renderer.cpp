@@ -782,7 +782,7 @@ void Renderer::Render(const Camera * const camera)
 
 		for (auto bucketIt = bucket.first; bucketIt != bucket.second; bucketIt++)
 		{
-			// How to pass in cameralocation for a blinn-phone material
+			// How to pass in camera location for a blinn-phone material
 			// when I can only supply the vertexShader and pixelShader?
 			// The camera location is something that sits constant during these calcs
 			// We need to make a function in material that prepares constant information

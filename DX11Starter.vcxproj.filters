@@ -88,6 +88,9 @@
     <FxCompile Include="ParallaxPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="EnemyVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="UIGamePanel.cpp">
@@ -185,6 +188,9 @@
     </ClCompile>
     <ClCompile Include="DirectionalLight.cpp">
       <Filter>Renderers\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialEnemy.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -316,6 +322,9 @@
     </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Renderers\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialEnemy.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
