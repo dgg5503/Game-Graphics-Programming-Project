@@ -101,6 +101,7 @@ private:
 	ID3D11RenderTargetView* backBufferRTV;
 	ID3D11DepthStencilView* depthStencilView;
 	ID3D11DepthStencilState* depthStencilState;
+	ID3D11DepthStencilState* lightStencilState;
 
 	// -- DEFERRED RENDERING --
 	ID3D11Texture2D* depthBufferTexture;

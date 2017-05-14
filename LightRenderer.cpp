@@ -138,7 +138,8 @@ void LightRenderer::Render(const Camera * const camera)
 {
 	//renderer.depthStencilView
 	// Set render target
-	renderer.context->OMSetRenderTargets(1, &lightRTV, nullptr);
+	renderer.context->OMSetRenderTargets(1, &lightRTV, renderer.depthStencilView);
+	renderer.context->OMSetDepthStencilState(renderer.lightStencilState, 0);
 
 	// Mesh related information
 	const Mesh* currMesh = nullptr;

@@ -141,6 +141,7 @@ Renderer::~Renderer()
 	if (depthStencilView) { depthStencilView->Release(); }
 	if (depthBufferTexture) { depthBufferTexture->Release(); }
 	if (depthStencilState) { depthStencilState->Release(); }
+	if (lightStencilState) { lightStencilState->Release(); }
 	if (backBufferRTV) { backBufferRTV->Release(); }
 	if (depthSRV) { depthSRV->Release(); }
 	if (swapChain) { swapChain->Release(); }
@@ -466,6 +467,15 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	hr = device->CreateDepthStencilState(&depthState, &depthStencilState);
 	if (FAILED(hr))
 		return hr;
+	
+	depthState.DepthEnable = false;
+	depthState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	depthState.FrontFace.StencilFailOp = D3D11_STENCIL_OP_ZERO;
+	depthState.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthState.FrontFace.StencilFunc = D3D11_COMPARISON_NOT_EQUAL;
+	hr = device->CreateDepthStencilState(&depthState, &lightStencilState);
+	if (FAILED(hr))
+		return hr;
 
 	// load deferred lighting and vert shader
 	deferredLightingPS = CreateSimplePixelShader();
@@ -548,7 +558,7 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 		return hr;
 	
 	DirectionalLight* test = lightRenderer->CreateDirectionalLight("testD", true);
-	test->diffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	test->diffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 0.7f, 1.0f);
 	test->ambientColor = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	test->direction = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	test->intensity = 1.0f;
@@ -1026,7 +1036,7 @@ void Renderer::Render(const Camera * const camera)
 	/*
 	float2 ScreenLightPos = float2(.5, .5);
 	/**/
-	XMFLOAT2 ScreenLightPos = XMFLOAT2(.1f, .1f);
+	XMFLOAT2 ScreenLightPos = XMFLOAT2(200.0f, 200.0f);
 	float Exposure = .03f;//.05 is less in your face
 	float Decay = .99f;//0-1//apparently don't change this, really messes with it, makes it look a lot worse
 	float Density = 0.5f;//higher looks worse, lower makes rays too short

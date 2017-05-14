@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene.h"
+#include "ParticleEmitter.h"
 
 class SceneGame :
 	public Scene
