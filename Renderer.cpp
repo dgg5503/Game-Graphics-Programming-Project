@@ -61,7 +61,7 @@ Renderer::Renderer(DXWindow* const window)
 	blurDist = 4;
 	glowDist = 50;
 	colorThreshold = .2f;
-	glowPercentage = .05f;
+	glowPercentage = .5f;
 	/*
 	float normalization = 0;
 	//fill weights array
@@ -141,6 +141,7 @@ Renderer::~Renderer()
 	if (depthStencilView) { depthStencilView->Release(); }
 	if (depthBufferTexture) { depthBufferTexture->Release(); }
 	if (depthStencilState) { depthStencilState->Release(); }
+	if (lightStencilState) { lightStencilState->Release(); }
 	if (backBufferRTV) { backBufferRTV->Release(); }
 	if (depthSRV) { depthSRV->Release(); }
 	if (swapChain) { swapChain->Release(); }
@@ -466,6 +467,15 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	hr = device->CreateDepthStencilState(&depthState, &depthStencilState);
 	if (FAILED(hr))
 		return hr;
+	
+	depthState.DepthEnable = false;
+	depthState.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	depthState.FrontFace.StencilFailOp = D3D11_STENCIL_OP_ZERO;
+	depthState.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthState.FrontFace.StencilFunc = D3D11_COMPARISON_NOT_EQUAL;
+	hr = device->CreateDepthStencilState(&depthState, &lightStencilState);
+	if (FAILED(hr))
+		return hr;
 
 	// load deferred lighting and vert shader
 	deferredLightingPS = CreateSimplePixelShader();
@@ -548,7 +558,7 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 		return hr;
 	
 	DirectionalLight* test = lightRenderer->CreateDirectionalLight("testD", true);
-	test->diffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	test->diffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 0.7f, 1.0f);
 	test->ambientColor = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	test->direction = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	test->intensity = 1.0f;
@@ -746,7 +756,6 @@ void Renderer::Render(const Camera * const camera)
 	// Set render targets to textures
 	// Our deferred renderer will now output to our render target textures
 	context->OMSetRenderTargets(BUFFER_COUNT, targetViews, depthStencilView);
-	context->OMSetDepthStencilState(depthStencilState, 1);
 
 	// Iterate through each bucket
 	for (auto it = renderBatches.begin(); it != renderBatches.end();)
@@ -765,12 +774,15 @@ void Renderer::Render(const Camera * const camera)
 		// -- Set material specific information --
 		currMaterial->PrepareMaterial();
 
+		// Set stencil stuff
+		context->OMSetDepthStencilState(depthStencilState, currMaterial->stencilID);
+
 		// -- Copy pixel data --
 		pixelShader->CopyAllBufferData();
 
 		for (auto bucketIt = bucket.first; bucketIt != bucket.second; bucketIt++)
 		{
-			// How to pass in cameralocation for a blinn-phone material
+			// How to pass in camera location for a blinn-phone material
 			// when I can only supply the vertexShader and pixelShader?
 			// The camera location is something that sits constant during these calcs
 			// We need to make a function in material that prepares constant information
@@ -1028,7 +1040,7 @@ void Renderer::Render(const Camera * const camera)
 	/*
 	float2 ScreenLightPos = float2(.5, .5);
 	/**/
-	XMFLOAT2 ScreenLightPos = XMFLOAT2(.1f, .1f);
+	XMFLOAT2 ScreenLightPos = XMFLOAT2(200.0f, 200.0f);
 	float Exposure = .03f;//.05 is less in your face
 	float Decay = .99f;//0-1//apparently don't change this, really messes with it, makes it look a lot worse
 	float Density = 0.5f;//higher looks worse, lower makes rays too short

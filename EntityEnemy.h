@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "MaterialEnemy.h"
 
 class EntityEnemy :
 	public Entity
@@ -29,13 +30,18 @@ public:
 	const XMFLOAT3* const GetDirection() const;
 
 protected:
+	float maxScale;		// Max scale of enemy
 	float speed;		// Speed the enemy moves at
 	float health;		// The enemies current health.
 	float healthMax;	// The max health of the enemy
 	float spawnTimer;	// When respawning, start the timer for pitch
 
-	Entity* target;		// The targert of the enemy
+	Entity* target;		// The target of the enemy
 	XMFLOAT3 direction;	// Direction the enemy is looking at
+	XMFLOAT3 rotationAxis;
+
+	// Material
+	MaterialEnemy* enemyMaterial;
 
 	// Particle Systems
 	ParticleEmitter* peExplosionDebris;

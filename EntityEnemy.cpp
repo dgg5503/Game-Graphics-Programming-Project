@@ -11,10 +11,16 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	this->speed = 1.0f;
 	this->health = 0.000001f;
 	this->healthMax = 1.0f;
+	this->maxScale = 0.25;
 	this->spawnTimer = 0.0f;
 
+	// Create a unique rotation axis for this enemy
+	this->rotationAxis = XMFLOAT3(rand() % 100 - 50.0f, rand() % 100 - 50.0f, rand() % 100 - 50.0f);
 
-	// Explosion - occurs when killed
+	// Cast the current material into an Enemy Material so it can be modified as such.
+	this->enemyMaterial = dynamic_cast<MaterialEnemy*>(this->GetMaterial());
+
+	// Explosion Particle Systems - occurs when killed
 	Renderer* renderer = Renderer::Instance();
 	peExplosionDebris = renderer->CreateBurstParticleEmitter("PE_" + name + "_Explosion_Debris", 20);
 	peExplosionDebris->SetAgeRange(2.0f, 1.0f);
@@ -69,17 +75,24 @@ void EntityEnemy::Update(float deltaTime, float totalTime)
 		transform.Move(direction.x * deltaTime * speed, direction.y * deltaTime * speed, direction.z * deltaTime * speed);
 	}
 
-	transform.SetRotation(1, 1, 1, totalTime);
+	// Update the rotation of the entity
+	transform.SetRotation(rotationAxis.x, rotationAxis.y, rotationAxis.z, totalTime);
 
 	// Regenerate health overtime
 	ChangeHealth(0.25f * deltaTime);
+
+	// If we have the enemy material, update the total time for it.
+	if (enemyMaterial != nullptr) {
+		enemyMaterial->SetTotalTime(totalTime);
+	}
 
 	// Update position in sound engine
 	AK::SoundEngine::SetPosition(id, transform);
 }
 
 void EntityEnemy::MoveToRandomPosition()
-{
+{ 
+	// Find a random place to respawn the enemy.
 	transform.SetPosition(rand() % 10 - 5.0f, rand() % 10 - 5.0f, 0.0f);
 }
 
@@ -117,6 +130,7 @@ void EntityEnemy::ChangeHealth(float healthDelta)
 {
 	health += healthDelta;
 
+	// Check if the enemy has died
 	if (health <= 0) {
 		health = 0;
 		spawnTimer = 0;
@@ -140,7 +154,7 @@ void EntityEnemy::ChangeHealth(float healthDelta)
 	}
 
 	// Set new scale
-	float scale = (health) / healthMax * .5f;
+	float scale = (health) / healthMax * this->maxScale;
 	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::ENEMY_SCALE, static_cast<AkRtpcValue>(health / healthMax), id);
 	transform.SetScale(DirectX::XMFLOAT3(scale, scale, scale));
 	GetCollider()->SetScale(DirectX::XMFLOAT3(scale/2, scale/2, scale/2));
@@ -184,7 +198,7 @@ void EntityEnemy::OnCollision(Collision collision) {
 		const XMFLOAT3* otherPosition = collision.otherTransform.GetPosition();
 		XMFLOAT3 bounce = XMFLOAT3();
 		XMVECTOR bounceVector = XMLoadFloat3(transform.GetPosition()) - XMLoadFloat3(otherPosition);
-		bounceVector = XMVector3Normalize(bounceVector) * 0.005f;
+		bounceVector = XMVector3Normalize(bounceVector) * 0.01f;
 		XMStoreFloat3(&bounce, bounceVector);
 
 		// Move away from other enemy

@@ -33,10 +33,10 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 	EntityEnemy* enemy;
 	for (auto i = 0u; i < 10; ++i) {
 		enemy = (EntityEnemy*)entityFactory
-			.CreateEntity(EntityType::ENEMY, "Enemy_" + std::to_string(i), meshes["enemy"], materials["sand"]);
+			.CreateEntity(EntityType::ENEMY, "Enemy_" + std::to_string(i), meshes["enemy"], materials["enemy"]);
 		enemy->SetTarget(player);
 		enemy->MoveToRandomPosition();
-		enemy->transform.SetScale(0.25f, 0.25f, 0.25f);
+		enemy->transform.SetScale(0.15f, 0.15f, 0.15f);
 		enemy->SetCollider(Collider::ColliderType::OBB);
 	}
 
@@ -60,10 +60,10 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 	planet->transform.SetScale(s, s, s);
 
 	Entity* sun = entityFactory
-		.CreateEntity(EntityType::STATIC, "Sun", meshes["sun"], materials["sand"]);
+		.CreateEntity(EntityType::STATIC, "Sun", meshes["sun"], materials["sun"]);
 	sun->transform.SetPosition(0, 0, 28.0f);
 	sun->transform.SetScale(s, s, s);
-
+	sun->GetMaterial()->stencilID = 0;
 
 	//meteors
 	meteors = entityFactory

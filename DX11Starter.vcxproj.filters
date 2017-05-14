@@ -82,6 +82,15 @@
     <FxCompile Include="PrePostProcessPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="ParallaxVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParallaxPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="EnemyVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
     <Filter Include="Audio">
       <UniqueIdentifier>{97960ef5-7424-4e8c-b259-4d143433a5d0}</UniqueIdentifier>
     </Filter>
@@ -212,6 +221,9 @@
     </ClCompile>
     <ClCompile Include="GlobalAmbiance.cpp">
       <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialEnemy.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -388,6 +400,9 @@
     </ClInclude>
     <ClInclude Include="GlobalAmbiance.h">
       <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialEnemy.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

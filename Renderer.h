@@ -84,7 +84,7 @@ private:
 	~Renderer();
 	static Renderer* instance;
 
-	// Initialzing DXCORE
+	// Initializing DXCORE
 	HRESULT InitDirectX(DXWindow* const window);
 
 	// Deferred rendering
@@ -101,6 +101,7 @@ private:
 	ID3D11RenderTargetView* backBufferRTV;
 	ID3D11DepthStencilView* depthStencilView;
 	ID3D11DepthStencilState* depthStencilState;
+	ID3D11DepthStencilState* lightStencilState;
 
 	// -- DEFERRED RENDERING --
 	ID3D11Texture2D* depthBufferTexture;
