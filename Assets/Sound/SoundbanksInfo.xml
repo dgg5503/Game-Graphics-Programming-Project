@@ -26,6 +26,7 @@
 				<Event Id="638744943" Name="Fire_Laser_Player" ObjectPath="\Events\Default Work Unit\Fire_Laser_Player"/>
 				<Event Id="2278749975" Name="Global_Ambiance" ObjectPath="\Events\Default Work Unit\Global_Ambiance"/>
 				<Event Id="3166119473" Name="Laser_Hit_Enemy" ObjectPath="\Events\Default Work Unit\Laser_Hit_Enemy"/>
+				<Event Id="168234030" Name="Move_Asteroid" ObjectPath="\Events\Default Work Unit\Move_Asteroid"/>
 				<Event Id="1439539819" Name="Move_Enemy" ObjectPath="\Events\Default Work Unit\Move_Enemy"/>
 				<Event Id="4179450590" Name="Move_Player" ObjectPath="\Events\Default Work Unit\Move_Player"/>
 				<Event Id="1836686104" Name="Move_Projectile" ObjectPath="\Events\Default Work Unit\Move_Projectile"/>
@@ -57,6 +58,10 @@
 				<File Id="896268406" Language="SFX">
 					<ShortName>MovementEnemy.wav</ShortName>
 					<Path>SFX\MovementEnemy_ED9F203E.wem</Path>
+				</File>
+				<File Id="899713675" Language="SFX">
+					<ShortName>DeepTone2.wav</ShortName>
+					<Path>SFX\DeepTone2_4B8CC0C5.wem</Path>
 				</File>
 				<File Id="913051773" Language="SFX">
 					<ShortName>MovementEnemy3.wav</ShortName>

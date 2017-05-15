@@ -18,6 +18,7 @@ namespace AK
         static const AkUniqueID FIRE_LASER_PLAYER = 638744943U;
         static const AkUniqueID GLOBAL_AMBIANCE = 2278749975U;
         static const AkUniqueID LASER_HIT_ENEMY = 3166119473U;
+        static const AkUniqueID MOVE_ASTEROID = 168234030U;
         static const AkUniqueID MOVE_ENEMY = 1439539819U;
         static const AkUniqueID MOVE_PLAYER = 4179450590U;
         static const AkUniqueID MOVE_PROJECTILE = 1836686104U;

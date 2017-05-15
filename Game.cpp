@@ -94,9 +94,13 @@ XMFLOAT2 Game::GetScreenCoords(Transform & transform)
 	const XMFLOAT4X4& proj = activeCamera->GetProjectionMatrix();
 
 	// convert to screen space
-	XMFLOAT2 value;
-	XMStoreFloat2(&value, XMVector3Transform(XMLoadFloat3(pos), XMLoadFloat4x4(&view) * XMLoadFloat4x4(&proj)));
-	return value;
+	XMFLOAT3 value;
+	XMStoreFloat3(&value, XMVector3Transform(XMLoadFloat3(pos), XMLoadFloat4x4(&view) * XMLoadFloat4x4(&proj)));
+
+	// Check if behind camera
+	if (value.z < 0)
+		return XMFLOAT2(-5.0f, -5.0f);
+	return XMFLOAT2(value.x, value.y);
 }
 
 // --------------------------------------------------------
@@ -233,7 +237,7 @@ void Game::CreateBasicGeometry()
 	meshes["player"] = renderer->CreateMesh("./Assets/Models/playerShip.fbx");
 	meshes["frame"] = renderer->CreateMesh("./Assets/Models/frame.fbx");
 	meshes["planet"] = renderer->CreateMesh("./Assets/Models/planet.fbx");
-	meshes["meteors"] = renderer->CreateMesh("./Assets/Models/meteors.fbx");
+	meshes["meteors"] = renderer->CreateMesh("./Assets/Models/help.obj");
 	meshes["sun"] = renderer->CreateMesh("./Assets/Models/sun.fbx");
 }
 

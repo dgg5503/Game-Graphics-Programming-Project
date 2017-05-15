@@ -8,6 +8,7 @@
 #include "EntityProjectile.h"
 #include "EntityStatic.h"
 #include "EntityManagerProjectile.h"
+#include "EntityMeteor.h"
 
 // Managers
 #include "CollisionManager.h"
@@ -22,6 +23,7 @@ enum EntityType {
 	PLAYER,
 	PROJECTILE,
 	MANAGER_PROJECTILE,
+	METEOR
 };
 
 

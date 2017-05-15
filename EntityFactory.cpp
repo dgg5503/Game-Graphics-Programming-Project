@@ -25,6 +25,9 @@ Entity* EntityFactory::CreateEntity(EntityType entityType, std::string name, Mes
 	case EntityType::MANAGER_PROJECTILE:
 		entity = new EntityManagerProjectile(this, name);
 		break;
+	case EntityType::METEOR:
+		entity = new EntityMeteor(this, name, mesh, material);
+		break;
 	}
 	entities[entity->GetName()] = entity;
 	return entity;

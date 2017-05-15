@@ -217,6 +217,7 @@
       <Filter>Audio</Filter>
     </ClCompile>
     <ClCompile Include="MaterialEnemy.cpp" />
+    <ClCompile Include="EntityMeteor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UIGamePanel.h">
@@ -394,6 +395,7 @@
       <Filter>Audio</Filter>
     </ClInclude>
     <ClInclude Include="MaterialEnemy.h" />
+    <ClInclude Include="EntityMeteor.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Textures\starscape.dds">

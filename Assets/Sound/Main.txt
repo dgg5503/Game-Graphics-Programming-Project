@@ -1,4 +1,5 @@
 Event	ID	Name			Wwise Object Path	Notes
+	168234030	Move_Asteroid			\Default Work Unit\Move_Asteroid	
 	638744943	Fire_Laser_Player			\Default Work Unit\Fire_Laser_Player	
 	1439539819	Move_Enemy			\Default Work Unit\Move_Enemy	
 	1836686104	Move_Projectile			\Default Work Unit\Move_Projectile	
@@ -37,6 +38,7 @@ In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	725107953	Exhaust	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\Exhaust_4B8CC0C5.wem		\Actor-Mixer Hierarchy\Default Work Unit\Exhaust		292852
 	869583670	spaceAmbiance	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\spaceAmbiance_4B8CC0C5.wem		\Actor-Mixer Hierarchy\Default Work Unit\spaceAmbiance		1609028
 	896268406	MovementEnemy	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\MovementEnemy_ED9F203E.wem		\Actor-Mixer Hierarchy\Default Work Unit\MovementEnemy		139068
+	899713675	DeepTone2	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\DeepTone2_4B8CC0C5.wem		\Actor-Mixer Hierarchy\Default Work Unit\DeepTone2		3558228
 	913051773	EnemySpawn	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\MovementEnemy3_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\EnemySpawn		366164
 	971135744	ExplosionVidya	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\ExplosionVidya_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\ExplosionVidya		180196
 	1010488015	laser2	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\Shoot2_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\laser2		35204

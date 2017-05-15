@@ -67,15 +67,15 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 
 	//meteors
 	meteors = entityFactory
-		.CreateEntity(EntityType::STATIC, "meteors", meshes["meteors"], materials["stone"]);
-	meteors->transform.SetPosition(0, 0, 0);
+		.CreateEntity(EntityType::METEOR, "meteors", meshes["meteors"], materials["stone"]);
+	//meteors->transform.SetPosition(0, 0, 0);
 	meteors->transform.SetScale(s, s, s);
 
 	//meteors2 to fill it out a bit
-	meteors2 = entityFactory
-		.CreateEntity(EntityType::STATIC, "meteors2", meshes["meteors"], materials["stone"]);
-	meteors2->transform.SetPosition(0, 0, 0);
-	meteors2->transform.SetScale(s, s, s);
+	//meteors2 = entityFactory
+	//	.CreateEntity(EntityType::METEOR, "meteors2", meshes["meteors"], materials["stone"]);
+	//meteors2->transform.SetPosition(0, 0, 0);
+	//meteors2->transform.SetScale(s, s, s);
 }
 
 void SceneGame::UpdateScene(float deltaTime, float totalTime)
@@ -83,8 +83,8 @@ void SceneGame::UpdateScene(float deltaTime, float totalTime)
 	uiGamePanel->UpdateHealth(player->health);
 
 	//spin meteors
-	meteors->transform.SetRotation(0,1,0, totalTime/20);
-	meteors2->transform.SetRotation(0, 1, 0, (totalTime / 20)+ 80);
+	//meteors->transform.SetRotation(0,1,0, totalTime/20);
+	//meteors2->transform.SetRotation(0, 1, 0, (totalTime / 20)+ 80);
 
 
 	if (player->health) {

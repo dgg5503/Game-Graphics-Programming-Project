@@ -204,6 +204,7 @@
     <ClCompile Include="EntityEnemy.cpp" />
     <ClCompile Include="EntityFactory.cpp" />
     <ClCompile Include="EntityManagerProjectile.cpp" />
+    <ClCompile Include="EntityMeteor.cpp" />
     <ClCompile Include="EntityPlayer.cpp" />
     <ClCompile Include="EntityProjectile.cpp" />
     <ClCompile Include="EntityStatic.cpp" />
@@ -265,6 +266,7 @@
     <ClInclude Include="EntityEnemy.h" />
     <ClInclude Include="EntityFactory.h" />
     <ClInclude Include="EntityManagerProjectile.h" />
+    <ClInclude Include="EntityMeteor.h" />
     <ClInclude Include="EntityPlayer.h" />
     <ClInclude Include="EntityProjectile.h" />
     <ClInclude Include="EntityStatic.h" />
