@@ -85,6 +85,8 @@ private:
 	SimplePixelShader* pixelShader;
 	SimplePixelShader* pixelShader_normal;
 	SimpleVertexShader* vertexShader_enemy;
+	SimpleVertexShader* vertexShader_parallax;
+	SimplePixelShader* pixelShader_parallax;
 
 	// Keeps track of the old mouse position.  Useful for 
 	// determining how far the mouse moved in a single frame.

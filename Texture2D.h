@@ -9,7 +9,8 @@ enum class Texture2DType
 {
 	ALBEDO,
 	NORMAL,
-	EMISSION
+	EMISSION,
+	PARALLAX
 };
 
 enum class Texture2DFileType

@@ -59,6 +59,10 @@ Texture2D::Texture2D(const wchar_t * filePath,
 			samplerName = "albedoSampler";
 			srvName = "emissionMap";
 			break;
+		case Texture2DType::PARALLAX:
+			samplerName = "albedoSampler";
+			srvName = "depthMap";
+			break;
 		default:
 			// ASSERT?
 			break;
