@@ -22,20 +22,33 @@
 			<Path>Main.bnk</Path>
 			<IncludedEvents>
 				<Event Id="3978230001" Name="Explode_Enemy" ObjectPath="\Events\Default Work Unit\Explode_Enemy"/>
+				<Event Id="2840822536" Name="Explode_Player" ObjectPath="\Events\Default Work Unit\Explode_Player"/>
 				<Event Id="638744943" Name="Fire_Laser_Player" ObjectPath="\Events\Default Work Unit\Fire_Laser_Player"/>
 				<Event Id="2278749975" Name="Global_Ambiance" ObjectPath="\Events\Default Work Unit\Global_Ambiance"/>
 				<Event Id="3166119473" Name="Laser_Hit_Enemy" ObjectPath="\Events\Default Work Unit\Laser_Hit_Enemy"/>
 				<Event Id="1439539819" Name="Move_Enemy" ObjectPath="\Events\Default Work Unit\Move_Enemy"/>
+				<Event Id="4179450590" Name="Move_Player" ObjectPath="\Events\Default Work Unit\Move_Player"/>
+				<Event Id="1836686104" Name="Move_Projectile" ObjectPath="\Events\Default Work Unit\Move_Projectile"/>
+				<Event Id="3869301839" Name="Spawn_Enemy" ObjectPath="\Events\Default Work Unit\Spawn_Enemy"/>
 				<Event Id="1955298694" Name="Stop_Move_Enemy" ObjectPath="\Events\Default Work Unit\Stop_Move_Enemy"/>
+				<Event Id="3509184541" Name="Stop_Move_Player" ObjectPath="\Events\Default Work Unit\Stop_Move_Player"/>
 			</IncludedEvents>
 			<IncludedMemoryFiles>
-				<File Id="206684750" Language="SFX">
-					<ShortName>laser.wav</ShortName>
-					<Path>SFX\laser_9E69E797.wem</Path>
+				<File Id="63211752" Language="SFX">
+					<ShortName>ExplosionPlayer.wav</ShortName>
+					<Path>SFX\ExplosionPlayer_9E69E797.wem</Path>
+				</File>
+				<File Id="517399045" Language="SFX">
+					<ShortName>ExhaustWoot.wav</ShortName>
+					<Path>SFX\ExhaustWoot_4B8CC0C5.wem</Path>
 				</File>
 				<File Id="647814471" Language="SFX">
 					<ShortName>hit.wav</ShortName>
 					<Path>SFX\hit_9E69E797.wem</Path>
+				</File>
+				<File Id="725107953" Language="SFX">
+					<ShortName>Exhaust.wav</ShortName>
+					<Path>SFX\Exhaust_4B8CC0C5.wem</Path>
 				</File>
 				<File Id="869583670" Language="SFX">
 					<ShortName>spaceAmbiance.wav</ShortName>
@@ -45,9 +58,17 @@
 					<ShortName>MovementEnemy.wav</ShortName>
 					<Path>SFX\MovementEnemy_ED9F203E.wem</Path>
 				</File>
+				<File Id="913051773" Language="SFX">
+					<ShortName>MovementEnemy3.wav</ShortName>
+					<Path>SFX\MovementEnemy3_9E69E797.wem</Path>
+				</File>
 				<File Id="971135744" Language="SFX">
 					<ShortName>ExplosionVidya.wav</ShortName>
 					<Path>SFX\ExplosionVidya_9E69E797.wem</Path>
+				</File>
+				<File Id="1010488015" Language="SFX">
+					<ShortName>Shoot2.wav</ShortName>
+					<Path>SFX\Shoot2_9E69E797.wem</Path>
 				</File>
 			</IncludedMemoryFiles>
 		</SoundBank>

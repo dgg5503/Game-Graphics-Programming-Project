@@ -1,21 +1,43 @@
 Event	ID	Name			Wwise Object Path	Notes
 	638744943	Fire_Laser_Player			\Default Work Unit\Fire_Laser_Player	
 	1439539819	Move_Enemy			\Default Work Unit\Move_Enemy	
+	1836686104	Move_Projectile			\Default Work Unit\Move_Projectile	
 	1955298694	Stop_Move_Enemy			\Default Work Unit\Stop_Move_Enemy	
 	2278749975	Global_Ambiance			\Default Work Unit\Global_Ambiance	
+	2840822536	Explode_Player			\Default Work Unit\Explode_Player	
 	3166119473	Laser_Hit_Enemy			\Default Work Unit\Laser_Hit_Enemy	
+	3509184541	Stop_Move_Player			\Default Work Unit\Stop_Move_Player	
+	3869301839	Spawn_Enemy			\Default Work Unit\Spawn_Enemy	
 	3978230001	Explode_Enemy			\Default Work Unit\Explode_Enemy	
+	4179450590	Move_Player			\Default Work Unit\Move_Player	
+
+State Group	ID	Name			Wwise Object Path	Notes
+	4071417932	Player_State			\Default Work Unit\Player_State	
+
+State	ID	Name	State Group			Notes
+	748895195	None	Player_State			
+	2248092158	Player_Move	Player_State			
+	3643401235	Player_Idle	Player_State			
+
+Custom State	ID	Name	State Group	Owner		Notes
+	254939357	Player_Idle	Player_State	\Actor-Mixer Hierarchy\Default Work Unit\ExhaustWoot		
 
 Game Parameter	ID	Name			Wwise Object Path	Notes
 	1656210572	Enemy_Scale			\Default Work Unit\Enemy_Scale	
+	2761190168	Pos_X			\Default Work Unit\Pos_X	
+	2761190169	Pos_Y			\Default Work Unit\Pos_Y	
 
 Effect plug-ins	ID	Name	Type				Notes
 	702543456	Tunnel1	Wwise Matrix Reverb			
 
 In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
-	206684750	laser	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\laser_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\laser		4352
+	63211752	ExplosionPlayer	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\ExplosionPlayer_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\ExplosionPlayer		465704
+	517399045	ExhaustWoot	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\ExhaustWoot_4B8CC0C5.wem		\Actor-Mixer Hierarchy\Default Work Unit\ExhaustWoot		218432
 	647814471	hit	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\hit_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\hit		62764
+	725107953	Exhaust	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\Exhaust_4B8CC0C5.wem		\Actor-Mixer Hierarchy\Default Work Unit\Exhaust		292852
 	869583670	spaceAmbiance	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\spaceAmbiance_4B8CC0C5.wem		\Actor-Mixer Hierarchy\Default Work Unit\spaceAmbiance		1609028
 	896268406	MovementEnemy	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\MovementEnemy_ED9F203E.wem		\Actor-Mixer Hierarchy\Default Work Unit\MovementEnemy		139068
+	913051773	EnemySpawn	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\MovementEnemy3_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\EnemySpawn		366164
 	971135744	ExplosionVidya	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\ExplosionVidya_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\ExplosionVidya		180196
+	1010488015	laser2	E:\User Docs\Documents\WwiseProjects\GGP\.cache\Windows\SFX\Shoot2_9E69E797.wem		\Actor-Mixer Hierarchy\Default Work Unit\laser2		35204
 

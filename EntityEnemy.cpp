@@ -1,5 +1,6 @@
 #include "EntityEnemy.h"
 #include "MemoryDebug.h"
+#include "Game.h"
 
 using namespace DirectX;
 
@@ -43,11 +44,10 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	peExplosionFireball->SetDirectionRange(XMFLOAT3(1, 1, 1), XMFLOAT3(-1, -1, -1));
 
 	// Set spawn timer to 0
-	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::ENEMY_SPAWN_TIMER, static_cast<AkRtpcValue>(this->spawnTimer));
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::ENEMY_SPAWN_TIMER, static_cast<AkRtpcValue>(this->spawnTimer), id);
 
 	// Fire audio
 	AK::SoundEngine::PostEvent(AK::EVENTS::MOVE_ENEMY, id);
-
 }
 
 EntityEnemy::~EntityEnemy()
@@ -62,7 +62,7 @@ void EntityEnemy::Update(float deltaTime, float totalTime)
 	// Increment spawn timer
 	spawnTimer += 0.25f * deltaTime;
 	spawnTimer = AkClamp(spawnTimer / healthMax, 0.0f, 1.0f);
-	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::ENEMY_SPAWN_TIMER, static_cast<AkRtpcValue>(spawnTimer));
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::ENEMY_SPAWN_TIMER, static_cast<AkRtpcValue>(spawnTimer), id);
 
 	// If there is a target
 	if (target != NULL) {
@@ -87,13 +87,20 @@ void EntityEnemy::Update(float deltaTime, float totalTime)
 	}
 
 	// Update position in sound engine
-	AK::SoundEngine::SetPosition(id, transform);
+	const XMFLOAT2& screenCoords = Game::GetScreenCoords(transform);
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::POS_X, static_cast<AkRtpcValue>(screenCoords.x), id);
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::POS_Y, static_cast<AkRtpcValue>(screenCoords.y), id);
+	//AK::SoundEngine::SetPosition(id, transform);
 }
 
 void EntityEnemy::MoveToRandomPosition()
 { 
 	// Find a random place to respawn the enemy.
 	transform.SetPosition(rand() % 10 - 5.0f, rand() % 10 - 5.0f, 0.0f);
+
+	const XMFLOAT2& screenCoords = Game::GetScreenCoords(transform);
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::POS_X, static_cast<AkRtpcValue>(screenCoords.x), id);
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::POS_Y, static_cast<AkRtpcValue>(screenCoords.y), id);
 }
 
 void EntityEnemy::SetSpeed(float speed)
@@ -148,6 +155,8 @@ void EntityEnemy::ChangeHealth(float healthDelta)
 
 		// Spawn in new location
 		MoveToRandomPosition();
+
+		AK::SoundEngine::PostEvent(AK::EVENTS::SPAWN_ENEMY, id);
 	}
 	else if (health > healthMax) {
 		health = healthMax;

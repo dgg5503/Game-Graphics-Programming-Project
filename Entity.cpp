@@ -30,8 +30,8 @@ Entity::~Entity()
 {
 	if (collider != nullptr) delete collider;
 
-	// Unregsiter GO
-	if (id) { AK::SoundEngine::UnregisterGameObj(id); }
+	// Stop all then unregister
+	if (id) { AK::SoundEngine::StopAll(id); AK::SoundEngine::UnregisterGameObj(id); }
 }
 
 /*

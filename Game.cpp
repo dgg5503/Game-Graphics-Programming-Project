@@ -3,7 +3,7 @@
 
 // For the DirectX Math library
 using namespace DirectX;
-
+Camera* Game::activeCamera = nullptr;
 // --------------------------------------------------------
 // Constructor
 //
@@ -81,6 +81,24 @@ Game::~Game()
 	Renderer::Shutdown();
 }
 
+XMFLOAT2 Game::GetScreenCoords(Transform & transform)
+{
+	const XMFLOAT3* pos = transform.GetPosition();
+
+	// get active camera
+	if (!activeCamera)
+		return XMFLOAT2();
+
+	// get stuff
+	const XMFLOAT4X4& view = activeCamera->GetViewMatrix();
+	const XMFLOAT4X4& proj = activeCamera->GetProjectionMatrix();
+
+	// convert to screen space
+	XMFLOAT2 value;
+	XMStoreFloat2(&value, XMVector3Transform(XMLoadFloat3(pos), XMLoadFloat4x4(&view) * XMLoadFloat4x4(&proj)));
+	return value;
+}
+
 // --------------------------------------------------------
 // Called once per program, after DirectX and the window
 // are initialized but before the game loop.
@@ -108,7 +126,7 @@ void Game::Init()
 	debugCamera->transform.Move(0, 0, -3.0f);
 
 	gameCamera = new CameraGame();
-	gameCamera->transform.Move(0, 0, -100.0f);
+	gameCamera->transform.Move(0, 0, -10.0f);
 
 	activeCamera = gameCamera;
 

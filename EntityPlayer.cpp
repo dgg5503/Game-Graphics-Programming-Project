@@ -1,4 +1,5 @@
 #include "EntityPlayer.h"
+#include "Game.h"
 #include "MemoryDebug.h"
 
 EntityPlayer::EntityPlayer(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
@@ -52,6 +53,9 @@ EntityPlayer::EntityPlayer(EntityFactory* entityFactory, std::string name, Mesh*
 	peExplosionFireball->SetInitialSizeRange(XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.75f, 0.75f));
 	peExplosionFireball->SetEndSize(XMFLOAT2(0, 0));
 	peExplosionFireball->SetDirectionRange(XMFLOAT3(1, 1, 1), XMFLOAT3(-1, -1, -1));
+
+	AK::SoundEngine::PostEvent(AK::EVENTS::MOVE_PLAYER, id);
+	AK::SoundEngine::SetState(AK::STATES::PLAYER_STATE::GROUP, AK::STATES::PLAYER_STATE::STATE::PLAYER_IDLE);
 #pragma endregion 
 }
 
@@ -87,6 +91,10 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 	transform.Move(movement.x, movement.y, movement.z);
 	transform.SetRotation(0, 0, 1, atan2f(movement.y, movement.x));
 
+	const XMFLOAT2& screenCoords = Game::GetScreenCoords(transform);
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::POS_X, static_cast<AkRtpcValue>(screenCoords.x), id);
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::POS_Y, static_cast<AkRtpcValue>(screenCoords.y), id);
+
 	if (isSteering) {
 		auto emitPosition = transform.GetPosition();
 		XMFLOAT3 backwards = XMFLOAT3();
@@ -102,10 +110,14 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 		peEngineExhaust->SetPosition(*emitPosition);
 		peEngineExhaust->SetLoop(-1);
 		peEngineExhaust->Emit();
+
+		AK::SoundEngine::SetState(AK::STATES::PLAYER_STATE::GROUP, AK::STATES::PLAYER_STATE::STATE::PLAYER_MOVE);
 	}
 	else {
 		peEngineExhaust->SetLoop(0);
 		peEngineExhaust->Emit();
+
+		AK::SoundEngine::SetState(AK::STATES::PLAYER_STATE::GROUP, AK::STATES::PLAYER_STATE::STATE::PLAYER_IDLE);
 	}
 
 	// Handle firing
@@ -161,10 +173,16 @@ void EntityPlayer::ChangeHealth(int healthDelta)
 		// Explosion Effect
 		const XMFLOAT3* position = transform.GetPosition();
 
+		peEngineExhaust->SetLoop(0);
+		peEngineExhaust->Emit();
+
 		peExplosionDebris->SetPosition(*position);
 		peExplosionFireball->SetPosition(*position);
 		peExplosionDebris->Emit();
 		peExplosionFireball->Emit();
+
+		AK::SoundEngine::SetState(AK::STATES::PLAYER_STATE::GROUP, AK::STATES::PLAYER_STATE::STATE::PLAYER_IDLE);
+		AK::SoundEngine::PostEvent(AK::EVENTS::EXPLODE_PLAYER, id);
 	}
 	else if (health > maxHealth) {
 		health = maxHealth;

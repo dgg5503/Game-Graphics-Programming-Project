@@ -141,7 +141,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <Profile>true</Profile>
-      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;dinput8.lib;dsound.lib;dxguid.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;AkMatrixReverbFX.lib;dinput8.lib;dsound.lib;dxguid.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /s /i /e "$(ProjectDir)Assets" "$(OutDir)Assets"</Command>
@@ -164,7 +164,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <Profile>true</Profile>
-      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;dinput8.lib;dsound.lib;dxguid.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AkSoundEngine.lib;AkMemoryMgr.lib;AkStreamMgr.lib;AkMusicEngine.lib;AkMatrixReverbFX.lib;dinput8.lib;dsound.lib;dxguid.lib;xinput.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /s /i /e "$(ProjectDir)Assets" "$(OutDir)Assets"</Command>

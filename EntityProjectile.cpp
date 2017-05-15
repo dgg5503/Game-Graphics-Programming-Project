@@ -1,5 +1,6 @@
 #include "EntityProjectile.h"
 #include "EntityFactory.h"
+#include "Game.h"
 #include "MemoryDebug.h"
 
 EntityProjectile::EntityProjectile(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
@@ -49,6 +50,10 @@ void EntityProjectile::Update(float deltaTime, float totalTime)
 
 	peTrail->SetDirectionRange(backwardsLeft, backwardsRight);
 	peTrail->SetPosition(*position);
+
+	const XMFLOAT2& screenCoords = Game::GetScreenCoords(transform);
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::POS_X, static_cast<AkRtpcValue>(screenCoords.x), id);
+	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::POS_Y, static_cast<AkRtpcValue>(screenCoords.y), id);
 }
 
 void EntityProjectile::Fire(XMFLOAT3 position, XMFLOAT3 direction, float speed)
@@ -63,6 +68,8 @@ void EntityProjectile::Fire(XMFLOAT3 position, XMFLOAT3 direction, float speed)
 	peTrail->SetPosition(position);
 	peTrail->SetLoop(-1);
 	peTrail->Emit();
+
+	AK::SoundEngine::PostEvent(AK::EVENTS::MOVE_PROJECTILE, id);
 }
 
 void EntityProjectile::Remove()
@@ -71,6 +78,8 @@ void EntityProjectile::Remove()
 	SetIsUpdating(false);
 	SetIsColliding(false);
 	peTrail->SetLoop(0);
+
+	AK::SoundEngine::StopAll(id);
 }
 
 void EntityProjectile::SetSpeed(float speed)

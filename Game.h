@@ -41,6 +41,8 @@ public:
 	Game(HINSTANCE hInstance);
 	~Game();
 
+	static XMFLOAT2 GetScreenCoords(Transform& transform);
+
 	// Overridden setup and game loop methods, which
 	// will be called automatically
 	void Init();
@@ -83,7 +85,7 @@ private:
 	StateManager stateManager;
 
 	// Cameras
-	Camera* activeCamera;
+	static Camera* activeCamera;
 	Camera* gameCamera;
 	Camera* debugCamera;
 
