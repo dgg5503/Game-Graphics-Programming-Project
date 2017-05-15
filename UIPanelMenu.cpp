@@ -1,6 +1,8 @@
 #include "UIPanelMenu.h"
+#include "Game.h"
 
-UIPanelMenu::UIPanelMenu(StateManager* stateManager) :
+UIPanelMenu::UIPanelMenu(Game* game, StateManager* stateManager) :
+	game(game),
 	stateManager(stateManager)
 {
 	buttons = std::unordered_map<const char*, Button>();
@@ -67,5 +69,5 @@ void UIPanelMenu::PlayGame()
 
 void UIPanelMenu::ExitGame()
 {
-	exit(EXIT_SUCCESS);
+	game->Quit();
 }

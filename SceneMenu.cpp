@@ -4,7 +4,7 @@
 SceneMenu::SceneMenu(Game* game, StateManager& stateManager)
 	: Scene(game)
 {
-	Scene::uiPanel = uiPanelMenu = new UIPanelMenu(&stateManager);
+	Scene::uiPanel = uiPanelMenu = new UIPanelMenu(game, &stateManager);
 }
 
 SceneMenu::~SceneMenu()

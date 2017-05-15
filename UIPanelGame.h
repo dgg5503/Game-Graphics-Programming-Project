@@ -7,7 +7,7 @@
 class UIPanelGame : public UIPanel
 {
 public:
-	UIPanelGame(float _x, float _y);
+	UIPanelGame(float x, float y);
 	virtual ~UIPanelGame();
 
 	// Implement required functions

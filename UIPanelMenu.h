@@ -2,12 +2,13 @@
 #include "UIPanel.h"
 #include "StateManager.h"
 
+class Game;
 
 class UIPanelMenu :
 	public UIPanel
 {
 public:
-	UIPanelMenu(StateManager* stateManager);
+	UIPanelMenu(Game* game, StateManager* stateManager);
 	~UIPanelMenu();
 	void Draw(SpriteBatch* const spriteBatch,
 		const std::unordered_map<const char*, SpriteFont*>& fontMap) override;
@@ -15,6 +16,7 @@ public:
 	void MousePressed(float x, float y);
 
 private:
+	Game* game;
 	StateManager* stateManager;
 
 	// Represents a UI element that can be pressed.
