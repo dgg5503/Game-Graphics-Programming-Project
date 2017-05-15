@@ -87,6 +87,18 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 	transform.Move(movement.x, movement.y, movement.z);
 	transform.SetRotation(0, 0, 1, atan2f(movement.y, movement.x));
 
+	// Bound player to arena.
+	const XMFLOAT3* position = transform.GetPosition();
+	if (position->x < ARENA_LEFT_WALL)
+		transform.SetPosition(ARENA_LEFT_WALL, position->y, 0);
+	else if (ARENA_RIGHT_WALL < position->x)
+		transform.SetPosition(ARENA_RIGHT_WALL, position->y, 0);
+	if (position->y < ARENA_BOTTOM_WALL)
+		transform.SetPosition(position->x, ARENA_BOTTOM_WALL, 0);
+	else if (ARENA_TOP_WALL < position->y)
+		transform.SetPosition(position->x, ARENA_TOP_WALL, 0);
+
+	// Handle visuals of steering.
 	if (isSteering) {
 		auto emitPosition = transform.GetPosition();
 		XMFLOAT3 backwards = XMFLOAT3();
@@ -191,7 +203,10 @@ void EntityPlayer::OnCollision(Collision other)
 		EntityEnemy* enemy = (EntityEnemy*)other.otherEntity;
 
 		// Sufficiently weak enemies inflict no damage.
-		ChangeHealth(static_cast<int>(enemy->GetHealth()) * -10);
+		float enemyHealth = enemy->GetHealth();
+		if (enemyHealth >= 0.2f);
+			ChangeHealth(enemyHealth * -10);
+
 		enemy->ChangeHealth(-1000);	// Kill enemy
 	}
 }

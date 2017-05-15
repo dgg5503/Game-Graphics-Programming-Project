@@ -3,6 +3,11 @@
 #include "EntityManagerProjectile.h"
 #include "EntityEnemy.h"
 
+#define ARENA_TOP_WALL 2.0f
+#define ARENA_BOTTOM_WALL -ARENA_TOP_WALL
+#define ARENA_RIGHT_WALL ARENA_TOP_WALL * 1.77777777778f
+#define ARENA_LEFT_WALL -ARENA_RIGHT_WALL
+
 // Entity controlled by the player.
 class EntityPlayer :
 	public Entity

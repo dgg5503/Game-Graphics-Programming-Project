@@ -14,6 +14,7 @@ SceneGame::~SceneGame()
 
 void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)
 {
+	gameTime = 0;
 	health = 100;
 
 	// Projectile Entities
@@ -90,17 +91,8 @@ void SceneGame::UpdateScene(float deltaTime, float totalTime)
 
 
 	if (player->health) {
-		timerString = std::to_wstring(minutes) + L": " + std::to_wstring(seconds) + L": " + std::to_wstring(milliseconds);
-		milliseconds += deltaTime * 1000;
-		if (milliseconds >= 1000) {
-			seconds++;
-			milliseconds = 0;
-		}
-		if (seconds >= 60) {
-			minutes++;
-			seconds = 0;
-		}
-		uiGamePanel->UpdateText(timerString);
+		gameTime += deltaTime;
+		uiGamePanel->SetGameTime(gameTime);
 	}
 }
 
