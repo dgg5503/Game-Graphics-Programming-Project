@@ -176,6 +176,7 @@
     <ClCompile Include="EntityPlayer.cpp" />
     <ClCompile Include="EntityProjectile.cpp" />
     <ClCompile Include="EntityStatic.cpp" />
+    <ClCompile Include="EntitySun.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="LightRenderer.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="EntityPlayer.h" />
     <ClInclude Include="EntityProjectile.h" />
     <ClInclude Include="EntityStatic.h" />
+    <ClInclude Include="EntitySun.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="Light.h" />

@@ -195,6 +195,7 @@
     <ClCompile Include="MaterialParallax.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EntitySun.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UIGamePanel.h">
@@ -332,6 +333,7 @@
     <ClInclude Include="MaterialParallax.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EntitySun.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Textures\starscape.dds">
