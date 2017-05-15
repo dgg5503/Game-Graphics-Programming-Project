@@ -1,6 +1,11 @@
 #include "Scene.h"
 #include "MemoryDebug.h"
 
+Scene::Scene(Game* game) :
+	game(game)
+{
+}
+
 Scene::~Scene()
 {
 	if (uiPanel)

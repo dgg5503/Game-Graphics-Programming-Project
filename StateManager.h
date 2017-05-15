@@ -3,6 +3,8 @@
 #include "GameState.h"
 #include <unordered_map>
 
+class Scene;
+
 class StateManager
 {
 public:

@@ -1,7 +1,9 @@
 #include "SceneGame.h"
 #include "MemoryDebug.h"
+#include "Game.h"
 
-SceneGame::SceneGame()
+SceneGame::SceneGame(Game* game) :
+	Scene(game)
 {
 	uiPanel = uiGamePanel = new UIPanelGame(0, 0);
 }
@@ -104,5 +106,20 @@ void SceneGame::UpdateScene(float deltaTime, float totalTime)
 
 void SceneGame::OnMousePressed(float x, float y)
 {
-	player->OnMousePressed(x, y);
+	// Get Game dimensions
+	float gameWidth = game->GetWidth();
+	float gameHeight = game->GetHeight();
+
+	// Convert to -1.0 to 1.0 scale
+	float scaledX = (float)(x * 2) / gameWidth - 1;
+	float scaledY = (float)(y * 2) / gameHeight - 1;
+
+	// Convert to world space (relative to game camera)
+	scaledX *= GAME_HEIGHT_HALF * gameWidth / gameHeight;
+	scaledY *= -GAME_HEIGHT_HALF;
+
+	printf("%F, %F\n ", scaledX, scaledY);
+
+
+	player->OnMousePressed(scaledX, scaledY);
 }

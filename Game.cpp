@@ -16,8 +16,8 @@ Game::Game(HINSTANCE hInstance)
 	: DXWindow(
 		hInstance,		   // The application's handle
 		"&Poly_Star*",	   // Text for the window's title bar
-		SCREEN_WIDTH,			   // Width of the window's client area
-		SCREEN_HEIGHT,			   // Height of the window's client area
+		1280,			   // Width of the window's client area
+		720,			   // Height of the window's client area
 		true)			   // Show extra stats (fps) in title bar?
 {
 	// Initialize fields
@@ -90,32 +90,25 @@ void Game::Init()
 	stateManager.SetEntityFactory(&entityFactory);
 	stateManager.SetMaterials(&materials);
 	stateManager.SetMeshes(&meshes);
-	stateManager.AddScene(GameState::GAME, new SceneGame());
-	stateManager.AddScene(GameState::MAIN_MENU, new SceneMenu(stateManager));
+	stateManager.AddScene(GameState::GAME, new SceneGame(this));
+	stateManager.AddScene(GameState::MAIN_MENU, new SceneMenu(this, stateManager));
 
 	// Initialize starting mouse location to center of screen
 	prevMousePos.x = GetWidth() / 2;
 	prevMousePos.y = GetHeight() / 2;
 
-	// Create debug camera
-	debugCamera = new CameraDebug();
-	debugCamera->transform.Move(0, 0, -3.0f);
+	// Create Cameras
+	CreateCameras();
 
-	gameCamera = new CameraGame();
-	gameCamera->transform.Move(0, 0, -100.0f);
-
-	activeCamera = gameCamera;
-
-	// Helper methods for loading shaders, creating some basic
-	// geometry to draw and some simple camera matrices.
-	//  - You'll be expanding and/or replacing these 
+	// Load Assets
 	LoadShaders();
-	CreateMatrices();
 	CreateBasicGeometry();
-	CreateEntities();
 
 	// Load font 
 	renderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
+
+	// Load the first scene
+	LoadDefaultScene();
 }
 
 // --------------------------------------------------------
@@ -158,10 +151,22 @@ void Game::LoadShaders()
 
 // --------------------------------------------------------
 // Initializes the matrices necessary to represent our geometry's 
-// transformations and our 3D camera
+// transformations and our 3D cameras
 // --------------------------------------------------------
-void Game::CreateMatrices()
+void Game::CreateCameras()
 {
+	// Create debug camera
+	debugCamera = new CameraDebug();
+	debugCamera->transform.Move(0, 0, -3.0f);
+
+	// Create game camera
+	gameCamera = new CameraGame();
+	gameCamera->transform.Move(0, 0, -100.0f);
+	gameCamera->SetViewHeight(GAME_HEIGHT);
+
+	// Set game camera to active
+	activeCamera = gameCamera;
+
 	// Setup projection matrix
 	debugCamera->UpdateProjectionMatrix((float)GetWidth() / GetHeight());
 	gameCamera->UpdateProjectionMatrix((float)GetWidth() / GetHeight());
@@ -212,7 +217,7 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 // Creates entities using our generated meshes
 // --------------------------------------------------------
-void Game::CreateEntities()
+void Game::LoadDefaultScene()
 {
 	stateManager.SetState(GameState::MAIN_MENU);
 }
@@ -230,8 +235,9 @@ void Game::OnResize(unsigned int width, unsigned int height)
 		// Resize renderer outputs
 		renderer->OnResize(width, height);
 
-		// Update aspect ratio
+		// Update aspect ratio in cameras
 		debugCamera->UpdateProjectionMatrix((float)width / height);
+		gameCamera->UpdateProjectionMatrix((float)width / height);
 	}
 }
 
@@ -313,15 +319,8 @@ void Game::Draw(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 {
-	// Convert to -1.0 to 1.0 scale
-	float scaledX = (float)(x * 2) / SCREEN_WIDTH - 1;
-	float scaledY = (float)(y * 2) / SCREEN_HEIGHT - 1;
-	scaledX *= 2.0f * SCREEN_WIDTH / SCREEN_HEIGHT;
-	scaledY *= -2.0f;
-
-	printf("%F, %F\n ", scaledX, scaledY);
-
-	stateManager.GetCurrentScene()->OnMousePressed(scaledX, scaledY);
+	// Send mouse press into the scene.
+	stateManager.GetCurrentScene()->OnMousePressed(x, y);
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

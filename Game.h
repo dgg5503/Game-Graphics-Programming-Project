@@ -28,8 +28,8 @@
 #include "SceneGame.h"
 #include "SceneMenu.h"
 
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
+#define GAME_HEIGHT 4.0f
+#define GAME_HEIGHT_HALF GAME_HEIGHT * 0.5f
 
 class Game 
 	: public DXWindow
@@ -55,9 +55,9 @@ private:
 
 	// Initialization helper methods - feel free to customize, combine, etc.
 	void LoadShaders(); 
-	void CreateMatrices();
+	void CreateCameras();
 	void CreateBasicGeometry();
-	void CreateEntities();
+	void LoadDefaultScene();
 
 	// Entities
 	EntityFactory entityFactory;
@@ -78,8 +78,8 @@ private:
 
 	// Cameras
 	Camera* activeCamera;
-	Camera* gameCamera;
-	Camera* debugCamera;
+	CameraGame* gameCamera;
+	CameraDebug* debugCamera;
 
 	// Wrappers for DirectX shaders to provide simplified functionality
 	SimpleVertexShader* vertexShader;

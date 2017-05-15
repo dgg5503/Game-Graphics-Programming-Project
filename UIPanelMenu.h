@@ -17,12 +17,14 @@ public:
 private:
 	StateManager* stateManager;
 
+	// Represents a UI element that can be pressed.
 	struct Button {
-		SimpleMath::Rectangle rectangle;
-		wstring text;
-		Texture2D* texture;
-		void(UIPanelMenu::*onPressed) (void);
+		SimpleMath::Rectangle rectangle;	// Represent position and scale.
+		wstring text;	// Text of Button
+		Texture2D* texture = nullptr;	// Texture of Button
+		void(UIPanelMenu::*onPressed) (void) = nullptr;	// Function called when pressed
 
+		// Check if it is pressed.
 		bool CheckIsPressed(float x, float y) {
 			return	rectangle.x <= x && 
 				x <= rectangle.x + rectangle.width &&
@@ -31,8 +33,7 @@ private:
 		}
 	};
 
-	Button startGame;
-	Button exitGame;
+	std::unordered_map<const char*, Button> buttons;
 
 	void PlayGame();
 	void ExitGame();

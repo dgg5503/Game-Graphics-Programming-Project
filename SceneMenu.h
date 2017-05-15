@@ -9,12 +9,12 @@ class SceneMenu :
 	public Scene
 {
 public:
-	SceneMenu(StateManager& stateManager);
+	SceneMenu(Game* game, StateManager& stateManager);
 	virtual ~SceneMenu();
 	void CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials) override;
 
 	void OnMousePressed(float x, float y) override;
 private:
-	UIPanelMenu* uiPanel;
+	UIPanelMenu* uiPanelMenu;
 };
 

@@ -6,7 +6,7 @@ class SceneGame :
 	public Scene
 {
 public:
-	SceneGame();
+	SceneGame(Game* game);
 	virtual ~SceneGame();
 	void CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials) override;
 	void UpdateScene(float deltaTime, float totalTime) override;
