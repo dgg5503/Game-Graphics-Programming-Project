@@ -27,10 +27,10 @@ struct PSOutput
 float2 ParallaxMapping(float2 texCoords, float3 viewDir)
 {
 	float height_scale = 0.1f;
-	float height = depthMap.Sample(albedoSampler, texCoords).r;
+	float height = 1-depthMap.Sample(albedoSampler, texCoords).r;
 	float2 p = viewDir.xy / viewDir.z * (height * height_scale);
 	return texCoords - p;
-}
+};
 
 PSOutput main(PVStoPS input) : SV_TARGET
 {
@@ -38,11 +38,13 @@ PSOutput main(PVStoPS input) : SV_TARGET
 
 	float3 viewDir = normalize(input.viewTan - input.posTan);
 	float2 texCoords = ParallaxMapping(input.uv, viewDir);
-	if (texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
-		discard;
+	//output.color = albedo.Sample(albedoSampler, input.uv);
+	//if (texCoords.x > 1.0 || texCoords.y > 1.0 || texCoords.x < 0.0 || texCoords.y < 0.0)
+		//discard;
 
 	// sample color information
 	output.color = albedo.Sample(albedoSampler, texCoords);
+	//output.color = float4(1, 0, 0, 1);
 
 	// sample world pos
 	output.worldPos = float4(input.worldPos, 1.0f);

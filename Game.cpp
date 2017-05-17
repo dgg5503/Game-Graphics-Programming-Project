@@ -196,7 +196,7 @@ void Game::CreateBasicGeometry()
 	textures["brick_depth"] = renderer->CreateTexture2D(L"./Assets/Textures/brick_depth.tif", Texture2DType::PARALLAX);
 
 	// Create our materials
-	materials["brick"] = new MaterialParallax(vertexShader_parallax, pixelShader_parallax, textures["brick"], textures["brick_norm"], textures["brick_depth"], gameCamera);
+	materials["brick"] = new MaterialParallax(vertexShader_parallax, pixelShader_parallax, textures["brick"], textures["brick_norm"], textures["brick_depth"], activeCamera);
 	materials["sand"] = new Material(vertexShader, pixelShader, textures["sand"]);
 	materials["stone"] = new Material(vertexShader, pixelShader, textures["stone"]);
 	materials["sun"] = new Material(vertexShader, pixelShader_normal, textures["sun"], textures["brick_norm"], textures["sun_emission"]);
