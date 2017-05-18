@@ -1,8 +1,14 @@
 #include "LightRenderer.h"
 
-
-
-
+// --------------------------------------------------------
+// Constructor
+//
+// Creates a light renderer which will use the context and
+// device found in the given renderer.
+//
+// renderer - Reference to renderer object in which to render
+//			  light to.
+// --------------------------------------------------------
 LightRenderer::LightRenderer(Renderer & renderer) :
 	renderer(renderer),
 	lights(32),
@@ -21,10 +27,22 @@ LightRenderer::LightRenderer(Renderer & renderer) :
 	directionalLights.reserve(16);
 }
 
+// --------------------------------------------------------
+// Destructor
+// --------------------------------------------------------
 LightRenderer::~LightRenderer()
 {
 }
 
+// --------------------------------------------------------
+// Initializes the light renderer.
+//
+// quadVS - The vertex shader which draws a full screen quad.
+// width - Width of screen.
+// height - Height of screen.
+//
+// returns - Result of initialization.
+// --------------------------------------------------------
 HRESULT LightRenderer::Initialize(SimpleVertexShader* quadVS, unsigned int width, unsigned int height)
 {
 	HRESULT hr;
@@ -88,6 +106,11 @@ HRESULT LightRenderer::Initialize(SimpleVertexShader* quadVS, unsigned int width
 	return S_OK;
 }
 
+// --------------------------------------------------------
+// Cleans up and shutsdown this light renderer object.
+//
+// returns - Result of shutdown.
+// --------------------------------------------------------
 HRESULT LightRenderer::Shutdown()
 {
 	// Free all lights
@@ -112,6 +135,19 @@ HRESULT LightRenderer::Shutdown()
 	return S_OK;
 }
 
+// --------------------------------------------------------
+// Creates a point light object.
+//
+// NOTE: The name of the point light must not already exist
+//		 in the light renderer!
+//
+// attenuation - Attenuation type for this point light.
+// name - Unique name for this point light.
+// autostage - Whether or not the light should be staged for 
+//			   rendering on creation.
+//
+// return - Pointer to point light object.
+// --------------------------------------------------------
 PointLight * const LightRenderer::CreatePointLight(PointLightAttenuation attenuation, std::string name, bool autostage)
 {
 	// Ensure name doesnt already exist
@@ -123,6 +159,18 @@ PointLight * const LightRenderer::CreatePointLight(PointLightAttenuation attenua
 	return pointLight;
 }
 
+// --------------------------------------------------------
+// Creates a directional light object.
+//
+// NOTE: The name of the directional light must not already exist
+//		 in the light renderer!
+//
+// name - Unique name for this directional light.
+// autostage - Whether or not the light should be staged for 
+//			   rendering on creation.
+//
+// return - Pointer to directional light object.
+// --------------------------------------------------------
 DirectionalLight * const LightRenderer::CreateDirectionalLight(std::string name, bool autostage)
 {
 	// Ensure name doesnt already exist
@@ -134,6 +182,15 @@ DirectionalLight * const LightRenderer::CreateDirectionalLight(std::string name,
 	return directionalLight;
 }
 
+// --------------------------------------------------------
+// Renders all stages lights to this light renderer's light
+// RTV according to depth found in the renderer's 
+// depth stencil view.
+//
+// NOTE: D3D11 state values are not preserved.
+//
+// camera - Camera to use when rendering lights.
+// --------------------------------------------------------
 void LightRenderer::Render(const Camera * const camera)
 {
 	//renderer.depthStencilView
@@ -221,6 +278,9 @@ void LightRenderer::Render(const Camera * const camera)
 	}
 }
 
+// --------------------------------------------------------
+// Clears the light RTV.
+// --------------------------------------------------------
 void LightRenderer::ClearRTV()
 {
 	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };

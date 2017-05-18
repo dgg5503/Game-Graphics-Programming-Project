@@ -39,8 +39,6 @@ Mesh::Mesh(
 Mesh::Mesh(const char * const file, ID3D11Device * const device)
 {
 	if(file)
-	// Load our obj file.
-	//LoadOBJ(file, device);
 	LoadFBX(file, device); //actually loads many types
 }
 

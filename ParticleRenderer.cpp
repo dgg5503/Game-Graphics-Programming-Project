@@ -1,9 +1,19 @@
 #include "ParticleRenderer.h"
 #include "MemoryDebug.h"
 
+// Null pointer arrays used to unbind UAVs and SRVs
 static ID3D11UnorderedAccessView* nullUAVs[3] = { nullptr, nullptr, nullptr };
 static ID3D11ShaderResourceView* nullSRVs[3] = { nullptr, nullptr, nullptr };
 
+// --------------------------------------------------------
+// Constructor
+//
+// Creates a particle renderer which will use the context and
+// device found in the given renderer.
+//
+// renderer - Reference to renderer object in which to render
+//			  particles to.
+// --------------------------------------------------------
 ParticleRenderer::ParticleRenderer(Renderer & renderer) :
 	renderer(renderer)
 {
@@ -32,57 +42,20 @@ ParticleRenderer::ParticleRenderer(Renderer & renderer) :
 
 	// Init random
 	srand(static_cast<unsigned int>(time(nullptr)));
-
-	/*
-	ParticleEmitter* test = CreateBurstParticleEmitter("testBurst", 1000);
-	test->SetAlpha(1.0f);
-	test->SetAge(3.0f);
-	test->SetSpeed(1.0f);
-	test->SetSize(DirectX::XMFLOAT2(0.25f, 0.25f));
-	test->SetEndSize(DirectX::XMFLOAT2(0.0f, 0.0f));
-	test->SetTint(DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
-	test->SetDirectionRange(DirectX::XMFLOAT3(-1.0f, -1.0f, -0.01f), DirectX::XMFLOAT3(1.0f, 1.0f, 0.01f));
-	test->SetPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-	test->SetTextureID(0);
-	test->SetInterpSize(true);
-	test->SetLoop(-1);
-	test->Emit();
-	
-	test = CreateContinuousParticleEmitter("testCont", 1, 0.01f);
-	test->SetAlpha(0.5f);
-	test->SetEndAlpha(0.0f);
-	test->SetAgeRange(.5f, 1.5f);
-	test->SetInitialSpeedRange(0.5f, 1.5f);
-	test->SetEndSpeed(2.0f);
-	test->SetSize(DirectX::XMFLOAT2(.25f, .25f));
-	test->SetDirectionRange(DirectX::XMFLOAT3(-1.0f, -1.0f, -0.01f), DirectX::XMFLOAT3(1.0f, 1.0f, 0.01f));
-	test->SetPosition(DirectX::XMFLOAT3(-2.0f, 0.0f, 0.0f));
-	test->SetTint(DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f)); // green
-	test->SetTextureID(1);
-	test->SetInterpSpeed(true);
-	test->SetInterpAlpha(true);
-
-	test = CreateContinuousParticleEmitter("testCont_2", 1, 0.01f);
-	test->SetAlpha(0.5f);
-	test->SetEndAlpha(0.0f);
-	test->SetAgeRange(.5f, 1.5f);
-	test->SetInitialSpeedRange(0.5f, 1.5f);
-	test->SetSpeed(0.0f);
-	test->SetEndSpeed(2.0f);
-	test->SetSize(DirectX::XMFLOAT2(.25f, .25f));
-	test->SetDirectionRange(DirectX::XMFLOAT3(-1.0f, -1.0f, -0.01f), DirectX::XMFLOAT3(1.0f, 1.0f, 0.01f));
-	test->SetPosition(DirectX::XMFLOAT3(2.0f, 0.0f, 0.0f));
-	test->SetTint(DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f)); // green
-	test->SetTextureID(1);
-	test->SetInterpSpeed(true);
-	test->SetInterpAlpha(true);
-	*/
 }
 
+// --------------------------------------------------------
+// Destructor
+// --------------------------------------------------------
 ParticleRenderer::~ParticleRenderer()
 {
 }
 
+// --------------------------------------------------------
+// Initializes the particle renderer.
+//
+// returns - Result of initialization.
+// --------------------------------------------------------
 HRESULT ParticleRenderer::Initialize()
 {
 	// Load in shaders
@@ -284,6 +257,11 @@ HRESULT ParticleRenderer::Initialize()
 	return S_OK;
 }
 
+// --------------------------------------------------------
+// Cleans up and shutsdown this particle renderer object.
+//
+// returns - Result of shutdown.
+// --------------------------------------------------------
 HRESULT ParticleRenderer::Shutdown()
 {
 	// Release buffers
@@ -321,6 +299,9 @@ HRESULT ParticleRenderer::Shutdown()
 	return S_OK;
 }
 
+// --------------------------------------------------------
+// Deletes all currently staged particle emitters.
+// --------------------------------------------------------
 void ParticleRenderer::Release()
 {
 	// Free all emitters and reset map
@@ -329,6 +310,20 @@ void ParticleRenderer::Release()
 	particleEmitters.clear();
 }
 
+// --------------------------------------------------------
+// Creates a continuous particle emitter.
+//
+// NOTE: The name of the particle emitter must not already exist
+//		 in the particle renderer.
+//
+// name - Unique name for this particle emitter.
+// particlesPerSeconds - Number of particles to emit per
+//						 given rate in seconds.
+// seconds - Number of seconds that need to pass before 
+//			 emitting particlesPerSeconds particles.
+//
+// return - Pointer to particle emitter object.
+// --------------------------------------------------------
 ParticleEmitter * const ParticleRenderer::CreateContinuousParticleEmitter(std::string name, unsigned int particlesPerSeconds, float seconds)
 {
 	// Ensure name doesn't already exist
@@ -338,6 +333,18 @@ ParticleEmitter * const ParticleRenderer::CreateContinuousParticleEmitter(std::s
 	return particleEmitter;
 }
 
+// --------------------------------------------------------
+// Creates a burst particle emitter.
+//
+// NOTE: The name of the particle emitter must not already exist
+//		 in the particle renderer.
+//
+// name - Unique name for this particle emitter.
+// numParticles - Number of particles to emit when Emit is
+//				  called on this particle emitter.
+//
+// return - Pointer to particle emitter object.
+// --------------------------------------------------------
 ParticleEmitter * const ParticleRenderer::CreateBurstParticleEmitter(std::string name, unsigned int numParticles)
 {
 	// Ensure name doesn't already exist
@@ -347,50 +354,48 @@ ParticleEmitter * const ParticleRenderer::CreateBurstParticleEmitter(std::string
 	return particleEmitter;
 }
 
+// --------------------------------------------------------
+// Emits particles that need to be emitted this frame.
+// Dispatches particle update to compute shader.
+//
+// NOTE: D3D11 state values are not preserved.
+//
+// dt - Delta time.
+// totalTime - Total game time.
+// --------------------------------------------------------
 void ParticleRenderer::Update(float dt, float totalTime)
 {
-	/*
-	if(GetAsyncKeyState('J') & 0x8000)
-		particleEmitters["testBurst"]->Emit();
-
-	if (GetAsyncKeyState('L') & 0x8000)
-		particleEmitters["testBurst"]->SetLoop(3);
-
-	if (GetAsyncKeyState('K') & 0x8000)
-		particleEmitters["testBurst"]->SetLoop(-1);
-
-	if (GetAsyncKeyState('H') & 0x8000)
-		particleEmitters["testBurst"]->SetLoop(0);
-	*/
-
-	//lastDt = dt;
 	// Update and process particles
 	for (auto it = particleEmitters.begin(); it != particleEmitters.end(); it++)
 		if (it->second->CanEmit(dt))
 			EmitParticles(*it->second);
-	UpdateParticles(nullptr, dt);
+	UpdateParticles(dt);
 	ProcessDrawArgs();
 }
 
+// --------------------------------------------------------
+// Renders all living particles to the renderers deferred
+// RTV's.
+//
+// NOTE: D3D11 state values are not preserved.
+//
+// camera - Camera to use when rendering particles.
+// --------------------------------------------------------
 void ParticleRenderer::Render(const Camera * const camera)
 {
-	// TODO: Sorting so this works?
-	// -- FORWARD --
-	//SortParticles();
-	//ForwardRenderParticles(camera);
-
-	// -- DEFERRED --
 	RenderParticles(camera);
 }
 
+// --------------------------------------------------------
+// Dispatches a simple compute shader that initializes the
+// particle dead list with values 0 to maxParticles.
+// --------------------------------------------------------
 inline void ParticleRenderer::InitialEmitParticles()
 {
 	// Bind dead list since this is to be filled
 	// Set initial count of dead particles to 0, this is going to be filled after dispatch
 	bool result;
-	//result = particleInitCS->SetUnorderedAccessView("particlePool", particlePoolUAV, 0);
 	result = particleInitCS->SetUnorderedAccessView("deadList", deadListUAV, 0);
-	//result = particleInitCS->SetUnorderedAccessView("aliveList", aliveListUAV, 0);
 	particleInitCS->CopyAllBufferData();
 	particleInitCS->SetShader();
 	particleInitCS->DispatchByGroups(DISPATCH_DIV(maxParticles), 1, 1);
@@ -399,14 +404,16 @@ inline void ParticleRenderer::InitialEmitParticles()
 	renderer.context->CSSetUnorderedAccessViews(0, 1, nullUAVs, nullptr);
 }
 
+// --------------------------------------------------------
+// Emit particles from a given particle emitter.
+//
+// NOTE: D3D11 state values are not preserved.
+//
+// particleEmitter - Reference to particle emitter that 
+//					 contains particle information.
+// --------------------------------------------------------
 inline void ParticleRenderer::EmitParticles(ParticleEmitter& particleEmitter)
 {
-	// TODO: ENSURE PARTICLES STILL AVAILABLE TO EMIT? WOULD REQUIRE COPYING GPU DATA...
-	// Align amount to nearest NUM_PARTICLE_THREADS
-
-	// Handle in emitter class
-	//amount = (amount - 1 + NUM_PARTICLE_THREADS) & (~(NUM_PARTICLE_THREADS - 1));
-
 	// Set nonce (handle in emitter class)
 	particleEmitter.SetNonce(rand());
 
@@ -433,13 +440,19 @@ inline void ParticleRenderer::EmitParticles(ParticleEmitter& particleEmitter)
 	renderer.context->CSSetUnorderedAccessViews(0, 2, nullUAVs, nullptr);
 }
 
-inline void ParticleRenderer::UpdateParticles(const Camera* const camera, float dt)
+// --------------------------------------------------------
+// Dispatches the particle update compute shader.
+//
+// NOTE: D3D11 state values are not preserved.
+//
+// dt - Delta time.
+// --------------------------------------------------------
+inline void ParticleRenderer::UpdateParticles(float dt)
 {
 	bool result;
 	result = particleUpdateCS->SetUnorderedAccessView("particlePool", particlePoolUAV, -1);
 	result = particleUpdateCS->SetUnorderedAccessView("aliveList", aliveListUAV, 0); // alive is redone every frame
 	result = particleUpdateCS->SetUnorderedAccessView("deadList", deadListUAV, 0); // dead is persistent
-	//result = particleUpdateCS->SetFloat3("cameraPos", *camera.transform.GetPosition());
 	result = particleUpdateCS->SetFloat3("cameraPos", DirectX::XMFLOAT3(0,0,0));
 	result = particleUpdateCS->SetFloat("dt", dt);
 	particleUpdateCS->CopyAllBufferData();
@@ -451,6 +464,14 @@ inline void ParticleRenderer::UpdateParticles(const Camera* const camera, float 
 	renderer.context->CSSetUnorderedAccessViews(0, 3, nullUAVs, nullptr);
 }
 
+// --------------------------------------------------------
+// Dispatches a simple compute shader which simply copies
+// the number of alive particles found on the GPU to a
+// separate buffer which will act as arguments for an 
+// instanced draw.
+//
+// NOTE: D3D11 state values are not preserved.
+// --------------------------------------------------------
 inline void ParticleRenderer::ProcessDrawArgs()
 {
 	// Copy number of alive particles to constant buffer
@@ -470,6 +491,14 @@ inline void ParticleRenderer::ProcessDrawArgs()
 	renderer.context->CSSetUnorderedAccessViews(0, 1, nullUAVs, nullptr);
 }
 
+// --------------------------------------------------------
+// Renders all living particles to the renderers deferred
+// RTV's.
+//
+// NOTE: D3D11 state values are not preserved.
+//
+// camera - Camera to use when rendering particles.
+// --------------------------------------------------------
 inline void ParticleRenderer::RenderParticles(const Camera * const camera)
 {
 	// CALL THIS IN RENDERER BEFORE LIGHTING CALC
@@ -502,75 +531,4 @@ inline void ParticleRenderer::RenderParticles(const Camera * const camera)
 
 	// Unbind
 	renderer.context->VSSetShaderResources(0, 2, nullSRVs);
-}
-
-inline void ParticleRenderer::ForwardRenderParticles(const Camera * const camera)
-{
-	// CALL THIS AS LAST THING WITH BACK BUFFER ALREADY BOUND
-
-	bool result;
-
-	DirectX::XMFLOAT4X4 view = camera->GetViewMatrix();
-	result = particleVS->SetMatrix4x4("view", view);
-
-	DirectX::XMFLOAT4X4 proj = camera->GetProjectionMatrix();
-	result = particleVS->SetMatrix4x4("projection", proj);
-	particleVS->CopyAllBufferData();
-
-	renderer.context->VSSetShaderResources(0, 1, &particlePoolSRV);
-	renderer.context->VSSetShaderResources(1, 1, &aliveListSRV);
-	renderer.context->VSSetConstantBuffers(0, 1, &particleVS->GetBufferInfo("externalData")->ConstantBuffer);
-	renderer.context->VSSetShader(particleVS->GetDirectXShader(), nullptr, 0);
-
-	// Use simple pixel shader to output stuff
-	ID3D11SamplerState* sampler = particleTextureAtlas->GetSamplerState();
-	ID3D11ShaderResourceView* srv = particleTextureAtlas->GetSRV();
-	renderer.context->PSSetSamplers(0, 1, &sampler);
-	renderer.context->PSSetShaderResources(0, 1, &srv);
-	renderer.context->PSSetShader(particleForwardPS->GetDirectXShader(), nullptr, 0);
-
-	// Draw indirect
-	renderer.context->IASetInputLayout(nullptr);
-	renderer.context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
-	renderer.context->IASetIndexBuffer(particleIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	renderer.context->DrawIndexedInstancedIndirect(drawArgs, 0);
-
-	// Unbind
-	renderer.context->VSSetShaderResources(0, 2, nullSRVs);
-}
-
-inline void ParticleRenderer::SortParticles()
-{
-	unsigned int g_kj[4] = { 0, 0, 0, 0 };
-
-	bool result;
-	result = particleSortCS->SetUnorderedAccessView("aliveList", aliveListUAV, -1);
-	
-	ID3D11Buffer* buffers[2] = { particleSortCS->GetBufferInfo("SortConstants")->ConstantBuffer, numAliveParticlesCBuffer };
-
-	// Set the constant buffer to the numAliveParticles
-	renderer.context->CSSetConstantBuffers(0, 2, buffers);
-	renderer.context->CSSetShader(particleSortCS->GetDirectXShader(), nullptr, 0);
-
-	for (unsigned int subArraySize = 2; subArraySize <= maxParticles; subArraySize *= 2)
-	{
-		for (unsigned int compareDist = subArraySize / 2; compareDist > 0; compareDist /= 2)
-		{
-			// Set info
-			g_kj[0] = 0;
-			g_kj[1] = compareDist;
-			g_kj[2] = 0;
-			g_kj[3] = subArraySize;
-
-			// Pass info
-			result = particleSortCS->SetData("g_kj", g_kj, sizeof(unsigned int) * 4);
-			particleSortCS->CopyAllBufferData();
-
-			// Dispatch
-			particleSortCS->DispatchByGroups(DISPATCH_DIV(maxParticles), 1, 1);
-		}
-	}
-
-	// Unbind
-	renderer.context->CSSetUnorderedAccessViews(0, 1, nullUAVs, nullptr);
 }

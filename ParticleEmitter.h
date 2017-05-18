@@ -8,27 +8,6 @@
 #include "ParticleLayout.h"
 #include "ShaderConstants.h"
 
-// MUST MATCH THAT OF OPTIONS MENTIONED IN PARTICLELAYOUT.H 
-// Defines all options available by the emitter.
-/*
-struct EmitterOptions
-{
-	unsigned int RandAge		: 1; // Generate a random age in range?
-	unsigned int InterpAlpha	: 1; // Interpolate between alpha values?
-	unsigned int RandDirection	: 1; // Generate a random direction in range?
-	unsigned int RandInitSpeed	: 1; // Generate random initial speed in range?
-	unsigned int RandEndSpeed	: 1; // Generate random end speed in range?
-	unsigned int RandInitSize	: 1; // Generate random initial size in range?
-	unsigned int RandEndSize	: 1; // Generate random end size in range?
-	unsigned int RandInitTint	: 1; // Generate random initial tint in range?
-	unsigned int RandEndTint	: 1; // Generate random end tint in range?
-	unsigned int InterpSpeed	: 1; // Interpolate between speed values over lifetime?
-	unsigned int InterpSize		: 1; // Interpolate between sizes over lifetime?
-	unsigned int InterpTint		: 1; // Interpolate tint over lifetime?
-	unsigned int TextID			: TEXT_ID_SIZE; // The ID of the particles texture
-};
-*/
-
 enum class ParticleEmitterType
 {
 	BURST,		// numParticles emitted ONCE, wait for emitter lifetime to die down

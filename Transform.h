@@ -48,29 +48,9 @@ public:
 	void SetScale(XMFLOAT3 scale);
 	void SetScale(float x, float y, float z);
 	void SetRotation(XMFLOAT4 rotation);
-	// --------------------------------------------------------
-	// Set the rotation of this transform by providing an axis
-	// and angle
-	//
-	// x		- x axis direction
-	// y		- y axis direction
-	// z		- z axis direction
-	// theta	- angle to rotate by
-	// --------------------------------------------------------
-	void SetRotation(float x, float y, float z, float theta)
-	{
-		// Perform angle axis since thats easier to work with
-		XMFLOAT3 axis(x, y, z);
-		XMStoreFloat4(
-			&rotation,
-			XMQuaternionRotationAxis(
-				XMLoadFloat3(&axis), theta));
+	void SetRotation(float x, float y, float z, float theta);
 
-		// setting dirty since next time we ask for world, we need to recalc
-		//isRDirty = true;
-		isDirty |= IS_DIRTY_ALL;
-	}
-
+	// Getters
 	const XMFLOAT3* const GetPosition() const;
 	const XMFLOAT3* const GetScale() const;
 	const XMFLOAT4* const GetRotation() const;

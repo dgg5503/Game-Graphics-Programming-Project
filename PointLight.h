@@ -4,13 +4,16 @@
 #include "PointLightLayout.h"
 #include "Light.h"
 
+// Enum which defines different attenuation modes for a point light.
 enum class PointLightAttenuation
 {
-	CUSTOM,
-	ATTEN_FROM_RADIUS,
-	RADIUS_FROM_ATTEN
+	CUSTOM,					// Provide custom radius and attenuation values
+	ATTEN_FROM_RADIUS,		// Calculate attenuation values from a given radius
+	RADIUS_FROM_ATTEN		// Calculate radius from given attenuation values
 };
 
+// Simple class which exposes underlying shader struct values and inherits from
+// a common Light class.
 class PointLight : private Light
 {
 	friend class LightRenderer;
@@ -28,6 +31,7 @@ private:
 	PointLight(PointLightAttenuation attenuationType);
 	~PointLight();
 
+	// Attenuation specific functions
 	void CalcRadiusFromAtten();
 	void CalcAttenFromRadius();
 	void PrepareForShader();

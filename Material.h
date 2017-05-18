@@ -30,8 +30,6 @@ public:
 	~Material();
 
 	// Set vertex/pixel shader information
-	//void PrepareMaterial(SimpleVertexShader* const vShader,
-	//	SimplePixelShader* const pShader);
 	virtual void PrepareMaterial();
 
 	// Getters for shader types
@@ -39,7 +37,7 @@ public:
 	SimplePixelShader* const GetPixelShader() const;
 
 	// Getters for sampler state and resource view
-	Texture2D* const GetTexture2D() const;
+	Texture2D* const GetTexture2D(size_t index) const;
 	unsigned int GetID() const;
 
 	// Stencil ID for this material
@@ -61,7 +59,6 @@ protected:
 
 	// Pointers to info needed to attach a texture
 	Textures textureList;
-	//Texture2D* texture2D;
 
 	// Material ID for this material
 	unsigned int materialID;

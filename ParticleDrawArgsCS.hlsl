@@ -2,8 +2,6 @@
 // WITH HELP FROM CHRIS Cascioli
 // RESET COUNTERS EACH DRAW HERE https://www.gamedev.net/topic/662293-reset-hidden-counter-of-structuredappendconsume-buffers/
 // CLEAR ALIVE LIST EACH DRAW
-//#include "Particle.hlsli"
-
 // Matching args found from https://msdn.microsoft.com/en-us/library/windows/desktop/ff476410(v=vs.85).aspx
 
 // Numbe of alive particles, copied via CopyStructureCount

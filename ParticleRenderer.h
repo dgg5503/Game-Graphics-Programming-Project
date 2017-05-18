@@ -29,26 +29,27 @@ private:
 	ParticleRenderer(Renderer& renderer);
 	~ParticleRenderer();
 
-	// Incase we move to a singleton pattern?
+	// Initialization & Shutdown
 	HRESULT Initialize();
 	HRESULT Shutdown();
 
 	// Release ALL emitters
 	void Release();
 
+	// Emitter creation
 	ParticleEmitter* const CreateContinuousParticleEmitter(std::string name, unsigned int particlesPerSeconds, float seconds);
 	ParticleEmitter* const CreateBurstParticleEmitter(std::string name, unsigned int numParticles);
 
+	// Particle updating and rendering
 	void Update(float dt, float totalTime);
 	void Render(const Camera * const camera);
 
+	// Pipeline update and render pipeline
 	inline void InitialEmitParticles();
 	inline void EmitParticles(ParticleEmitter& particleEmitter);
-	inline void UpdateParticles(const Camera* const camera, float dt);
+	inline void UpdateParticles(float dt);
 	inline void ProcessDrawArgs();
 	inline void RenderParticles(const Camera * const camera);
-	inline void ForwardRenderParticles(const Camera * const camera);
-	inline void SortParticles();
 
 	// Particle emitter map
 	std::unordered_map<std::string, ParticleEmitter*> particleEmitters;
@@ -92,6 +93,5 @@ private:
 	// Temp number of particles
 	Camera* lastCamera;
 	unsigned int maxParticles; // total max number of particles that can be spawned in game
-	//float lastDt;
 };
 

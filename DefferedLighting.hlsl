@@ -121,11 +121,7 @@ DefferedOut main(TargetCoords input)
 		lightAmt = saturate(dot(n, -normalize(spotLights[i].Direction))) *
 			saturate(dot(n, dir) - spotLights[i].Angle);
 
-		//lightAmt = max(dot(-dir, normalize(spotLights[i].Direction)), 0.0f);
-
 		// add on
-		//totalLight += spotLights[i].DiffuseColor *
-		//	pow(lightAmt, spotLights[i].Intensity);
 		totalLight += spotLights[i].DiffuseColor *
 			spotLights[i].Intensity *
 			lightAmt;
@@ -139,7 +135,6 @@ DefferedOut main(TargetCoords input)
 	//   of the triangle we're rendering
 	//return float4(pos, 1.0f);
 	output.color = (totalLight + AmbientColor) * col;
-	//return (totalLight + AmbientColor) * col;
 	output.bloom = output.color * ColorThreshold;
 	output.glow = float4(0, 0, 0, 0);
 	return output;

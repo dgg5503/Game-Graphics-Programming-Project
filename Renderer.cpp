@@ -17,35 +17,6 @@ Renderer::Renderer(DXWindow* const window)
 	if (ret != S_OK)
 		fprintf(stderr, "[Renderer] Failed to initialize DXCore\n");
 
-	// Init lights
-	// Make sure to change the MAX_LIGHT defines in ShaderConstants.h if you
-	// want more lights!
-	ambientColor = DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	//addBlendState = nullptr;
-	/*
-	for (unsigned int i = MAX_DIR_LIGHTS; i--;)
-	{
-		directionalLights[i].DiffuseColor = DirectX::XMFLOAT4(static_cast<float>(i) / 256, static_cast<float>(i) / 256, static_cast<float>(i) / 256, 1.0f);
-		directionalLights[i].Direction = DirectX::XMFLOAT3(static_cast<float>(i), static_cast<float>(i), static_cast<float>(i));
-		directionalLights[i].Intensity = 1.0f;
-	}
-	*/
-
-	directionalLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	directionalLights[0].Direction = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	directionalLights[0].Intensity = 1.0f;
-
-
-	pointLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	pointLights[0].Position = DirectX::XMFLOAT3(0, 0, 0);
-	pointLights[0].Intensity = 0.0f;
-
-	spotLights[0].DiffuseColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	spotLights[0].Position = DirectX::XMFLOAT3(-2.0f, 2.0f, 0.0f);
-	spotLights[0].Direction = DirectX::XMFLOAT3(1.0f, -1.0f, 0.0f);
-	spotLights[0].Angle = DirectX::XMScalarCos(XM_PIDIV4);
-	spotLights[0].Intensity = 1.0f;
-
 	// Tell the input assembler stage of the pipeline what kind of
 	// geometric primitives (points, lines or triangles) we want to draw.  
 	// Essentially: "What kind of shape should the GPU draw with our data?"
@@ -62,31 +33,6 @@ Renderer::Renderer(DXWindow* const window)
 	glowDist = 50;
 	colorThreshold = .2f;
 	glowPercentage = .5f;
-	/*
-	float normalization = 0;
-	//fill weights array
-	for (int i = 0; i <= blurDist; i++) {
-		weights[i] = .045*pow(i*(4/ blurDist), 3) - .269*pow(i*(4 / blurDist), 2) + .129*(i*(4 / blurDist)) + 1;
-		//clamp from 0.1f to 1.0f -- oddly enough there is no clmap function I could find
-		if (weights[i] < 0.1f) {
-			weights[i] = 0.1f;
-		}
-		else if (weights[i] > 1.0f) {
-			weights[i] = 1.0f;
-		}
-		//add to normalization
-		normalization += weights[i];
-
-		normalization -= weights[0];
-		normalization *= 2.0f;
-		normalization += weights[0];
-	}
-
-	//normalize weights
-	for (int i = 0; i <= blurDist; i++) {
-		weights[i] = weights[i] / normalization;
-	}
-	*/
 }
 
 // --------------------------------------------------------
@@ -159,7 +105,6 @@ Renderer::~Renderer()
 	if (verticalBlurPS) { delete verticalBlurPS; }
 	if (postPS) { delete postPS; }
 	if (deferredLightVS) { delete deferredLightVS; }
-	if (deferredPointLightPS) { delete deferredPointLightPS; }
 	if (prePostProcessPS) { delete prePostProcessPS; }
 
 	// Particle renderer
@@ -531,11 +476,6 @@ HRESULT Renderer::InitDirectX(DXWindow* const window)
 	if (!deferredLightVS->LoadShaderFile(L"./Assets/Shaders/DeferredLightVS.cso"))
 		return E_FAIL;
 
-	// load def point light ps
-	deferredPointLightPS = CreateSimplePixelShader();
-	if (!deferredPointLightPS->LoadShaderFile(L"./Assets/Shaders/DeferredPointLightPS.cso"))
-		return E_FAIL;
-
 	// Pre post process ps
 	prePostProcessPS = CreateSimplePixelShader();
 	if (!prePostProcessPS->LoadShaderFile(L"./Assets/Shaders/PrePostProcessPS.cso"))
@@ -862,58 +802,6 @@ void Renderer::Render(const Camera * const camera)
 	prePostProcessPS->SetShader();
 	deferredVS->SetShader();
 	context->Draw(3, 0);
-	
-	
-	/*
-	// Set render target to back buffer
-	//TODO : Set 2 render targets - 1) Final with lighting		2) Selected pixels beyond a certain color range (select as they are being created in 1)
-	//unable to reuse the targetSRVs or RTVs (I think they are related) so we need two more (final and blur select?)
-	context->OMSetRenderTargets(3, postProcessRTVs, nullptr);
-	//===================== Render problems start on the above line =============================================
-	//nothing is passed into the two targets
-	// Use SRVs of textures we just wrote all our data into
-	
-	deferredLightingPS->SetShaderResourceView("colorTexture", targetSRVs[0]);
-	deferredLightingPS->SetShaderResourceView("worldPosTexture", targetSRVs[1]);
-	deferredLightingPS->SetShaderResourceView("normalsTexture", targetSRVs[2]);
-	deferredLightingPS->SetShaderResourceView("emissionTexture", targetSRVs[3]);
-	deferredLightingPS->SetSamplerState("deferredSampler", targetSampler);
-
-	// -- Lighting --
-	deferredLightingPS->SetDataAligned(
-		"directionalLights",						// name of variable in ps
-		&directionalLights,							// direction of light
-		sizeof(DirectionalLight_old) * MAX_DIR_LIGHTS	// size of struct * maxdirlights
-		);
-
-	deferredLightingPS->SetDataAligned(
-		"pointLights",								// name of variable in ps
-		&pointLights,								// direction of light
-		sizeof(PointLight_old) * MAX_POINT_LIGHTS		// size of struct * maxdirlights
-		);
-
-	deferredLightingPS->SetDataAligned(
-		"spotLights",								// name of variable in ps
-		&spotLights,							 	// direction of light
-		sizeof(SpotLight) * MAX_SPOT_LIGHTS		    // size of struct * maxdirlights
-		);
-	deferredLightingPS->SetFloat4("AmbientColor", ambientColor);
-	deferredLightingPS->SetFloat("ColorThreshold", colorThreshold);
-	deferredLightingPS->SetFloat("GlowPercentage", glowPercentage);
-
-	// -- Copy pixel data --
-	deferredVS->CopyAllBufferData();
-	deferredLightingPS->CopyAllBufferData();
-
-	// Set pixel data
-	deferredVS->SetShader();
-	deferredLightingPS->SetShader();
-
-	// Paint lighting info to full screen quad
-	context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
-	context->IASetIndexBuffer(nullptr, (DXGI_FORMAT)0, 0);
-	context->Draw(3, 0);
-	*/
 
 	//Clear target views to reuse
 	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -1033,9 +921,6 @@ void Renderer::Render(const Camera * const camera)
 	context->OMSetRenderTargets(1, &targetViews[3], nullptr);
 	//-2,1,130
 	//.1,.1 is approximately position of sun, if light will move later can pass in directionalLights[0].direction mapped to value between 0 and 1(for screen space)
-	/*
-	float2 ScreenLightPos = float2(.5, .5);
-	/**/
 	XMFLOAT2 ScreenLightPos = XMFLOAT2(200.0f, 200.0f);
 	float Exposure = .03f;//.05 is less in your face
 	float Decay = .99f;//0-1//apparently don't change this, really messes with it, makes it look a lot worse

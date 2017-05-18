@@ -74,10 +74,6 @@ Texture2D::Texture2D(const wchar_t * filePath,
 // --------------------------------------------------------
 Texture2D::~Texture2D()
 {
-	// Free DX11 resources
-	// Sampler state actually handled outside of this class!
-	//samplerState->Release();
-
 	//this check because failed textures are nullptr
 	if( srv != nullptr) srv->Release();
 }
@@ -98,11 +94,17 @@ ID3D11ShaderResourceView * const Texture2D::GetSRV() const
 	return srv;
 }
 
+// --------------------------------------------------------
+// Get the name of this texture's sampler
+// --------------------------------------------------------
 const char * const Texture2D::GetSampelerName() const
 {
 	return samplerName;
 }
 
+// --------------------------------------------------------
+// Get the name of this texture's shader resource view
+// --------------------------------------------------------
 const char * const Texture2D::GetSRVName() const
 {
 	return srvName;
