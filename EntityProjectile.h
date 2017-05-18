@@ -1,6 +1,7 @@
 #pragma once
 #include "Entity.h"
 
+// Entity that is fired by the player and does damage to enemies
 class EntityProjectile :
 	public virtual Entity
 {
@@ -22,10 +23,10 @@ public:
 	XMFLOAT3* GetDirection();
 
 protected:
-	float speed;
-	XMFLOAT3 direction;
+	float speed;	// Speed the projectile moves at
+	XMFLOAT3 direction;	// Direction the projectile moves towards
 
-	ParticleEmitter* peTrail;
+	ParticleEmitter* peTrail;	// Particle effect for trail
 
 	void OnCollision(Collision collison) override;
 };

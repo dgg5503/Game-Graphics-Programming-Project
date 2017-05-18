@@ -1,6 +1,7 @@
 #pragma once
 #include "Entity.h"
 
+// Entity that does nothing but render. Good for background pieces.
 class EntityStatic :
 	public Entity
 {

@@ -2,13 +2,16 @@
 #include "Scene.h"
 #include "UIPanelGame.h"
 
+// Represent the scene with the actual game
 class SceneGame :
 	public Scene
 {
 public:
 	SceneGame(Game* game);
 	virtual ~SceneGame();
+	// Create entities used in game
 	void CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials) override;
+	// Update the state of the game
 	void UpdateScene(float deltaTime, float totalTime) override;
 
 	void OnMousePressed(float x, float y) override;
@@ -24,7 +27,7 @@ private:
 	// User Interface
 	UIPanelGame* uiGamePanel;
 
-	//timer for ui
+	// timer for ui
 	float gameTime;
 	int health;
 };

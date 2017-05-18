@@ -114,11 +114,13 @@ void SkyRenderer::Render(const Camera * const camera)
 	context->IASetVertexBuffers(0, 1, &skyVB, &stride, &offset);
 	context->IASetIndexBuffer(skyIB, DXGI_FORMAT_R32_UINT, 0);
 
+	// Update sky vertex shader
 	skyVS->SetMatrix4x4("view", view);
 	skyVS->SetMatrix4x4("projection", projection);
 	skyVS->CopyAllBufferData();
 	skyVS->SetShader();
 
+	// Update sky particle shader
 	skyPS->SetShaderResourceView("Skybox", skySRV);
 	skyPS->SetSamplerState("Sampler", skySampler);
 	skyPS->SetFloat4("tint", XMFLOAT4(1, 1, 1, 1));

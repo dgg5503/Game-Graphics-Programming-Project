@@ -5,7 +5,8 @@
 EntityProjectile::EntityProjectile(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
 	Entity(entityFactory, name, mesh, material)
 {
-	direction = XMFLOAT3(0, 0, 0);
+	// Default values
+	direction = XMFLOAT3(0, 0, 0);	// Set zero direction
 	speed = 5.0f;
 	this->AddTag("Projectile");
 	SetIsUpdating(true);
@@ -30,14 +31,15 @@ EntityProjectile::~EntityProjectile()
 
 void EntityProjectile::Update(float deltaTime, float totalTime)
 {
+	// Move projectile in set direction
 	XMFLOAT3 movement = XMFLOAT3();
 	XMStoreFloat3(&movement, XMLoadFloat3(&direction) * speed * deltaTime);
-
-
 	transform.Move(movement.x, movement.y, movement.z);
 
 	// Particle Effect
-	const XMFLOAT3* position = transform.GetPosition();
+	const XMFLOAT3* position = transform.GetPosition();	// Get position to emit from
+	
+	// Find range of backward values
 	XMFLOAT3 backwards = XMFLOAT3();
 	XMStoreFloat3(&backwards, XMVector3Normalize(-XMLoadFloat3(&movement)));
 	XMFLOAT3 backwardsLeft = backwards;
@@ -47,19 +49,23 @@ void EntityProjectile::Update(float deltaTime, float totalTime)
 	backwardsRight.x += 0.25f;
 	backwardsRight.y += 0.25f;
 
+	// Particle already emits, we need to just set a direction and position
 	peTrail->SetDirectionRange(backwardsLeft, backwardsRight);
 	peTrail->SetPosition(*position);
 }
 
 void EntityProjectile::Fire(XMFLOAT3 position, XMFLOAT3 direction, float speed)
 {
+	// Set projectile values
 	transform.SetPosition(position);
 	SetDirection(direction);
 	SetSpeed(speed);
 
+	// Set the projectile to be updating and true
 	SetIsUpdating(true);
 	SetIsColliding(true);
 
+	// Restart particle effect
 	peTrail->SetPosition(position);
 	peTrail->SetLoop(-1);
 	peTrail->Emit();
@@ -67,10 +73,10 @@ void EntityProjectile::Fire(XMFLOAT3 position, XMFLOAT3 direction, float speed)
 
 void EntityProjectile::Remove()
 {
-	transform.SetPosition(0, 0, -200);
-	SetIsUpdating(false);
-	SetIsColliding(false);
-	peTrail->SetLoop(0);
+	transform.SetPosition(0, 0, -200);	// Move particle off screen
+	SetIsUpdating(false);	// Set particle to stop updating
+	SetIsColliding(false);	// Set particle to stop colliding
+	peTrail->SetLoop(0);	// Turn off particle effect
 }
 
 void EntityProjectile::SetSpeed(float speed)
@@ -95,6 +101,7 @@ XMFLOAT3 * EntityProjectile::GetDirection()
 
 void EntityProjectile::OnCollision(Collision collison)
 {
+	// Remove projectile if it hits an enemy
 	if (collison.otherEntity->HasTag("Enemy")) {
 		Remove();
 	}

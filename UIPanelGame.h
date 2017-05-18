@@ -4,6 +4,7 @@
 #include "StateManager.h"
 #define MAX_TIMER_BUFFER_LEN 9 // 00:00.00\0
 
+// UI for the actual game
 class UIPanelGame : public UIPanel
 {
 public:
@@ -11,19 +12,22 @@ public:
 	virtual ~UIPanelGame();
 
 	// Implement required functions
+	// Draw UI
 	void Draw(SpriteBatch* const spriteBatch,
 		const std::unordered_map<const char*, SpriteFont*>& fontMap);
 	void Update(float deltaTime, float totalTime);
 	//void UpdateText(wstring _text);
+
+	// Update the player's health
 	void UpdateHealth(int health);
 
-
+	// Set the time displayed in UI
 	void SetGameTime(float gameTime);
 private:
-	float gameTime = 0;
-	int health = 0;
-	float x;
-	float y;
+	float gameTime = 0;	// Time the player is alive
+	int health = 0;	// The players health
+	float x;	// xPos of UI
+	float y;	// yPos of UI
 
 	// Represents the healthbar
 	struct HealthBar {

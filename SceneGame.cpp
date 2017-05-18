@@ -83,15 +83,18 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 
 void SceneGame::UpdateScene(float deltaTime, float totalTime)
 {
+	// Update health shown in the UI Panel
 	uiGamePanel->UpdateHealth(player->health);
 
 	//spin meteors
 	meteors->transform.SetRotation(0,1,0, totalTime/20);
 	meteors2->transform.SetRotation(0, 1, 0, (totalTime / 20)+ 80);
 
-
+	// If the player is alive
 	if (player->health) {
+		// Update game timer
 		gameTime += deltaTime;
+		// Send new time to UI panel
 		uiGamePanel->SetGameTime(gameTime);
 	}
 }
@@ -112,6 +115,6 @@ void SceneGame::OnMousePressed(float x, float y)
 
 	printf("%F, %F\n ", scaledX, scaledY);
 
-
+	// Passes mouse values to player
 	player->OnMousePressed(scaledX, scaledY);
 }

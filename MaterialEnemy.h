@@ -1,5 +1,7 @@
 #pragma once
 #include "Material.h"
+
+// Special material used be enemy
 class MaterialEnemy :
 	public Material
 {
@@ -13,8 +15,10 @@ public:
 		);
 	~MaterialEnemy();
 
+	// Prepare the material to include time
 	void PrepareMaterial() override;
 
+	// Set time used by material
 	void SetTotalTime(float totalTime);
 
 private:

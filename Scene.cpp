@@ -8,6 +8,7 @@ Scene::Scene(Game* game) :
 
 Scene::~Scene()
 {
+	// Delete UI object
 	if (uiPanel)
 		delete uiPanel;
 }

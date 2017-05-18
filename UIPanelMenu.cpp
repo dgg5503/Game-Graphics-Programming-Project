@@ -7,12 +7,12 @@ UIPanelMenu::UIPanelMenu(Game* game, StateManager* stateManager) :
 {
 	buttons = std::unordered_map<const char*, Button>();
 
-	// Create "Logo" button
+	// Create "Logo" button (Does nothing when pressed
 	Button logo;
 	logo.rectangle = SimpleMath::Rectangle(448, 150, 364, 91);
 	logo.texture = Renderer::Instance()->CreateTexture2D(L"./Assets/Textures/ui_logo.tif", Texture2DType::ALBEDO);
 	logo.text = L"";
-	buttons["lgo"] = logo;
+	buttons["logo"] = logo;
 
 	// Create "Start Game" button
 	Button startGame;
@@ -43,6 +43,7 @@ UIPanelMenu::~UIPanelMenu()
 
 void UIPanelMenu::Draw(SpriteBatch * const spriteBatch, const std::unordered_map<const char*, SpriteFont*>& fontMap)
 {
+	// Draw button
 	for (auto iter = buttons.begin(); iter != buttons.end(); ++iter)
 	{
 		Button button = iter->second;
@@ -57,6 +58,8 @@ void UIPanelMenu::MousePressed(float x, float y)
 	for (auto iter = buttons.begin(); iter != buttons.end(); ++iter)
 	{
 		Button button = iter->second;
+
+		// If the button is pressed, call function pointer
 		if (button.CheckIsPressed(x, y) && button.onPressed != nullptr)
 			(this->*button.onPressed)();
 	}

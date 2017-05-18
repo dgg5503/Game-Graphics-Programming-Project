@@ -62,16 +62,19 @@ void Entity::SetEntityFactory(EntityFactory* entityFactory)
 
 void Entity::SetIsUpdating(bool isUpdating)
 {
+	// Adds/Removes entity from the list of updating entities
 	entityFactory->SetEntityUpdating(this, isUpdating);
 }
 
 void Entity::SetIsRendering(bool isRendering)
 {
+	// Adds/Removes entity from the list of rendering entities
 	entityFactory->SetEntityRendering(this, isRendering);
 }
 
 void Entity::SetIsColliding(bool isColliding)
 {
+	// Adds/Removes entity from the list of collidable entities
 	entityFactory->SetEntityCollision(this, isColliding);
 }
 
@@ -139,12 +142,15 @@ Material * const Entity::GetMaterial() const
 
 void Entity::SetCollider(Collider::ColliderType type, XMFLOAT3 scale, XMFLOAT3 offset, XMFLOAT4 rotation)
 {
+	// Check if the entity already has a collider (an existing collider can be edited directly)
 	if (collider != nullptr) {
 		return;
 	}
+	// Creates collider object
 	collider = new Collider(type, offset, scale, rotation);
 	collider->SetParentEntity(this);
 
+	// Set the entity as collidable
 	entityFactory->SetEntityCollision(this, true);
 }
 

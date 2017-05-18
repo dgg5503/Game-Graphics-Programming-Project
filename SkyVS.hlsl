@@ -1,4 +1,3 @@
-
 // Constant Buffer for external (C++) data
 cbuffer externalData : register(b0)
 {
@@ -15,22 +14,20 @@ struct VertexShaderInput
 	float3 tangent		: TANGENT;
 };
 
-// Out of the vertex shader (and eventually input to the PS)
+// Struct sent to vertex shader
 struct VertexToPixel
 {
 	float4 position		: SV_POSITION;
 	float3 uvw			: TEXCOORD; // Direction for cubemap sampling in PS
 };
 
-// --------------------------------------------------------
-// The entry point (main method) for our vertex shader
-// --------------------------------------------------------
+
 VertexToPixel main(VertexShaderInput input)
 {
 	// Set up output
 	VertexToPixel output;
 
-	// Zeros position of view matrixs
+	// Removes position from view matrix
 	matrix viewNoMovement = view;
 	viewNoMovement._41 = 0;
 	viewNoMovement._42 = 0;
@@ -39,13 +36,12 @@ VertexToPixel main(VertexShaderInput input)
 	// Calculate output position
 	matrix viewProj = mul(viewNoMovement, projection);
 	float scale = 10.0f;	// Makes sure the model is big enough.
-	output.position = mul(float4(input.position * scale, 1.0f), viewProj);
+	output.position = mul(float4(input.position * scale, 1.0f), viewProj);	// Find position 
 
 	// To ensure we're at MAX DEPTH, set the Z to the W
 	output.position.z = output.position.w;
 
-	// Pass through the uvw.  Assuming that, since we're in the center
-	// of the cube, the position is also a direction in space
+	// The UVW represents position in the cube from the center
 	output.uvw = input.position;
 
 	return output;

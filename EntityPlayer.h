@@ -27,6 +27,7 @@ public:
 	// Change health by amount
 	void ChangeHealth(int healthDelta);
 
+	// Handles mouse press for mouse firing controls
 	void OnMousePressed(float x, float y);
 
 	int health, maxHealth;

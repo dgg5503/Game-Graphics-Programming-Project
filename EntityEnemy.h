@@ -2,6 +2,11 @@
 #include "Entity.h"
 #include "MaterialEnemy.h"
 
+// Enemy entity
+// Goes straight towards the player.
+// Does damage when it hits the player
+// Shrinks when damaged, grows when it heals
+// Heals gradually overtime
 class EntityEnemy :
 	public Entity
 {
@@ -37,7 +42,7 @@ protected:
 
 	Entity* target;		// The target of the enemy
 	XMFLOAT3 direction;	// Direction the enemy is looking at
-	XMFLOAT3 rotationAxis;
+	XMFLOAT3 rotationAxis;	// Axis the enemy rotates around
 
 	// Material
 	MaterialEnemy* enemyMaterial;
@@ -46,6 +51,8 @@ protected:
 	ParticleEmitter* peExplosionDebris;
 	ParticleEmitter* peExplosionFireball;
 
+
+	// Implements unique collision behavior
 	void OnCollision(Collision collision) override;
 };
 

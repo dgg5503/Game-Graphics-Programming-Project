@@ -4,20 +4,24 @@
 
 class Game;
 
+// UI for the menu of the game
 class UIPanelMenu :
 	public UIPanel
 {
 public:
 	UIPanelMenu(Game* game, StateManager* stateManager);
 	~UIPanelMenu();
+
+	// Draw menu
 	void Draw(SpriteBatch* const spriteBatch,
 		const std::unordered_map<const char*, SpriteFont*>& fontMap) override;
 
+	// Handle mouse press on menu
 	void MousePressed(float x, float y);
 
-private:
-	Game* game;
-	StateManager* stateManager;
+private:	
+	Game* game;	// Pointer to game
+	StateManager* stateManager;	// Pointer to state manager
 
 	// Represents a UI element that can be pressed.
 	struct Button {
@@ -35,9 +39,10 @@ private:
 		}
 	};
 
+	// Buttons in UI
 	std::unordered_map<const char*, Button> buttons;
 
-	void PlayGame();
-	void ExitGame();
+	void PlayGame();	// Set game state to game
+	void ExitGame();	// Exits the game
 };
 
