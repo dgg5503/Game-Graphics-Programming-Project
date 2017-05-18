@@ -16,7 +16,7 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	this->maxScale = 0.25;
 
 	// Create a unique rotation axis for this enemy
-	this->rotationAxis = XMFLOAT3(rand() % 100 - 50, rand() % 100 - 50, rand() % 100 - 50);
+	this->rotationAxis = XMFLOAT3(rand() % 100 - 50.0f, rand() % 100 - 50.0f, rand() % 100 - 50.0f);
 
 	// Cast the current material into an Enemy Material so it can be modified as such.
 	this->enemyMaterial = dynamic_cast<MaterialEnemy*>(this->GetMaterial());

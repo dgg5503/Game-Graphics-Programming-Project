@@ -1,6 +1,7 @@
 #pragma once
 #include "Scene.h"
 #include "UIPanelGame.h"
+#include "ParticleEmitter.h"
 
 // Represent the scene with the actual game
 class SceneGame :

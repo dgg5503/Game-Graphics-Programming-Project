@@ -10,6 +10,10 @@ unsigned int Material::staticMaterialID = 0;
 // Creates a basic material with supplied vertex and pixel
 // shader (required for basic drawing). Also prepares info
 // for texture drawing.
+//
+// vertexShader - Vertex shader to use when drawing.
+// pixelShader - Pixel shader to use when drawing.
+// texture2D - Texture to use when drawing.
 // --------------------------------------------------------
 Material::Material(SimpleVertexShader * const vertexShader,
 	SimplePixelShader * const pixelShader,
@@ -27,6 +31,16 @@ Material::Material(SimpleVertexShader * const vertexShader,
 	materialID = staticMaterialID++;
 }
 
+// --------------------------------------------------------
+// Constructor
+//
+// Creates a material that will utilize a normal texture.
+//
+// vertexShader - Vertex shader to use when drawing.
+// pixelShader - Pixel shader to use when drawing.
+// albedoTexture - Texture to use when drawing.
+// normalTexture - Texture to sample normals from when drawing.
+// --------------------------------------------------------
 Material::Material(SimpleVertexShader * const vertexShader,
 	SimplePixelShader * const pixelShader,
 	Texture2D* const albedoTexture,
@@ -46,29 +60,19 @@ Material::Material(SimpleVertexShader * const vertexShader,
 	// assigned next ID
 	materialID = staticMaterialID++;
 }
-/*
-Material::Material(SimpleVertexShader * const vertexShader,
-	SimplePixelShader * const pixelShader,
-	Texture2D* const albedoTexture,
-	Texture2D* const normalTexture,
-	Texture2D* const depthTexture) :
-	vertexShader(vertexShader),
-	pixelShader(pixelShader)
-{
-	// Save multiple textures
-	textureList.numTextures = 3;
-	textureList.textures = new Texture2D*[3];
 
-	// copy pointers
-	textureList.textures[0] = albedoTexture;
-	textureList.textures[1] = normalTexture;
-	textureList.textures[2] = depthTexture;
-
-	// assigned next ID
-	materialID = staticMaterialID++;
-}
-*/
-
+// --------------------------------------------------------
+// Constructor
+//
+// Creates a material that will utilize a normal texture and
+// emission texture.
+//
+// vertexShader - Vertex shader to use when drawing.
+// pixelShader - Pixel shader to use when drawing.
+// albedoTexture - Texture to use when drawing.
+// normalTexture - Texture to sample normals from when drawing.
+// emissionTexture - Texture to sample light from when lighting.
+// --------------------------------------------------------
 Material::Material(SimpleVertexShader * const vertexShader, 
 	SimplePixelShader * const pixelShader,
 	Texture2D * const albedoTexture, 
@@ -115,10 +119,6 @@ void Material::PrepareMaterial()
 		pixelShader->SetShaderResourceView(currTexture->GetSRVName(), currTexture->GetSRV());
 		pixelShader->SetSamplerState(currTexture->GetSampelerName(), currTexture->GetSamplerState());
 	}
-	// This should only be called by the renderer...
-	// Set up texture specific information
-	//pixelShader->SetShaderResourceView("albedo", texture2D->GetSRV());
-	//pixelShader->SetSamplerState("albedoSampler", texture2D->GetSamplerState());
 
 	// Set up additional shader information (if provided)
 	// IF I WERE A SPECULAR_MATERIAL
@@ -144,11 +144,15 @@ SimplePixelShader * const Material::GetPixelShader() const
 // --------------------------------------------------------
 // Get the texture information for this material
 // --------------------------------------------------------
-Texture2D * const Material::GetTexture2D() const
+Texture2D * const Material::GetTexture2D(size_t index) const
 {
-	printf("OH NO DONT CALL THIS\n");
-	return nullptr;
-	//return texture2D;
+	if (!textureList.textures)
+		return nullptr;
+
+	if (index >= textureList.numTextures)
+		return nullptr;
+
+	return textureList.textures[index];
 }
 
 // --------------------------------------------------------

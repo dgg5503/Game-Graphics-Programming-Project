@@ -12,15 +12,15 @@ private:
 	LightRenderer(Renderer& renderer);
 	~LightRenderer();
 
+	// Initialization & Shutdown
 	HRESULT Initialize(SimpleVertexShader* quadVS, unsigned int width, unsigned int height);
 	HRESULT Shutdown();
 
+	// Light creation
 	PointLight * const CreatePointLight(PointLightAttenuation attenuation, std::string name, bool autostage = false);
 	DirectionalLight* const CreateDirectionalLight(std::string name, bool autostage = false);
 
-	// Remove all lights from list
-	//void Release();
-
+	// Rendering related
 	void Render(const Camera* const camera);
 	void ClearRTV();
 

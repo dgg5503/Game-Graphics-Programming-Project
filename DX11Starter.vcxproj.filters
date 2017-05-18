@@ -195,6 +195,9 @@
     <ClCompile Include="UIPanelGame.cpp">
       <Filter>UI Panels</Filter>
     </ClCompile>
+    <ClCompile Include="MaterialParallax.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UIPanel.h">
@@ -331,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="UIPanelGame.h">
       <Filter>UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialParallax.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

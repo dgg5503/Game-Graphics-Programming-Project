@@ -1,3 +1,5 @@
+// Basic interface between CPP and HLSL structs
+
 #ifndef SHADERTYPES_H
 #define SHADERTYPES_H
 

@@ -16,9 +16,6 @@ static float2 uv[4] =
         float2(0.0f, 1.0f)
 };
 
-// Constant indexing information that will never change
-//static float index[6] = { 0, 1, 2, 3, 2, 1 };
-
 // World information
 cbuffer externalData : register(b0)
 {
@@ -48,7 +45,6 @@ ParticleVertexToPixel main(uint v_id : SV_VertexID, uint i_id : SV_InstanceID)
     Particle particle = particlePool[aliveList[i_id].index];
 
     // Per instance index counter
-    //uint particlePoolIndex = i_id; // The index of the particle in the pool
     uint particleVertexIndex = v_id % 4;    // The index of the vertex of this particle
 
     // Store flags for future use
@@ -64,7 +60,6 @@ ParticleVertexToPixel main(uint v_id : SV_VertexID, uint i_id : SV_InstanceID)
 	// Obtain view matrix Up, Right and Normal
     float3 halfRight = normalize(view._11_21_31) * size.x * 0.5f;
     float3 halfUp = normalize(view._12_22_32) * size.y * 0.5f;
-	//float3 n = normalize(view._13_23_33);
 	const float3 verts[4] =
 	{
         halfRight - halfUp,
@@ -97,8 +92,6 @@ ParticleVertexToPixel main(uint v_id : SV_VertexID, uint i_id : SV_InstanceID)
     // Positional information
 	// Calculate WVP for each particle
 	// Because normal always faces camera, its just the opposite of the forward. 
-    //output.normal = float3(0, 0, -1); //-n;
-	//output.tangent = halfRight * 2.0f;
     output.worldPos = (float3) mul(float4(verts[particleVertexIndex], 1.0f), world);
     output.position = mul(float4(verts[particleVertexIndex], 1.0f), worldViewProj);
     output.uv = uv[particleVertexIndex] * float2(1.0f / NUM_TEXTURES_IN_ATLAS, 1.0f); // replace .5 with 1 / numOfTexts

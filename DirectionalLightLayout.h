@@ -3,6 +3,7 @@
 
 #include "ShaderTypes.h"
 
+// Struct/cbuffer which holds directional light information.
 CBUFFER(DirectionalLightLayout, b0)
 {
 	float4 diffuse;

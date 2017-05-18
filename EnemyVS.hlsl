@@ -27,7 +27,7 @@ VertexToPixel main(VertexShaderInput input)
 	// Set up output struct
 	VertexToPixel output;
 
-	float2 samplePos = input.position + time * 0.5f;
+	float2 samplePos = input.position.xy + time * 0.5f;
 	float3 offSet = normalize(input.position) * (Texture.SampleLevel(Sampler, samplePos, 0).a - 0.5f);
 	float3 position = input.position + offSet * 2.5f;
 

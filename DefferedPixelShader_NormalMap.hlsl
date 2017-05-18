@@ -44,7 +44,6 @@ PSOutput main(VertexToPixel input)
 	output.normals = float4(normalize(mul(normalSampled.xyz, TBN) + 1.0f) / 2.0f, 1.0f);
 
 	// set emission to black = 0
-	//output.emission = float4(0, 0, 0, 1);
 	output.emission = emissionMap.Sample(albedoSampler, input.uv);
 
 	// return to render targets
