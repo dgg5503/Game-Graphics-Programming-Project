@@ -211,7 +211,7 @@ void Game::CreateCameras()
 	// Create game camera
 	gameCamera = new CameraGame();
 	gameCamera->transform.Move(0, 0, -100.0f);
-	gameCamera->SetViewHeight(GAME_HEIGHT);
+	//gameCamera->SetViewHeight(GAME_HEIGHT);
 
 	// Set game camera to active
 	activeCamera = gameCamera;
