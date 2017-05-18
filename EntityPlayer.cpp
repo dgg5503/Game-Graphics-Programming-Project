@@ -224,7 +224,7 @@ void EntityPlayer::OnCollision(Collision other)
 
 		// Sufficiently weak enemies inflict no damage.
 		float enemyHealth = enemy->GetHealth();
-		if (enemyHealth >= 0.2f);
+		if (enemyHealth >= 0.2f)
 			ChangeHealth(enemyHealth * -10);
 
 		enemy->ChangeHealth(-1000);	// Kill enemy
