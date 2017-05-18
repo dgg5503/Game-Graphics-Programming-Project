@@ -5,6 +5,7 @@
 EntityPlayer::EntityPlayer(EntityFactory* entityFactory, std::string name, Mesh* mesh, Material* material) :
 	Entity(entityFactory, name, mesh, material)
 {
+	// Default values
 	fireRate = 0.15f;
 	fireTimer = 0;
 	maxHealth = health = 100;
@@ -65,7 +66,7 @@ EntityPlayer::~EntityPlayer()
 
 void EntityPlayer::Update(float deltaTime, float totalTime)
 {
-	// Move the player around
+	// Find the player movement direction
 	XMFLOAT3 movement = XMFLOAT3(0,0,0);
 	bool isSteering = false;
 	if (GetAsyncKeyState('W') & 0x8000) {
@@ -86,19 +87,38 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 		isSteering = true;
 		movement.x -= 1.0;
 	}
+	// Create final movement vector
 	XMStoreFloat3(&movement, XMVector3Normalize(XMLoadFloat3(&movement)) * speed * deltaTime);
 
+	// Move player
 	transform.Move(movement.x, movement.y, movement.z);
 	transform.SetRotation(0, 0, 1, atan2f(movement.y, movement.x));
 
+	// Bound player to arena.
+	const XMFLOAT3* position = transform.GetPosition();
+	if (position->x < ARENA_LEFT_WALL)
+		transform.SetPosition(ARENA_LEFT_WALL, position->y, 0);
+	else if (ARENA_RIGHT_WALL < position->x)
+		transform.SetPosition(ARENA_RIGHT_WALL, position->y, 0);
+	if (position->y < ARENA_BOTTOM_WALL)
+		transform.SetPosition(position->x, ARENA_BOTTOM_WALL, 0);
+	else if (ARENA_TOP_WALL < position->y)
+		transform.SetPosition(position->x, ARENA_TOP_WALL, 0);
+
+	// Handle visuals of steering.
 	const XMFLOAT2& screenCoords = Game::GetScreenCoords(transform);
 	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::POS_X, static_cast<AkRtpcValue>(screenCoords.x), id);
 	AK::SoundEngine::SetRTPCValue(AK::GAME_PARAMETERS::POS_Y, static_cast<AkRtpcValue>(screenCoords.y), id);
 
 	if (isSteering) {
+		// Get position to emit engine particle effect from
 		auto emitPosition = transform.GetPosition();
+
+		// Get direction to fire engine particle effect from
 		XMFLOAT3 backwards = XMFLOAT3();
 		XMStoreFloat3(&backwards, XMVector3Normalize(-XMLoadFloat3(&movement)));
+
+		// Get range of direction to fire particle effects from
 		XMFLOAT3 backwardsLeft = backwards;
 		XMFLOAT3 backwardsRight = backwards;
 		backwardsLeft.x -= 0.25f;
@@ -106,6 +126,7 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 		backwardsRight.x += 0.25f;
 		backwardsRight.y += 0.25f;
 
+		// Start engine particle effect 
 		peEngineExhaust->SetDirectionRange(backwardsLeft, backwardsRight);
 		peEngineExhaust->SetPosition(*emitPosition);
 		peEngineExhaust->SetLoop(-1);
@@ -114,6 +135,7 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 		AK::SoundEngine::SetState(AK::STATES::PLAYER_STATE::GROUP, AK::STATES::PLAYER_STATE::STATE::PLAYER_MOVE);
 	}
 	else {
+		// End engine particle effect
 		peEngineExhaust->SetLoop(0);
 		peEngineExhaust->Emit();
 
@@ -121,7 +143,9 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 	}
 
 	// Handle firing
-	fireTimer += deltaTime;
+	fireTimer += deltaTime;	// Add to the timer since last firing
+
+	// Find direction of firing
 	XMFLOAT3 fireDirection = XMFLOAT3(0, 0, 0);
 	bool isFiring = false;
 	if (GetAsyncKeyState(VK_UP) & 0x8000)
@@ -145,6 +169,7 @@ void EntityPlayer::Update(float deltaTime, float totalTime)
 		isFiring = true;
 	}
 
+	// If the player is trying to fire this frame and its been enough time since last firing
 	if (isFiring && fireTimer > fireRate) {
 		FireProjectile(fireDirection);
 		fireTimer = 0;
@@ -163,7 +188,10 @@ void EntityPlayer::SetProjectileManager(EntityManagerProjectile* projectileManag
 
 void EntityPlayer::ChangeHealth(int healthDelta)
 {
+	// Update health
 	health += healthDelta;
+
+	// Check if health is low enough for the player to be dead
 	if (health <= 0) {
 		health = 0;
 		SetIsRendering(false);
@@ -171,11 +199,13 @@ void EntityPlayer::ChangeHealth(int healthDelta)
 		SetIsUpdating(false);
 
 		// Explosion Effect
+		// Get position for explosion effect
 		const XMFLOAT3* position = transform.GetPosition();
 
 		peEngineExhaust->SetLoop(0);
 		peEngineExhaust->Emit();
 
+		// Emit explosion effects
 		peExplosionDebris->SetPosition(*position);
 		peExplosionFireball->SetPosition(*position);
 		peExplosionDebris->Emit();
@@ -184,9 +214,19 @@ void EntityPlayer::ChangeHealth(int healthDelta)
 		AK::SoundEngine::SetState(AK::STATES::PLAYER_STATE::GROUP, AK::STATES::PLAYER_STATE::STATE::PLAYER_IDLE);
 		AK::SoundEngine::PostEvent(AK::EVENTS::EXPLODE_PLAYER, id);
 	}
-	else if (health > maxHealth) {
+	else if (health > maxHealth)	// Make sure max health is not exceeded
+	{
 		health = maxHealth;
 	}
+}
+
+void EntityPlayer::OnMousePressed(float x, float y)
+{
+	// Get player position
+	const XMFLOAT3* position = transform.GetPosition();
+
+	// Get direction and fire
+	FireProjectile(XMFLOAT3(x - position->x, y - position->y, 0));
 }
 
 float EntityPlayer::GetSpeed()
@@ -196,17 +236,24 @@ float EntityPlayer::GetSpeed()
 
 void EntityPlayer::OnCollision(Collision other)
 {
+	// Handles collision with enemy
 	if (other.otherEntity->HasTag("Enemy")) {
 		EntityEnemy* enemy = (EntityEnemy*)other.otherEntity;
 
 		// Sufficiently weak enemies inflict no damage.
-		ChangeHealth(static_cast<int>(enemy->GetHealth()) * -10);
+		float enemyHealth = enemy->GetHealth();
+		if (enemyHealth >= 0.2f);
+			ChangeHealth(enemyHealth * -10);
+
 		enemy->ChangeHealth(-1000);	// Kill enemy
 	}
 }
 
 void EntityPlayer::FireProjectile(XMFLOAT3 direction)
 {
+	// Normalize Direction
+	XMStoreFloat3(&direction, XMVector3Normalize(XMLoadFloat3(&direction)));
+
 	// Get projectile
 	EntityProjectile* projectile = projectileManager->GetProjectile();
 	const XMFLOAT3* position = transform.GetPosition();
@@ -215,6 +262,7 @@ void EntityPlayer::FireProjectile(XMFLOAT3 direction)
 	projectile->Fire(*position, direction, 5.0f);
 
 	// Burst particle effect
+	// Get direction range of particle effect
 	XMFLOAT3 directionLeft = direction;
 	XMFLOAT3 directionRight = direction;
 	directionLeft.x -= 0.75f;
@@ -222,6 +270,7 @@ void EntityPlayer::FireProjectile(XMFLOAT3 direction)
 	directionRight.x += 0.75f;
 	directionRight.y += 0.75f;
 
+	// Emit fire particle effect
 	peFireProjectile->SetDirectionRange(directionLeft, directionRight);
 	peFireProjectile->SetPosition(*position);
 	peFireProjectile->Emit();

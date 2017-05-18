@@ -143,7 +143,7 @@ HRESULT DXWindow::InitWindow()
 	ShowWindow(hWnd, SW_SHOW);
 
 	// Hide cursor
-	ShowCursor(false);
+	ShowCursor(true);
 
 	// Return an "everything is ok" HRESULT value
 	return S_OK;

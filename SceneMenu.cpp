@@ -1,11 +1,10 @@
 #include "SceneMenu.h"
 #include "MemoryDebug.h"
 
-SceneMenu::SceneMenu()
+SceneMenu::SceneMenu(Game* game, StateManager& stateManager)
+	: Scene(game)
 {
-	uiPanel = new UIGamePanel(0, 0);
-
-	uiPanel->UpdateText(L"\n\n1: Game Camera\n2: Debug Camera\n3: Test Scene\n4: Game Scene(reset game)");
+	Scene::uiPanel = uiPanelMenu = new UIPanelMenu(game, &stateManager);
 }
 
 SceneMenu::~SceneMenu()
@@ -22,4 +21,10 @@ void SceneMenu::CreateSceneEntities(EntityFactory & entityFactory, std::unordere
 		background->transform.SetRotation(rand() % 10000 / 1000.0f - 5, rand() % 10000 / 1000.0f - 5, 5.0f, 5.0f);
 		background->transform.SetScale(0.5f, 0.5f, 0.5f);
 	}
+}
+
+void SceneMenu::OnMousePressed(float x, float y)
+{
+	// Pass press event to the UI Panel
+	uiPanelMenu->MousePressed(x, y);
 }

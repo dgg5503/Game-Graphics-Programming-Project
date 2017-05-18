@@ -8,6 +8,7 @@ Entity* EntityFactory::CreateEntity(EntityType entityType, std::string name, Mes
 {
 	Entity* entity = nullptr;
 
+	// Create entity based off entity type enum
 	switch (entityType)
 	{
 	case EntityType::STATIC:
@@ -29,6 +30,8 @@ Entity* EntityFactory::CreateEntity(EntityType entityType, std::string name, Mes
 		entity = new EntityMeteor(this, name, mesh, material);
 		break;
 	}
+
+	// Add entity to vector of entities
 	entities[entity->GetName()] = entity;
 	return entity;
 }
@@ -38,6 +41,7 @@ vector<EntityProjectile*> EntityFactory::CreateProjectileEntities(unsigned int n
 	EntityProjectile* projectile;
 	vector<EntityProjectile*> projectiles = vector<EntityProjectile*>(numberOfProjectiles);
 
+	// Create a vector of projectiles
 	for (auto i = 0u; i < numberOfProjectiles; ++i) {
 		projectiles[i] = projectile = 
 			dynamic_cast<EntityProjectile*>(CreateEntity(EntityType::PROJECTILE, "Projectile_" + std::to_string(i), mesh, material));
@@ -52,6 +56,7 @@ vector<EntityProjectile*> EntityFactory::CreateProjectileEntities(unsigned int n
 
 void EntityFactory::UpdateEntities(float deltaTime, float totalTime)
 {
+	// Updates each entity in the updating entities list
 	for (auto iter = updatingEntities.begin(); iter != updatingEntities.end(); ++iter) {
 		iter->second->Update(deltaTime, totalTime);
 	}
@@ -59,32 +64,43 @@ void EntityFactory::UpdateEntities(float deltaTime, float totalTime)
 
 void EntityFactory::SetEntityCollision(Entity* entity, bool isColliding)
 {
+	// Check if value is already set
 	if (entity->isColliding == isColliding) {
 		return;
 	}
 
+	// Set entity property
 	entity->isColliding = isColliding;
 
+	// If the entity will now collide, add entity to vector of colliding entities
 	isColliding ? CollisionManager::Instance()->StageCollider(entity->GetCollider()) : CollisionManager::Instance()->UnstageCollider(entity->GetCollider());
 }
 
 void EntityFactory::SetEntityRendering(Entity* entity, bool isRendering)
 {
+	// Check if value is already set
 	if (entity->isRendering == isRendering) {
 		return;
 	}
+
+	// Set entity property
 	entity->isRendering = isRendering;
 
+	// If the entity will now render, stage entity for rendering
 	isRendering ? Renderer::Instance()->StageEntity(entity) : Renderer::Instance()->UnstageEntity(entity);
 }
 
 void EntityFactory::SetEntityUpdating(Entity* entity, bool isUpdating)
 {
+	// Check if value is already set
 	if (entity->isUpdating == isUpdating) {
 		return;
 	}
+
+	// Set entity property
 	entity->isUpdating = isUpdating;
 
+	// If the entity will now update, add entity to updating entities vector.
 	isUpdating ? AddEntityToUpdate(entity) :RemoveEntityFromUpdate(entity);
 }
 

@@ -13,5 +13,11 @@ public:
 	// Updates the camera with an orthogonal projection matrix.
 	void UpdateProjectionMatrix(float aspectRatio);
 	void Update(float deltaTime, float totalTime);
+
+	// Getters and Setters
+	float GetViewHeight();
+	void SetViewHeight(float viewHieght);
+protected:
+	float viewHeight;
 };
 

@@ -7,8 +7,10 @@ using namespace DirectX;
 EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * mesh, Material * material) : 
 	Entity(entityFactory, name, mesh, material)
 {
+	// Add enemy tag
 	this->AddTag("Enemy");
 
+	// Default values
 	this->speed = 1.0f;
 	this->health = 0.000001f;
 	this->healthMax = 1.0f;
@@ -21,7 +23,7 @@ EntityEnemy::EntityEnemy(EntityFactory* entityFactory, std::string name, Mesh * 
 	// Cast the current material into an Enemy Material so it can be modified as such.
 	this->enemyMaterial = dynamic_cast<MaterialEnemy*>(this->GetMaterial());
 
-	// Explosion Particle Systems - occurs when killed
+	// Explosion Particle Systems - occurs on death
 	Renderer* renderer = Renderer::Instance();
 	peExplosionDebris = renderer->CreateBurstParticleEmitter("PE_" + name + "_Explosion_Debris", 20);
 	peExplosionDebris->SetAgeRange(2.0f, 1.0f);

@@ -15,7 +15,7 @@ Camera* Game::activeCamera = nullptr;
 Game::Game(HINSTANCE hInstance)
 	: DXWindow(
 		hInstance,		   // The application's handle
-		"DirectX Game",	   // Text for the window's title bar
+		"&Poly_Star*",	   // Text for the window's title bar
 		1280,			   // Width of the window's client area
 		720,			   // Height of the window's client area
 		true)			   // Show extra stats (fps) in title bar?
@@ -122,32 +122,30 @@ void Game::Init()
 	if (!audioEngine->LoadSoundBanks(L"./Assets/Sound/"))
 		fprintf(stderr, "[Audio] Failed to load sound banks.\n");
 
-	stateManager.AddScene(GameState::GAME, new SceneGame());
-	stateManager.AddScene(GameState::MAIN_MENU, new SceneMenu());
+
+	// Setup Scenes and State Manager
+	stateManager.SetEntityFactory(&entityFactory);
+	stateManager.SetMaterials(&materials);
+	stateManager.SetMeshes(&meshes);
+	stateManager.AddScene(GameState::GAME, new SceneGame(this));
+	stateManager.AddScene(GameState::MAIN_MENU, new SceneMenu(this, stateManager));
 
 	// Initialize starting mouse location to center of screen
 	prevMousePos.x = GetWidth() / 2;
 	prevMousePos.y = GetHeight() / 2;
 
-	// Create debug camera
-	debugCamera = new CameraDebug();
-	debugCamera->transform.Move(0, 0, -3.0f);
+	// Create Cameras
+	CreateCameras();
 
-	gameCamera = new CameraGame();
-	gameCamera->transform.Move(0, 0, -10.0f);
-
-	activeCamera = gameCamera;
-
-	// Helper methods for loading shaders, creating some basic
-	// geometry to draw and some simple camera matrices.
-	//  - You'll be expanding and/or replacing these 
+	// Load Assets
 	LoadShaders();
-	CreateMatrices();
 	CreateBasicGeometry();
-	CreateEntities();
 
 	// Load font 
 	renderer->LoadFont("arial", L"./Assets/Font/Arial.spritefont");
+
+	// Load the first scene
+	LoadDefaultScene();
 
 	// Start global ambiance
 	GlobalAmbiance::Init();
@@ -202,10 +200,22 @@ void Game::LoadShaders()
 
 // --------------------------------------------------------
 // Initializes the matrices necessary to represent our geometry's 
-// transformations and our 3D camera
+// transformations and our 3D cameras
 // --------------------------------------------------------
-void Game::CreateMatrices()
+void Game::CreateCameras()
 {
+	// Create debug camera
+	debugCamera = new CameraDebug();
+	debugCamera->transform.Move(0, 0, -3.0f);
+
+	// Create game camera
+	gameCamera = new CameraGame();
+	gameCamera->transform.Move(0, 0, -100.0f);
+	gameCamera->SetViewHeight(GAME_HEIGHT);
+
+	// Set game camera to active
+	activeCamera = gameCamera;
+
 	// Setup projection matrix
 	debugCamera->UpdateProjectionMatrix((float)GetWidth() / GetHeight());
 	gameCamera->UpdateProjectionMatrix((float)GetWidth() / GetHeight());
@@ -257,9 +267,9 @@ void Game::CreateBasicGeometry()
 // --------------------------------------------------------
 // Creates entities using our generated meshes
 // --------------------------------------------------------
-void Game::CreateEntities()
+void Game::LoadDefaultScene()
 {
-	stateManager.SetState(GameState::MAIN_MENU, entityFactory, meshes, materials);
+	stateManager.SetState(GameState::MAIN_MENU);
 }
 
 
@@ -275,8 +285,9 @@ void Game::OnResize(unsigned int width, unsigned int height)
 		// Resize renderer outputs
 		renderer->OnResize(width, height);
 
-		// Update aspect ratio
+		// Update aspect ratio in cameras
 		debugCamera->UpdateProjectionMatrix((float)width / height);
+		gameCamera->UpdateProjectionMatrix((float)width / height);
 	}
 }
 
@@ -300,11 +311,11 @@ void Game::Update(float deltaTime, float totalTime)
 
 	if (GetAsyncKeyState('3') & 0x8000)
 	{
-		stateManager.SetState(GameState::MAIN_MENU, entityFactory, meshes, materials);
+		stateManager.SetState(GameState::MAIN_MENU);
 	}
 	if (GetAsyncKeyState('4') & 0x8000)
 	{
-		stateManager.SetState(GameState::GAME, entityFactory, meshes, materials);
+		stateManager.SetState(GameState::GAME);
 	}
 
 	//mouse pos
@@ -361,7 +372,8 @@ void Game::Draw(float deltaTime, float totalTime)
 // --------------------------------------------------------
 void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 {
-	// Add any custom code here...
+	// Send mouse press into the scene.
+	stateManager.GetCurrentScene()->OnMousePressed(x, y);
 
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

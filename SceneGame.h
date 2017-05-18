@@ -1,15 +1,21 @@
 #pragma once
 #include "Scene.h"
+#include "UIPanelGame.h"
 #include "ParticleEmitter.h"
 
+// Represent the scene with the actual game
 class SceneGame :
 	public Scene
 {
 public:
-	SceneGame();
+	SceneGame(Game* game);
 	virtual ~SceneGame();
+	// Create entities used in game
 	void CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials) override;
+	// Update the state of the game
 	void UpdateScene(float deltaTime, float totalTime) override;
+
+	void OnMousePressed(float x, float y) override;
 
 private:
 	// Player
@@ -20,14 +26,10 @@ private:
 	Entity* meteors;
 
 	// User Interface
-	UIGamePanel* uiGamePanel;
+	UIPanelGame* uiGamePanel;
 
-	//timer for ui
-	wstring timerString;// [MAX_TIMER_BUFFER_LEN];
-	float minutes = 0;
-	float seconds = 0;
-	float milliseconds = 0;
-
-	int health = 100;
+	// timer for ui
+	float gameTime;
+	int health;
 };
 

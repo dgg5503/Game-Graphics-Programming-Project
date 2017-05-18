@@ -1,9 +1,11 @@
 #include "SceneGame.h"
 #include "MemoryDebug.h"
+#include "Game.h"
 
-SceneGame::SceneGame()
+SceneGame::SceneGame(Game* game) :
+	Scene(game)
 {
-	uiPanel = uiGamePanel = new UIGamePanel(0, 0);
+	uiPanel = uiGamePanel = new UIPanelGame(0, 0);
 }
 
 SceneGame::~SceneGame()
@@ -12,6 +14,7 @@ SceneGame::~SceneGame()
 
 void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered_map<const char*, Mesh*>& meshes, std::unordered_map<const char*, Material*>& materials)
 {
+	gameTime = 0;
 	health = 100;
 
 	// Projectile Entities
@@ -80,24 +83,38 @@ void SceneGame::CreateSceneEntities(EntityFactory& entityFactory, std::unordered
 
 void SceneGame::UpdateScene(float deltaTime, float totalTime)
 {
+	// Update health shown in the UI Panel
 	uiGamePanel->UpdateHealth(player->health);
 
 	//spin meteors
 	//meteors->transform.SetRotation(0,1,0, totalTime/20);
 	//meteors2->transform.SetRotation(0, 1, 0, (totalTime / 20)+ 80);
 
-
+	// If the player is alive
 	if (player->health) {
-		timerString = std::to_wstring(minutes) + L": " + std::to_wstring(seconds) + L": " + std::to_wstring(milliseconds);
-		milliseconds += deltaTime * 1000;
-		if (milliseconds >= 1000) {
-			seconds++;
-			milliseconds = 0;
-		}
-		if (seconds >= 60) {
-			minutes++;
-			seconds = 0;
-		}
-		uiGamePanel->UpdateText(timerString);
+		// Update game timer
+		gameTime += deltaTime;
+		// Send new time to UI panel
+		uiGamePanel->SetGameTime(gameTime);
 	}
+}
+
+void SceneGame::OnMousePressed(float x, float y)
+{
+	// Get Game dimensions
+	float gameWidth = game->GetWidth();
+	float gameHeight = game->GetHeight();
+
+	// Convert to -1.0 to 1.0 scale
+	float scaledX = (float)(x * 2) / gameWidth - 1;
+	float scaledY = (float)(y * 2) / gameHeight - 1;
+
+	// Convert to world space (relative to game camera)
+	scaledX *= GAME_HEIGHT_HALF * gameWidth / gameHeight;
+	scaledY *= -GAME_HEIGHT_HALF;
+
+	printf("%F, %F\n ", scaledX, scaledY);
+
+	// Passes mouse values to player
+	player->OnMousePressed(scaledX, scaledY);
 }

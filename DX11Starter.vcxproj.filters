@@ -96,9 +96,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="UIGamePanel.cpp">
-      <Filter>UI Panels</Filter>
-    </ClCompile>
     <ClCompile Include="Entity.cpp">
       <Filter>Entities</Filter>
     </ClCompile>
@@ -233,9 +230,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="UIGamePanel.h">
-      <Filter>UI Panels</Filter>
-    </ClInclude>
     <ClInclude Include="UIPanel.h">
       <Filter>UI Panels</Filter>
     </ClInclude>
@@ -414,6 +408,13 @@
       <Filter>Entities</Filter>
     </ClInclude>
     <ClInclude Include="MaterialEnemy.h">
+    <ClInclude Include="UIPanelMenu.h">
+      <Filter>UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="UIPanelGame.h">
+      <Filter>UI Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialParallax.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

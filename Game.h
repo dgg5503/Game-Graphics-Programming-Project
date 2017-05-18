@@ -15,7 +15,6 @@
 
 // Rendering
 #include "Renderer.h"
-#include "UIGamePanel.h"
 
 // Audio
 #include "AudioEngine.h"
@@ -33,6 +32,8 @@
 #include "SceneGame.h"
 #include "SceneMenu.h"
 
+#define GAME_HEIGHT 4.0f
+#define GAME_HEIGHT_HALF GAME_HEIGHT * 0.5f
 
 class Game 
 	: public DXWindow
@@ -60,9 +61,9 @@ private:
 
 	// Initialization helper methods - feel free to customize, combine, etc.
 	void LoadShaders(); 
-	void CreateMatrices();
+	void CreateCameras();
 	void CreateBasicGeometry();
-	void CreateEntities();
+	void LoadDefaultScene();
 
 	// Entities
 	EntityFactory entityFactory;

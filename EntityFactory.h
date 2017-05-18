@@ -17,6 +17,7 @@
 class Mesh;
 class Material;
 
+// Enum of entity types
 enum EntityType {
 	STATIC,
 	ENEMY,
@@ -26,7 +27,8 @@ enum EntityType {
 	METEOR
 };
 
-
+// Creates and manages entities in a scene
+// Handles the unloading of entities
 class EntityFactory
 {
 protected:

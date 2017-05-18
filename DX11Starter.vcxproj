@@ -183,6 +183,7 @@
     <ClCompile Include="CameraGame.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="UIPanelMenu.cpp" />
     <FxCompile Include="DeferredDirectionalLightPS.hlsl">
       <FileType>CppCode</FileType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -228,7 +229,7 @@
     <ClCompile Include="StateManager.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="UIGamePanel.cpp" />
+    <ClCompile Include="UIPanelGame.cpp" />
     <FxCompile Include="EnemyVS.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
@@ -298,8 +299,9 @@
     <ClInclude Include="StateManager.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Transform.h" />
-    <ClInclude Include="UIGamePanel.h" />
+    <ClInclude Include="UIPanelGame.h" />
     <ClInclude Include="UIPanel.h" />
+    <ClInclude Include="UIPanelMenu.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Wwise_IDs.h" />
   </ItemGroup>
