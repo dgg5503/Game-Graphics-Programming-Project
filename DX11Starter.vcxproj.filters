@@ -85,9 +85,15 @@
     <Filter Include="Audio">
       <UniqueIdentifier>{97960ef5-7424-4e8c-b259-4d143433a5d0}</UniqueIdentifier>
     </Filter>
-    <FxCompile Include="EnemyVS.hlsl" />
-    <FxCompile Include="ParallaxPS.hlsl" />
-    <FxCompile Include="ParallaxVS.hlsl" />
+    <FxCompile Include="ParallaxVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParallaxPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="EnemyVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="UIGamePanel.cpp">
@@ -216,9 +222,13 @@
     <ClCompile Include="GlobalAmbiance.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialEnemy.cpp" />
-    <ClCompile Include="EntityMeteor.cpp" />
     <ClCompile Include="MaterialParallax.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityMeteor.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialEnemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -400,8 +410,12 @@
     <ClInclude Include="MaterialParallax.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialEnemy.h" />
-    <ClInclude Include="EntityMeteor.h" />
+    <ClInclude Include="EntityMeteor.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialEnemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Textures\starscape.dds">
