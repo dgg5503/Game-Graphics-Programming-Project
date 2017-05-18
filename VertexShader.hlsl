@@ -43,11 +43,6 @@ VertexToPixel main( VertexShaderInput input )
 	// screen and the distance (Z) from the camera (the "depth" of the pixel)
 	output.position = mul(float4(input.position, 1.0f), worldViewProj);
 
-	// Pass the color through 
-	// - The values will be interpolated per-pixel by the rasterizer
-	// - We don't need to alter it here, but we do need to send it to the pixel shader
-	//output.color = input.color;
-
 	// Send world position
 	// get final WORLD position of the vertex
 	output.worldPos = (float3)mul(float4(input.position, 1.0f), world);

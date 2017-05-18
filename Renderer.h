@@ -110,9 +110,8 @@ private:
 	ID3D11ShaderResourceView* targetSRVs[BUFFER_COUNT];
 	ID3D11SamplerState* targetSampler;
 	ID3D11BlendState* addBlendState;
-
 	SimpleVertexShader* deferredVS;
-	SimplePixelShader* deferredLightingPS;
+	
 
 	ID3D11Texture2D* postProcessTexts[3];
 	ID3D11RenderTargetView* postProcessRTVs[3];//with lighting, bloom pixels, glow pixels
@@ -161,14 +160,8 @@ private:
 	LightRenderer* lightRenderer;
 
 	// Lights
-	DirectionalLight_old directionalLights[MAX_DIR_LIGHTS] = {};
-	PointLight_old pointLights[MAX_POINT_LIGHTS] = {};
-	SpotLight spotLights[MAX_SPOT_LIGHTS] = {};
 	SimpleVertexShader* deferredLightVS;
-	SimplePixelShader* deferredPointLightPS;
-
-	// Global lighting information
-	DirectX::XMFLOAT4 ambientColor;
+	SimplePixelShader* deferredLightingPS;
 
 	// -- RENDER BATCHES --
 	// For every material, render all the meshes!

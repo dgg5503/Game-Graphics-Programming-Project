@@ -13,8 +13,6 @@ Transform::Transform() :
 	scale(1.0f, 1.0f, 1.0f),
 	rotation(0.0f, 0.0f, 0.0f, 1.0f),
 	isDirty(0)
-	//isSTDirty(true),
-	//isRDirty(true)
 {
 	// calc initial world mat
 	CalculateWorldMatrix();
@@ -42,8 +40,6 @@ Transform::Transform(XMFLOAT3 & position,
 	scale(scale),
 	rotation(rotation),
 	isDirty(0)
-	//isSTDirty(true),
-	//isRDirty(true)
 {
 	// calc initial world mat
 	CalculateWorldMatrix();
@@ -71,9 +67,6 @@ Transform::Transform(float position[3],
 	scale(scale),
 	rotation(rotation),
 	isDirty(0)
-	//isSTDirty(true),
-	//isRDirty(true)
-
 {
 	// calc initial world mat
 	CalculateWorldMatrix();
@@ -113,7 +106,6 @@ void Transform::Move(float dx, float dy, float dz)
 	position.x += dx;
 	position.y += dy;
 	position.z += dz;
-	//isSTDirty = true;
 	isDirty |= (IS_DIRTY_WVM | IS_DIRTY_IVT);
 }
 
@@ -160,7 +152,6 @@ void Transform::SetPosition(XMFLOAT3 position)
 	//memcpy(&this->position, position, sizeof(XMFLOAT3));
 
 	// setting dirty since next time we ask for world, we need to recalc
-	//isSTDirty = true;
 	isDirty |= (IS_DIRTY_WVM | IS_DIRTY_IVT);
 }
 
@@ -179,7 +170,6 @@ void Transform::SetPosition(float x, float y, float z)
 	position.z = z;
 
 	// setting dirty since next time we ask for world, we need to recalc
-	//isSTDirty = true;
 	isDirty |= (IS_DIRTY_WVM | IS_DIRTY_IVT);
 }
 
@@ -195,7 +185,6 @@ void Transform::SetScale(XMFLOAT3 scale)
 	//memcpy(&this->scale, scale, sizeof(float) * 3);
 
 	// setting dirty since next time we ask for world, we need to recalc
-	//isSTDirty = true;
 	isDirty |= (IS_DIRTY_WVM | IS_DIRTY_IVT);
 }
 
@@ -214,7 +203,6 @@ void Transform::SetScale(float x, float y, float z)
 	scale.z = z;
 
 	// setting dirty since next time we ask for world, we need to recalc
-	//isSTDirty = true;
 	isDirty |= (IS_DIRTY_WVM | IS_DIRTY_IVT);
 }
 
@@ -232,7 +220,28 @@ void Transform::SetRotation(XMFLOAT4 rotation)
 	//memcpy(&this->rotation, rotation, sizeof(float) * 4);
 
 	// setting dirty since next time we ask for world, we need to recalc
-	//isRDirty = true;
+	isDirty |= IS_DIRTY_ALL;
+}
+
+// --------------------------------------------------------
+// Set the rotation of this transform by providing an axis
+// and angle
+//
+// x		- x axis direction
+// y		- y axis direction
+// z		- z axis direction
+// theta	- angle to rotate by
+// --------------------------------------------------------
+void Transform::SetRotation(float x, float y, float z, float theta)
+{
+	// Perform angle axis since thats easier to work with
+	XMFLOAT3 axis(x, y, z);
+	XMStoreFloat4(
+		&rotation,
+		XMQuaternionRotationAxis(
+			XMLoadFloat3(&axis), theta));
+
+	// setting dirty since next time we ask for world, we need to recalc
 	isDirty |= IS_DIRTY_ALL;
 }
 
@@ -347,7 +356,6 @@ void inline Transform::CalculateWorldMatrix()
 	XMStoreFloat4x4(&world, XMMatrixTranspose(worldMat));
 
 	// No longer dirty
-	//isSTDirty = false;
 	isDirty &= (~IS_DIRTY_WVM);
 }
 
@@ -367,14 +375,11 @@ void inline Transform::CalculateRightUpForward()
 	XMStoreFloat3x3(reinterpret_cast<XMFLOAT3X3*>(&right), dirs);
 
 	// WARNING: IF FORWARD FLIPS OUT, CONSIDER SAFER METHOD BELOW THIS LINE
-	//XMStoreFloat3x3(reinterpret_cast<XMFLOAT3X3*>(&forward), dirs);
-
 	//XMStoreFloat3(&right, dirs.r[0]);
 	//XMStoreFloat3(&up, dirs.r[1]);
 	//XMStoreFloat3(&forward, dirs.r[2]);
 
 	// No longer dirty
-	//isRDirty = false;
 	isDirty &= (~IS_DIRTY_RUF);
 }
 

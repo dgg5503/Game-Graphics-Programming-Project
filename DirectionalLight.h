@@ -5,6 +5,8 @@
 
 using namespace DirectX;
 
+// Simple class which exposes underlying shader struct values and inherits from
+// a common Light class.
 class DirectionalLight : private Light
 {
 	friend class LightRenderer;
@@ -22,5 +24,7 @@ private:
 	// Mesh held in LightRenderer
 	// PixelShader held in LightRenderer
 	// VertexShader held in LighRenderer
+
+	// The layout of the directional light as found in the shader.
 	DirectionalLightLayout directionalLightLayout;
 };

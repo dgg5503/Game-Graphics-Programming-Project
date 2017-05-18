@@ -122,11 +122,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 		lightAmt = saturate(dot(input.normal, -normalize(spotLights[i].Direction))) *
 			saturate(dot(input.normal, dir) - spotLights[i].Angle);
 
-		//lightAmt = max(dot(-dir, normalize(spotLights[i].Direction)), 0.0f);
-
 		// add on
-		//totalLight += spotLights[i].DiffuseColor *
-		//	pow(lightAmt, spotLights[i].Intensity);
 		totalLight += spotLights[i].DiffuseColor *
 			spotLights[i].Intensity *
 			specAmt *
@@ -140,9 +136,4 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//   interpolated for each pixel between the corresponding vertices 
 	//   of the triangle we're rendering
 	return totalLight + AmbientColor;
-
-	// Calculate specular amount for point light
-	// float3 toCamera = normalize(cameraPosition - input.worldPos);
-	// float3 refl = reflect(-dirPL, input.normal);
-	// float specular = pow(saturate(dot(refl, toCamera)), 64);
 }

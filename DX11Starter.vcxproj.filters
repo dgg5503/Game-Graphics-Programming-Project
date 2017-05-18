@@ -218,6 +218,9 @@
     </ClCompile>
     <ClCompile Include="MaterialEnemy.cpp" />
     <ClCompile Include="EntityMeteor.cpp" />
+    <ClCompile Include="MaterialParallax.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UIGamePanel.h">
@@ -393,6 +396,9 @@
     </ClInclude>
     <ClInclude Include="GlobalAmbiance.h">
       <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialParallax.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MaterialEnemy.h" />
     <ClInclude Include="EntityMeteor.h" />

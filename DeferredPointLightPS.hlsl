@@ -38,10 +38,7 @@ float4 main(DLVStoPS input) : SV_TARGET
 
     // attenuation
     float att = 1.0f / (attConstant + attLinear * sqrt(distSq) + attQuadratic * distSq);
-
     att = (att - cutoff) / (1 - cutoff);
-    //if (att < 0.07f)
-    //    return float4(0.0f, 1.0f, 0.0f, 1.0f);
     att = max(att, 0);
 
     // add on

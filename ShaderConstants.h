@@ -1,3 +1,5 @@
+// Constants that can be found in both shaders and CPP files.
+
 #ifndef SHADERCONSTANTS_H
 #define SHADERCONSTANTS_H
 #define MAX_DIR_LIGHTS 1

@@ -3,6 +3,7 @@
 
 #include "ShaderTypes.h"
 
+// Struct/cbuffer which holds particle emitter information.
 CBUFFER(Emitter, b0)
 {
 	// Fade out

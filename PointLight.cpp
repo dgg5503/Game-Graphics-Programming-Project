@@ -1,9 +1,16 @@
 #include "PointLight.h"
 
 
-
-
-
+// --------------------------------------------------------
+// Constructor
+//
+// Creates a PointLightLayout struct within this class
+// internally and prepares to calculate radius/attenuation
+// based on provided attenuation type.
+//
+// attenuationType - The type of attenuation this point light
+//					 should use.
+// --------------------------------------------------------
 PointLight::PointLight(PointLightAttenuation attenuationType) :
 	pointLightLayout(),
 	diffuseColor(pointLightLayout.diffuse),
@@ -17,11 +24,17 @@ PointLight::PointLight(PointLightAttenuation attenuationType) :
 {
 }
 
-
+// --------------------------------------------------------
+// Destructor
+// --------------------------------------------------------
 PointLight::~PointLight()
 {
 }
 
+// --------------------------------------------------------
+// Calculates a radius from given attenuation values. Visit
+// the link below to learn how this equation was derived.
+// --------------------------------------------------------
 void PointLight::CalcRadiusFromAtten()
 {
 	// set cutoff back to 0
@@ -35,6 +48,11 @@ void PointLight::CalcRadiusFromAtten()
 	pointLightLayout.radius = (-atenLinear + sqrtf(atenLinear * atenLinear - 4 * atenQuadratic * (atenConstant - (256.0f / 2.0f) * lightMax))) / (2.0f * atenQuadratic);
 }
 
+// --------------------------------------------------------
+// Calculates attenuation values based on a given radius.
+// Visit the link below to learn how this equation was derived.
+// https://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/
+// --------------------------------------------------------
 void PointLight::CalcAttenFromRadius()
 {
 	float lightMax = XMMax<float>(
@@ -45,10 +63,15 @@ void PointLight::CalcAttenFromRadius()
 	pointLightLayout.attLinear = 2.0f / radius;
 	pointLightLayout.attQuadratic = 1.0f / (radius * radius);
 	pointLightLayout.cutoff = cutoff * 2;
-	//pointLightLayout.cutoff = radius * (sqrtf(lightMax / cutoff) - 1.0f);
 }
 
-
+// --------------------------------------------------------
+// Calls associated attenuation & radius calculation functions
+// according to this point lights attenuation type.
+// 
+// NOTE: Always call this before uploading PointLightLayout
+// structure to gfx.
+// --------------------------------------------------------
 void PointLight::PrepareForShader()
 {
 	switch (attenuationType)

@@ -2,6 +2,8 @@
 #define LIGHTS_H
 #include "ShaderTypes.h"
 
+// -- OBSOLETE HEADER FILE, SHOULD NOT BE USED ANYWHERE NOW -- 
+
 // --------------------------------------------------------
 // Directional Light
 //

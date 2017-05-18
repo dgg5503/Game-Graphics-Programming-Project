@@ -24,6 +24,8 @@ Game::Game(HINSTANCE hInstance)
 	vertexShader = 0;
 	pixelShader = 0;
 	pixelShader_normal = 0;
+	vertexShader_parallax = 0;
+	pixelShader_parallax = 0;
 	renderer = nullptr;
 	audioEngine = nullptr;
 	collisionManager = nullptr;
@@ -68,6 +70,8 @@ Game::~Game()
 	delete pixelShader;
 	delete pixelShader_normal;
 	delete vertexShader_enemy;
+	delete pixelShader_parallax;
+	delete vertexShader_parallax;
 
 	// Shutdown audio engine
 	GlobalAmbiance::ShutDown();
@@ -174,6 +178,14 @@ void Game::LoadShaders()
 	if (!vertexShader_enemy->LoadShaderFile(L"./Assets/Shaders/EnemyVS.cso"))
 		vertexShader_enemy->LoadShaderFile(L"EnemyVS.cso");
 
+	pixelShader_parallax = renderer->CreateSimplePixelShader();
+	if (!pixelShader_parallax->LoadShaderFile(L"./Assets/Shaders/ParallaxPS.cso"))
+		pixelShader_parallax->LoadShaderFile(L"ParallaxPS.cso");
+
+	vertexShader_parallax = renderer->CreateSimpleVertexShader();
+	if (!vertexShader_parallax->LoadShaderFile(L"./Assets/Shaders/ParallaxVS.cso"))
+		vertexShader_parallax->LoadShaderFile(L"ParallaxVS.cso");
+
 	// You'll notice that the code above attempts to load each
 	// compiled shader file (.cso) from two different relative paths.
 
@@ -218,9 +230,10 @@ void Game::CreateBasicGeometry()
 	textures["enemy_albedo"] = renderer->CreateTexture2D(L"./Assets/Textures/enemy_Albedo.tif", Texture2DType::ALBEDO);
 	textures["enemy_normal"] = renderer->CreateTexture2D(L"./Assets/Textures/enemy_Normal.tif", Texture2DType::NORMAL);
 	textures["enemy_emission"] = renderer->CreateTexture2D(L"./Assets/Textures/enemy_Emission.tif", Texture2DType::EMISSION);
+	textures["brick_depth"] = renderer->CreateTexture2D(L"./Assets/Textures/brick_depth.tif", Texture2DType::PARALLAX);
 
 	// Create our materials
-	materials["brick"] = new Material(vertexShader, pixelShader_normal, textures["brick"], textures["brick_norm"], textures["no_emission"]);
+	materials["brick"] = new MaterialParallax(vertexShader_parallax, pixelShader_parallax, textures["brick"], textures["brick_norm"], textures["brick_depth"], activeCamera);
 	materials["sand"] = new Material(vertexShader, pixelShader, textures["sand"]);
 	materials["stone"] = new Material(vertexShader, pixelShader, textures["stone"]);
 	materials["sun"] = new Material(vertexShader, pixelShader_normal, textures["sun"], textures["brick_norm"], textures["sun_emission"]);

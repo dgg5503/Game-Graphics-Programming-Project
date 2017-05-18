@@ -257,21 +257,6 @@ void DXWindow::UpdateTitleBarStats()
 		"    FPS: " << fpsFrameCount <<
 		"    Frame Time: " << mspf << "ms";
 
-	// Append the version of DirectX the app is using
-	// Get Feature Level?
-	/*
-	switch (dxFeatureLevel)
-	{
-	case D3D_FEATURE_LEVEL_11_1: output << "    DX 11.1"; break;
-	case D3D_FEATURE_LEVEL_11_0: output << "    DX 11.0"; break;
-	case D3D_FEATURE_LEVEL_10_1: output << "    DX 10.1"; break;
-	case D3D_FEATURE_LEVEL_10_0: output << "    DX 10.0"; break;
-	case D3D_FEATURE_LEVEL_9_3:  output << "    DX 9.3";  break;
-	case D3D_FEATURE_LEVEL_9_2:  output << "    DX 9.2";  break;
-	case D3D_FEATURE_LEVEL_9_1:  output << "    DX 9.1";  break;
-	default:                     output << "    DX ???";  break;
-	}
-	*/
 	// Actually update the title bar and reset fps data
 	SetWindowText(hWnd, output.str().c_str());
 	fpsFrameCount = 0;

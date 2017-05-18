@@ -3,6 +3,7 @@
 
 #include "ShaderTypes.h"
 
+// Struct/cbuffer which holds point light information.
 CBUFFER(PointLightLayout, b0)
 {
 	// Light specific
